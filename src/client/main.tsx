@@ -78,7 +78,7 @@ function App() {
       playerId={playerId}
       error={error}
       busy={busy}
-      onStart={(gameType) => emitWithAck("startGame", { roomCode: room.code, gameType })}
+      onStart={(gameType) => emitWithAck("startGame", { roomCode: room.code, gameType, playerId })}
       onSend={(text) => emitWithAck("sendMessage", { roomCode: room.code, playerId, text })}
       onBack={() => {
         setRoom(undefined);
@@ -149,6 +149,8 @@ function ChatRoom(props: {
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const me = props.room.players.find((player) => player.id === props.playerId);
+  const isHost = props.room.hostId === props.playerId;
+  const startDisabled = props.busy || props.room.status === "playing" || !isHost;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -177,13 +179,13 @@ function ChatRoom(props: {
       </header>
 
       <div className="game-toolbar">
-        <button disabled={props.busy || props.room.status === "playing"} onClick={() => props.onStart("idiom")}>
+        <button disabled={startDisabled} title={isHost ? "开始成语接龙" : "只有房主可以开始"} onClick={() => props.onStart("idiom")}>
           成语接龙
         </button>
-        <button disabled={props.busy || props.room.status === "playing"} onClick={() => props.onStart("song")}>
+        <button disabled={startDisabled} title={isHost ? "开始猜歌名" : "只有房主可以开始"} onClick={() => props.onStart("song")}>
           猜歌名
         </button>
-        <span>{me ? `我：${me.name}` : "未识别玩家"}</span>
+        <span>{me ? `我：${me.name}${isHost ? "（房主）" : ""}` : "未识别玩家"}</span>
       </div>
 
       <section ref={scrollRef} className="message-list">

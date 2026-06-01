@@ -32,6 +32,7 @@ var InMemoryGameRoom = class {
   usedIdioms = /* @__PURE__ */ new Set();
   messages = [];
   status = "waiting";
+  hostId = "";
   gameType;
   activeQuestion;
   settlement;
@@ -68,6 +69,9 @@ var InMemoryGameRoom = class {
     const avatar = PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
     const player = { id, name: normalizedName, avatar, score: 0, connected: true };
     this.players.set(id, player);
+    if (!this.hostId) {
+      this.hostId = id;
+    }
     this.pushBot(`${normalizedName} \u52A0\u5165\u4E86\u623F\u95F4`, "system");
     return clonePlayer(player);
   }
@@ -75,9 +79,15 @@ var InMemoryGameRoom = class {
     const player = this.requirePlayer(playerId);
     player.connected = false;
   }
-  start(gameType) {
+  start(gameType, requesterId) {
     if (this.players.size === 0) {
       throw new Error("\u6CA1\u6709\u73A9\u5BB6\uFF0C\u4E0D\u80FD\u5F00\u59CB\u6E38\u620F");
+    }
+    if (!this.hostId) {
+      throw new Error("\u623F\u4E3B\u72B6\u6001\u5F02\u5E38\uFF0C\u4E0D\u80FD\u5F00\u59CB\u6E38\u620F");
+    }
+    if (requesterId && requesterId !== this.hostId) {
+      throw new Error("\u53EA\u6709\u623F\u4E3B\u53EF\u4EE5\u5F00\u59CB\u6E38\u620F");
     }
     if (this.status === "playing") {
       throw new Error("\u6E38\u620F\u5DF2\u7ECF\u5F00\u59CB");
@@ -139,6 +149,7 @@ var InMemoryGameRoom = class {
     return {
       code: this.code,
       status: this.status,
+      hostId: this.hostId,
       gameType: this.gameType,
       currentQuestion: this.activeQuestion ? toPublicQuestion(this.activeQuestion) : void 0,
       players: [...this.players.values()].map(clonePlayer),
@@ -549,7 +560,7 @@ io.on("connection", (socket) => {
   socket.on("startGame", (payload, ack) => {
     handleAck(ack, () => {
       const room = requireRoom(payload.roomCode);
-      room.start(payload.gameType);
+      room.start(payload.gameType, payload.playerId);
       scheduleRoundTimeout(payload.roomCode);
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);

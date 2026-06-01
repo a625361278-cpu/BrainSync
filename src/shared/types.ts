@@ -59,6 +59,7 @@ export interface PublicQuestion {
 export interface RoomSnapshot {
   code: string;
   status: RoomStatus;
+  hostId: string;
   gameType?: GameType;
   currentQuestion?: PublicQuestion;
   players: Player[];

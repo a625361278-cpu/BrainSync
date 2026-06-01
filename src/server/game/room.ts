@@ -55,7 +55,7 @@ interface ActiveQuestion {
 export interface GameRoom {
   join(name: string, playerId?: string): Player;
   leave(playerId: string): void;
-  start(gameType: GameType): ChatMessage[];
+  start(gameType: GameType, requesterId?: string): ChatMessage[];
   submitMessage(playerId: string, text: string): SubmitResult;
   timeoutRound(): ChatMessage[];
   snapshot(): RoomSnapshot;
@@ -78,6 +78,7 @@ class InMemoryGameRoom implements GameRoom {
   private readonly usedIdioms = new Set<string>();
   private readonly messages: ChatMessage[] = [];
   private status: RoomStatus = "waiting";
+  private hostId = "";
   private gameType?: GameType;
   private activeQuestion?: ActiveQuestion;
   private settlement?: SettlementRow[];
@@ -119,6 +120,9 @@ class InMemoryGameRoom implements GameRoom {
     const avatar = PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
     const player: Player = { id, name: normalizedName, avatar, score: 0, connected: true };
     this.players.set(id, player);
+    if (!this.hostId) {
+      this.hostId = id;
+    }
     this.pushBot(`${normalizedName} 加入了房间`, "system");
     return clonePlayer(player);
   }
@@ -128,9 +132,15 @@ class InMemoryGameRoom implements GameRoom {
     player.connected = false;
   }
 
-  start(gameType: GameType): ChatMessage[] {
+  start(gameType: GameType, requesterId?: string): ChatMessage[] {
     if (this.players.size === 0) {
       throw new Error("没有玩家，不能开始游戏");
+    }
+    if (!this.hostId) {
+      throw new Error("房主状态异常，不能开始游戏");
+    }
+    if (requesterId && requesterId !== this.hostId) {
+      throw new Error("只有房主可以开始游戏");
     }
     if (this.status === "playing") {
       throw new Error("游戏已经开始");
@@ -204,6 +214,7 @@ class InMemoryGameRoom implements GameRoom {
     return {
       code: this.code,
       status: this.status,
+      hostId: this.hostId,
       gameType: this.gameType,
       currentQuestion: this.activeQuestion ? toPublicQuestion(this.activeQuestion) : undefined,
       players: [...this.players.values()].map(clonePlayer),

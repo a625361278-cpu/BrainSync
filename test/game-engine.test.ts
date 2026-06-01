@@ -95,6 +95,18 @@ describe("game room裁判逻辑", () => {
     ]);
   });
 
+  it("只有房主可以开始游戏", () => {
+    const room = createGameRoom({ idioms, songs, roundSeconds: 30, random: () => 0 });
+    const host = room.join("房主");
+    const guest = room.join("客人");
+
+    expect(room.snapshot().hostId).toBe(host.id);
+    expect(() => room.start("idiom", guest.id)).toThrow("只有房主可以开始游戏");
+
+    room.start("idiom", host.id);
+    expect(room.snapshot().status).toBe("playing");
+  });
+
   it("成语接龙接受繁体输入匹配真实词库成语", () => {
     const room = createGameRoom({ idioms, songs, roundSeconds: 30, random: () => 0 });
     const alice = room.join("阿明");

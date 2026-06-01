@@ -21,6 +21,7 @@ interface ClientCreatePayload {
 interface ClientStartPayload {
   roomCode: string;
   gameType: GameType;
+  playerId: string;
 }
 
 interface ClientMessagePayload {
@@ -98,7 +99,7 @@ io.on("connection", (socket) => {
   socket.on("startGame", (payload: ClientStartPayload, ack?: (payload: AckPayload) => void) => {
     handleAck(ack, () => {
       const room = requireRoom(payload.roomCode);
-      room.start(payload.gameType);
+      room.start(payload.gameType, payload.playerId);
       scheduleRoundTimeout(payload.roomCode);
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
