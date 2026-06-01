@@ -55,6 +55,22 @@ PORT=3000 npm start
 
 4. 用 Nginx/Caddy 反向代理到 `http://127.0.0.1:3000`，并开启 HTTPS。Socket.IO 会复用同一域名的 WebSocket/WSS 连接。
 
+### 服务器一键更新
+
+如果服务器已经通过 Git clone 部署，并且 PM2/Node/npm 已安装，在服务器项目目录执行：
+
+```bash
+bash scripts/deploy-server.sh
+```
+
+脚本会执行：拉取 `origin/main`、安装生产依赖、重启 PM2 应用 `brainsync`、检查 `http://127.0.0.1:3000/api/health`。
+
+可用环境变量覆盖默认值：
+
+```bash
+APP_NAME=brainsync BRANCH=main HEALTH_URL=http://127.0.0.1:3000/api/health bash scripts/deploy-server.sh
+```
+
 ## 音乐来源说明
 
 当前歌曲题库使用 Apple Music / iTunes 可公开访问的在线试听 `previewUrl`，只作为私玩原型的预览源，不下载、不缓存、不伪装成自有音频。正式公开运营前应替换为你拥有授权的音频来源。
