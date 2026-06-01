@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { IdiomEntry, SongEntry } from "../../shared/types";
 
 export interface GameData {
@@ -14,6 +16,17 @@ export function loadGameData(): GameData {
 }
 
 function readJson<T>(relativePath: string): T {
-  const url = new URL(relativePath, import.meta.url);
-  return JSON.parse(readFileSync(url, "utf8")) as T;
+  const fileName = relativePath.replace(/^\.\//, "");
+  const moduleDir = dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    resolve(process.cwd(), "dist-server/data", fileName),
+    resolve(process.cwd(), "src/server/data", fileName),
+    resolve(moduleDir, "data", fileName),
+    resolve(moduleDir, fileName)
+  ];
+  const filePath = candidates.find((candidate) => existsSync(candidate));
+  if (!filePath) {
+    throw new Error(`题库文件不存在：${fileName}`);
+  }
+  return JSON.parse(readFileSync(filePath, "utf8")) as T;
 }

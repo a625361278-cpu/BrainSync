@@ -55,8 +55,13 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true, rooms: rooms.size });
 });
 
-const distPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../dist");
-if (existsSync(distPath)) {
+const serverDir = path.dirname(fileURLToPath(import.meta.url));
+const distPath = [
+  path.resolve(process.cwd(), "dist"),
+  path.resolve(serverDir, "../dist"),
+  path.resolve(serverDir, "../../dist")
+].find((candidate) => existsSync(candidate));
+if (distPath) {
   app.use(express.static(distPath));
   app.get("*", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
 }

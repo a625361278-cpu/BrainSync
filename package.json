@@ -8,31 +8,34 @@
     "dev:server": "tsx watch src/server/index.ts",
     "dev:client": "vite --host 0.0.0.0",
     "data:idioms": "node scripts/generate-idiom-data.mjs",
-    "build": "tsc --noEmit && vite build",
-    "start": "tsx src/server/index.ts",
+    "build": "tsc --noEmit && npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "node scripts/build-server.mjs",
+    "start": "node dist-server/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run test && npm run build"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
     "express": "^4.21.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "vite": "^6.0.7"
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "chinese-idiom-chengyu": "^1.1.0",
     "concurrently": "^9.1.0",
+    "esbuild": "^0.24.2",
     "jsdom": "^25.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "vite": "^6.0.7",
     "vitest": "^2.1.8"
   }
 }
