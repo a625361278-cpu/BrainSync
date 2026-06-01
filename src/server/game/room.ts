@@ -84,6 +84,7 @@ class InMemoryGameRoom implements GameRoom {
   private playerSeq = 0;
   private messageSeq = 0;
   private songCursor = 0;
+  private songDeck: SongEntry[] = [];
   private idiomCursor = 0;
 
   constructor(options: CreateRoomOptions) {
@@ -140,6 +141,7 @@ class InMemoryGameRoom implements GameRoom {
     this.settlement = undefined;
     this.usedIdioms.clear();
     this.songCursor = 0;
+    this.songDeck = [];
     this.idiomCursor = 0;
     for (const player of this.players.values()) {
       player.score = 0;
@@ -243,7 +245,7 @@ class InMemoryGameRoom implements GameRoom {
     if (this.songCursor >= this.songRounds) {
       return undefined;
     }
-    const song = this.songs[this.songCursor % this.songs.length];
+    const song = this.pickNextSong();
     const question: ActiveQuestion = {
       gameType: "song",
       roundIndex: this.songCursor,
@@ -256,6 +258,18 @@ class InMemoryGameRoom implements GameRoom {
     };
     this.songCursor += 1;
     return question;
+  }
+
+  private pickNextSong(): SongEntry {
+    if (this.songDeck.length === 0) {
+      this.songDeck = [...this.songs];
+    }
+    const index = Math.min(this.songDeck.length - 1, Math.floor(this.random() * this.songDeck.length));
+    const [song] = this.songDeck.splice(index, 1);
+    if (!song) {
+      throw new Error("歌曲题库状态异常：无法抽取歌曲");
+    }
+    return song;
   }
 
   private nextIdiomQuestion(fromTimeout: boolean): ActiveQuestion | undefined {
@@ -297,7 +311,7 @@ class InMemoryGameRoom implements GameRoom {
         throw new Error("歌曲题目状态异常：缺少歌曲数据");
       }
       const normalized = normalizeAnswer(text);
-      const candidates = [song.title, song.artist, ...song.aliases].map(normalizeAnswer);
+      const candidates = [song.title, ...song.aliases].map(normalizeAnswer);
       return candidates.includes(normalized) ? song.title : undefined;
     }
 

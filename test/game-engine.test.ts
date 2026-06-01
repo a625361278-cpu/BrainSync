@@ -52,19 +52,35 @@ describe("game room裁判逻辑", () => {
     expect(room.snapshot().players.find((p) => p.id === alice.id)?.score).toBe(0);
   });
 
-  it("猜歌名支持别名和标点空格归一化", () => {
+  it("猜歌名支持歌名别名和标点空格归一化，但不接受歌手名", () => {
     const room = createGameRoom({ idioms, songs, roundSeconds: 30, random: () => 0 });
     const alice = room.join("阿明");
 
     room.start("song");
+    const artistResult = room.submitMessage(alice.id, "周杰伦");
     const result = room.submitMessage(alice.id, "晴 天");
 
+    expect(artistResult.hit).toBeUndefined();
+    expect(artistResult.botMessages.at(-1)?.text).toBe("@阿明 答案不对");
     expect(result.hit?.answer).toBe("晴天");
     expect(room.snapshot().players.find((p) => p.id === alice.id)?.score).toBe(1);
   });
 
+  it("猜歌名每局随机抽取歌曲且不重复", () => {
+    const room = createGameRoom({ idioms, songs, roundSeconds: 30, songRounds: 2, random: () => 0.99 });
+    const alice = room.join("阿明");
+
+    room.start("song");
+    const first = room.snapshot().currentQuestion?.audioUrl;
+    room.submitMessage(alice.id, "红豆");
+    const second = room.snapshot().currentQuestion?.audioUrl;
+
+    expect(first).toBe("https://example.test/hongdou.m4a");
+    expect(second).toBe("https://example.test/qingtian.m4a");
+  });
+
   it("游戏结束后生成每个玩家答对数结算", () => {
-    const room = createGameRoom({ idioms, songs, roundSeconds: 30, songRounds: 1 });
+    const room = createGameRoom({ idioms, songs, roundSeconds: 30, songRounds: 1, random: () => 0 });
     const alice = room.join("阿明");
     const bob = room.join("小红");
 

@@ -1,15 +1,15 @@
 [
   {
-    "id": "qing-tian",
+    "id": "周杰伦-晴天",
     "title": "晴天",
     "artist": "周杰伦",
-    "aliases": ["晴 天"],
+    "aliases": [],
     "searchTerm": "周杰伦 晴天",
     "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/68/46/5d/68465d87-99db-f0e5-dcdb-5b8e3fe64a49/mzaf_4654864440578879672.plus.aac.p.m4a",
     "sourceUrl": "https://music.apple.com/cn/album/%E6%99%B4%E5%A4%A9/535824731?i=535824738&uo=4"
   },
   {
-    "id": "hong-dou",
+    "id": "王菲-红豆",
     "title": "红豆",
     "artist": "王菲",
     "aliases": [],
@@ -18,7 +18,7 @@
     "sourceUrl": "https://music.apple.com/cn/album/%E7%BA%A2%E8%B1%86/965771664?i=965771855&uo=4"
   },
   {
-    "id": "jiang-nan",
+    "id": "林俊杰-江南",
     "title": "江南",
     "artist": "林俊杰",
     "aliases": [],
@@ -27,7 +27,7 @@
     "sourceUrl": "https://music.apple.com/cn/album/%E6%B1%9F%E5%8D%97/1071753622?i=1071753628&uo=4"
   },
   {
-    "id": "yu-jian",
+    "id": "孙燕姿-遇见",
     "title": "遇见",
     "artist": "孙燕姿",
     "aliases": [],
@@ -36,7 +36,7 @@
     "sourceUrl": "https://music.apple.com/cn/album/%E9%81%87%E8%A7%81/541856819?i=541857030&uo=4"
   },
   {
-    "id": "zhi-zu",
+    "id": "五月天-知足",
     "title": "知足",
     "artist": "五月天",
     "aliases": [],
@@ -45,7 +45,7 @@
     "sourceUrl": "https://music.apple.com/cn/album/%E7%9F%A5%E8%B6%B3/1554431588?i=1554431591&uo=4"
   },
   {
-    "id": "shi-nian",
+    "id": "陈奕迅-十年",
     "title": "十年",
     "artist": "陈奕迅",
     "aliases": [],
@@ -54,21 +54,503 @@
     "sourceUrl": "https://music.apple.com/cn/album/%E5%8D%81%E5%B9%B4/542922079?i=542922095&uo=4"
   },
   {
-    "id": "pao-mo",
+    "id": "邓紫棋-泡沫",
     "title": "泡沫",
     "artist": "邓紫棋",
     "aliases": [],
     "searchTerm": "邓紫棋 泡沫",
-    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5c/af/2f/5caf2fed-5cf9-d559-4d3c-fc1a4553aba4/mzaf_3652775084205541469.plus.aac.p.m4a",
-    "sourceUrl": "https://music.apple.com/cn/album/%E6%B3%A1%E6%B2%AB/544934803?i=544934807&uo=4"
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/b4/5a/00/b45a007e-04c9-cb38-934c-2da18dea7311/mzaf_9410457534800707444.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%B3%A1%E6%B2%AB/541862703?i=541862768&uo=4"
   },
   {
-    "id": "yan-yuan",
+    "id": "薛之谦-演员",
     "title": "演员",
     "artist": "薛之谦",
     "aliases": [],
     "searchTerm": "薛之谦 演员",
     "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ad/2f/57/ad2f57f6-0ce7-bd8e-85ef-0c71e72929c8/mzaf_16845033123643244140.plus.aac.p.m4a",
     "sourceUrl": "https://music.apple.com/cn/album/%E6%BC%94%E5%91%98/1787929823?i=1787929825&uo=4"
+  },
+  {
+    "id": "周杰伦-稻香",
+    "title": "稻香",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 稻香",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/c3/c4/e0/c3c4e033-2bd0-e0fc-3195-3ec68299f19f/mzaf_9545722078596740089.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%A8%BB%E9%A6%99/1624000713?i=1624001324&uo=4"
+  },
+  {
+    "id": "周杰伦-告白气球",
+    "title": "告白气球",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 告白气球",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/8f/bc/20/8fbc20d5-ed30-3c34-7e66-2201ffba3695/mzaf_1061751424505493111.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%91%8A%E7%99%BD%E6%B0%94%E7%90%83/1118757859?i=1118757877&uo=4"
+  },
+  {
+    "id": "周杰伦-夜曲",
+    "title": "夜曲",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 夜曲",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cd/80/49/cd8049a8-f655-a320-fe39-399582e94ed4/mzaf_2752455179820135985.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%A4%9C%E6%9B%B2/536009641?i=536009642&uo=4"
+  },
+  {
+    "id": "周杰伦-七里香",
+    "title": "七里香",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 七里香",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/4e/e2/994ee285-7c0d-73ab-85b7-8d3899a17242/mzaf_12441330510018253101.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%B8%83%E9%87%8C%E9%A6%99/536114662?i=536115195&uo=4"
+  },
+  {
+    "id": "周杰伦-简单爱",
+    "title": "简单爱",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 简单爱",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/a3/b0/88/a3b088c9-dac4-fa2e-5292-94d64d50a46e/mzaf_806348827827822268.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%AE%80%E5%8D%95%E7%88%B1/535739206?i=535739351&uo=4"
+  },
+  {
+    "id": "周杰伦-双截棍",
+    "title": "双截棍",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 双截棍",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3e/cc/ae/3eccae6b-92c6-9a0d-8968-dab24cd5b97d/mzaf_9280850808634446736.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%8F%8C%E6%88%AA%E6%A3%8D/535739206?i=535739358&uo=4"
+  },
+  {
+    "id": "周杰伦-青花瓷",
+    "title": "青花瓷",
+    "artist": "周杰伦",
+    "aliases": [],
+    "searchTerm": "周杰伦 青花瓷",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fd/18/39/fd18396a-1c71-5bde-be0f-9dcaa00e4b6f/mzaf_11928526430545533608.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E9%9D%92%E8%8A%B1%E7%93%B7/536030690?i=536030695&uo=4"
+  },
+  {
+    "id": "周杰伦-一路向北-bonus-track",
+    "title": "一路向北",
+    "artist": "周杰伦",
+    "aliases": [
+      "一路向北 (Bonus Track)"
+    ],
+    "searchTerm": "周杰伦 一路向北",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c6/31/90/c63190f7-38b1-c2b8-eed0-f23afeb04241/mzaf_1376931491740407381.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%B8%80%E8%B7%AF%E5%90%91%E5%8C%97-bonus-track/536009641?i=536009753&uo=4"
+  },
+  {
+    "id": "林俊杰-修炼爱情",
+    "title": "修炼爱情",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 修炼爱情",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/eb/c1/b1/ebc1b18f-a93f-9b30-7be0-162d4616260d/mzaf_12848033625478567269.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%BF%AE%E7%82%BC%E7%88%B1%E6%83%85/1694849133?i=1694849138&uo=4"
+  },
+  {
+    "id": "林俊杰-可惜没如果",
+    "title": "可惜没如果",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 可惜没如果",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/3a/3c/783a3ce8-65d7-0527-3ddc-0d6fa80ae1ac/mzaf_7010661630560700140.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%8F%AF%E6%83%9C%E6%B2%A1%E5%A6%82%E6%9E%9C/1788007687?i=1788007696&uo=4"
+  },
+  {
+    "id": "林俊杰-小酒窝",
+    "title": "小酒窝",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 小酒窝",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/a6/f0/0f/a6f00f02-0e10-33f3-5b55-c4723304df54/mzaf_3242845548860156271.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%B0%8F%E9%85%92%E7%AA%9D/1073049123?i=1073050182&uo=4"
+  },
+  {
+    "id": "林俊杰-她说",
+    "title": "她说",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 她说",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/ca/2e/5d/ca2e5d85-5c0e-a7fc-907b-37b2cc4071f2/mzaf_10918804513069558363.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%A5%B9%E8%AF%B4/1071506928?i=1071506929&uo=4"
+  },
+  {
+    "id": "林俊杰-那些你很冒险的梦",
+    "title": "那些你很冒险的梦",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 那些你很冒险的梦",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/da/47/ac/da47ac79-697e-7675-facd-022468f26f2f/mzaf_5852836977298783371.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E9%82%A3%E4%BA%9B%E4%BD%A0%E5%BE%88%E5%86%92%E9%99%A9%E7%9A%84%E6%A2%A6/1663699419?i=1663699423&uo=4"
+  },
+  {
+    "id": "林俊杰-曹操",
+    "title": "曹操",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 曹操",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/e0/22/6e/e0226ee0-83f6-fda5-62cc-e3eecd2c1b36/mzaf_4091599735094653821.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%9B%B9%E6%93%8D/1071513017?i=1071513021&uo=4"
+  },
+  {
+    "id": "陈奕迅-爱情转移",
+    "title": "爱情转移",
+    "artist": "陈奕迅",
+    "aliases": [],
+    "searchTerm": "陈奕迅 爱情转移",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/5a/ee/83/5aee8371-70a0-4f53-7ff5-dc0823beabee/mzaf_10611587849510578238.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%88%B1%E6%83%85%E8%BD%AC%E7%A7%BB/1443352354?i=1443352465&uo=4"
+  },
+  {
+    "id": "陈奕迅-浮夸",
+    "title": "浮夸",
+    "artist": "陈奕迅",
+    "aliases": [],
+    "searchTerm": "陈奕迅 浮夸",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/9f/1e/6e/9f1e6e19-7763-7bad-e452-f5d92997b723/mzaf_12644981637415395233.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%B5%AE%E5%A4%B8/1443374875?i=1443375396&uo=4"
+  },
+  {
+    "id": "陈奕迅-好久不见",
+    "title": "好久不见",
+    "artist": "陈奕迅",
+    "aliases": [],
+    "searchTerm": "陈奕迅 好久不见",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/a2/9f/f5/a29ff5f2-a1fd-3e3f-c24d-7f23b51fb8a9/mzaf_12792671251703431473.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%A5%BD%E4%B9%85%E4%B8%8D%E8%A7%81/1443352354?i=1443352467&uo=4"
+  },
+  {
+    "id": "陈奕迅-富士山下",
+    "title": "富士山下",
+    "artist": "陈奕迅",
+    "aliases": [],
+    "searchTerm": "陈奕迅 富士山下",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/ba/f9/13/baf91338-8942-dc53-74b9-04d051380d6f/mzaf_17349865070876575987.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%AF%8C%E5%A3%AB%E5%B1%B1%E4%B8%8B/1443345687?i=1443346107&uo=4"
+  },
+  {
+    "id": "陈奕迅-孤勇者-英雄联盟-双城之战-动画剧集中文主题曲",
+    "title": "孤勇者",
+    "artist": "陈奕迅",
+    "aliases": [
+      "孤勇者 (《英雄联盟:双城之战》动画剧集中文主题曲)"
+    ],
+    "searchTerm": "陈奕迅 孤勇者",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/31/35/b4/3135b4b3-7114-a942-63fd-965b3d89b2f0/mzaf_15887828140860406970.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%AD%A4%E5%8B%87%E8%80%85-%E8%8B%B1%E9%9B%84%E8%81%94%E7%9B%9F-%E5%8F%8C%E5%9F%8E%E4%B9%8B%E6%88%98-%E5%8A%A8%E7%94%BB%E5%89%A7%E9%9B%86%E4%B8%AD%E6%96%87%E4%B8%BB%E9%A2%98%E6%9B%B2/1596944315?i=1596944703&uo=4"
+  },
+  {
+    "id": "五月天-突然好想你",
+    "title": "突然好想你",
+    "artist": "五月天",
+    "aliases": [],
+    "searchTerm": "五月天 突然好想你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/88/9e/0c/889e0c31-215c-4c4e-f74c-d91faca87dce/mzaf_8374440067438414126.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%AA%81%E7%84%B6%E5%A5%BD%E6%83%B3%E4%BD%A0/1207222248?i=1207222466&uo=4"
+  },
+  {
+    "id": "五月天-倔强",
+    "title": "倔强",
+    "artist": "五月天",
+    "aliases": [],
+    "searchTerm": "五月天 倔强",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ec/c8/8a/ecc88a5d-7740-0516-b9ad-9cd62c1841b3/mzaf_8749949091180606890.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%80%94%E5%BC%BA/183919330?i=183919743&uo=4"
+  },
+  {
+    "id": "五月天-温柔",
+    "title": "温柔",
+    "artist": "五月天",
+    "aliases": [],
+    "searchTerm": "五月天 温柔",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/7f/21/4a/7f214adc-37c2-ef3f-fe83-725e0d84e2c6/mzaf_1622852674219592200.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%B8%A9%E6%9F%94/1078528641?i=1078528644&uo=4"
+  },
+  {
+    "id": "五月天-后来的我们",
+    "title": "后来的我们",
+    "artist": "五月天",
+    "aliases": [],
+    "searchTerm": "五月天 后来的我们",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/91/30/64/9130646e-c52a-5b50-b472-a0614c583da2/mzaf_10722775092036331265.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%90%8E%E6%9D%A5%E7%9A%84%E6%88%91%E4%BB%AC/1158763922?i=1158763996&uo=4"
+  },
+  {
+    "id": "五月天-你不是真正的快乐",
+    "title": "你不是真正的快乐",
+    "artist": "五月天",
+    "aliases": [],
+    "searchTerm": "五月天 你不是真正的快乐",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/db/33/51/db335122-369f-4d35-ab9b-704ae0357589/mzaf_2606340348766615266.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%BD%A0%E4%B8%8D%E6%98%AF%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%BF%AB%E4%B9%90/1081381033?i=1081381268&uo=4"
+  },
+  {
+    "id": "五月天-恋爱ing",
+    "title": "恋爱ing",
+    "artist": "五月天",
+    "aliases": [
+      "恋爱ing",
+      "恋爱 ING"
+    ],
+    "searchTerm": "五月天 恋爱ing",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/42/56/1e/42561e95-02e4-5a21-b6ee-3fd54f5d92cd/mzaf_13243138162726575800.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%81%8B%E7%88%B1ing/1554431588?i=1554431596&uo=4"
+  },
+  {
+    "id": "田馥甄-小幸运-电影-我的少女时代-主题曲",
+    "title": "小幸运",
+    "artist": "田馥甄",
+    "aliases": [
+      "小幸运 (电影《我的少女时代》主题曲)"
+    ],
+    "searchTerm": "田馥甄 小幸运",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/de/dc/f6/dedcf636-8142-716b-af7d-2ba74bd6ffe2/mzaf_16061481957398880364.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%B0%8F%E5%B9%B8%E8%BF%90-%E7%94%B5%E5%BD%B1-%E6%88%91%E7%9A%84%E5%B0%91%E5%A5%B3%E6%97%B6%E4%BB%A3-%E4%B8%BB%E9%A2%98%E6%9B%B2/1017697307?i=1017697311&uo=4"
+  },
+  {
+    "id": "s-h-e-你曾是少年",
+    "title": "你曾是少年",
+    "artist": "S.H.E",
+    "aliases": [],
+    "searchTerm": "S.H.E 你曾是少年",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ac/3b/c8/ac3bc8be-c19a-0360-4b27-de8134e6671c/mzaf_3886902192133987765.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%BD%A0%E6%9B%BE%E6%98%AF%E5%B0%91%E5%B9%B4/997250022?i=997250028&uo=4"
+  },
+  {
+    "id": "s-h-e-super-star",
+    "title": "Super Star",
+    "artist": "S.H.E",
+    "aliases": [
+      "superstar",
+      "super star"
+    ],
+    "searchTerm": "S.H.E Super Star",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/00/7d/4d/007d4d5e-22d6-b6b6-6ff9-f57904c4ef4b/mzaf_9457566194984936470.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/super-star/551570707?i=551570912&uo=4"
+  },
+  {
+    "id": "s-h-e-中国话",
+    "title": "中国话",
+    "artist": "S.H.E",
+    "aliases": [],
+    "searchTerm": "S.H.E 中国话",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b9/90/a4/b990a46f-e2d7-05f3-99b4-cff044b02d23/mzaf_15892354089681939062.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%B8%AD%E5%9B%BD%E8%AF%9D/551325897?i=551325898&uo=4"
+  },
+  {
+    "id": "林忆莲-至少还有你",
+    "title": "至少还有你",
+    "artist": "林忆莲",
+    "aliases": [],
+    "searchTerm": "林忆莲 至少还有你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/c7/0e/80/c70e80a9-11d5-3377-45c9-60fc07334b2c/mzaf_6606301258719857469.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E8%87%B3%E5%B0%91%E8%BF%98%E6%9C%89%E4%BD%A0/905222890?i=905222894&uo=4"
+  },
+  {
+    "id": "梁静茹-勇气",
+    "title": "勇气",
+    "artist": "梁静茹",
+    "aliases": [],
+    "searchTerm": "梁静茹 勇气",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/0e/66/65/0e666556-4c7d-8aea-ce87-eef51e442f3f/mzaf_14052012126521443769.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%8B%87%E6%B0%94/1614388261?i=1614388265&uo=4"
+  },
+  {
+    "id": "梁静茹-暖暖",
+    "title": "暖暖",
+    "artist": "梁静茹",
+    "aliases": [],
+    "searchTerm": "梁静茹 暖暖",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/63/db/b0/63dbb027-e7f9-52ec-4ca0-0278b13e9a7f/mzaf_604121764894940722.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%9A%96%E6%9A%96/1095584283?i=1095584447&uo=4"
+  },
+  {
+    "id": "梁静茹-可惜不是你",
+    "title": "可惜不是你",
+    "artist": "梁静茹",
+    "aliases": [],
+    "searchTerm": "梁静茹 可惜不是你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/55/d5/04/55d50488-e60c-4297-2da6-cd9ebd924b91/mzaf_13948765356972938566.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%8F%AF%E6%83%9C%E4%B8%8D%E6%98%AF%E4%BD%A0/151338382?i=151338480&uo=4"
+  },
+  {
+    "id": "梁静茹-宁夏",
+    "title": "宁夏",
+    "artist": "梁静茹",
+    "aliases": [],
+    "searchTerm": "梁静茹 宁夏",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2d/4c/e8/2d4ce836-696f-7b9e-de7d-132c68421e0a/mzaf_12750866858583997904.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%AE%81%E5%A4%8F/640457833?i=640458319&uo=4"
+  },
+  {
+    "id": "邓紫棋-倒数",
+    "title": "倒数",
+    "artist": "邓紫棋",
+    "aliases": [],
+    "searchTerm": "邓紫棋 倒数",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/3e/e2/ee/3ee2ee16-cb51-41f4-627c-a8435158b5f9/mzaf_3046210263722067301.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%80%92%E6%95%B0/1422581993?i=1422581998&uo=4"
+  },
+  {
+    "id": "邓紫棋-光年之外-电影-太空旅客-主题曲",
+    "title": "光年之外",
+    "artist": "邓紫棋",
+    "aliases": [
+      "光年之外 (电影《太空旅客》主题曲)"
+    ],
+    "searchTerm": "邓紫棋 光年之外",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/8c/85/72/8c857291-67d1-1250-3db5-e575313eb57a/mzaf_14040710248869910783.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%85%89%E5%B9%B4%E4%B9%8B%E5%A4%96-%E7%94%B5%E5%BD%B1-%E5%A4%AA%E7%A9%BA%E6%97%85%E5%AE%A2-%E4%B8%BB%E9%A2%98%E6%9B%B2/1190070714?i=1190070744&uo=4"
+  },
+  {
+    "id": "邓紫棋-喜欢你",
+    "title": "喜欢你",
+    "artist": "邓紫棋",
+    "aliases": [],
+    "searchTerm": "邓紫棋 喜欢你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/56/c7/d3/56c7d397-d6f1-d543-9c9c-a40401dbd420/mzaf_12309202616470587462.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%96%9C%E6%AC%A2%E4%BD%A0/908972117?i=908972123&uo=4"
+  },
+  {
+    "id": "邓紫棋-来自天堂的魔鬼",
+    "title": "来自天堂的魔鬼",
+    "artist": "邓紫棋",
+    "aliases": [],
+    "searchTerm": "邓紫棋 来自天堂的魔鬼",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/25/38/61/25386185-d4b0-8076-de48-dcac072fa8ba/mzaf_11033846317335446724.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%9D%A5%E8%87%AA%E5%A4%A9%E5%A0%82%E7%9A%84%E9%AD%94%E9%AC%BC/1053552393?i=1053552399&uo=4"
+  },
+  {
+    "id": "薛之谦-绅士",
+    "title": "绅士",
+    "artist": "薛之谦",
+    "aliases": [],
+    "searchTerm": "薛之谦 绅士",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/6d/fa/7f6dfa4f-57aa-4343-d447-bdf961862967/mzaf_16365240540272840037.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%BB%85%E5%A3%AB/1787929823?i=1787929824&uo=4"
+  },
+  {
+    "id": "薛之谦-认真的雪",
+    "title": "认真的雪",
+    "artist": "薛之谦",
+    "aliases": [],
+    "searchTerm": "薛之谦 认真的雪",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7e/8f/2e/7e8f2e12-14d4-0ebf-a288-d3d754901a03/mzaf_14608730720538401690.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E8%AE%A4%E7%9C%9F%E7%9A%84%E9%9B%AA/1789061389?i=1789061392&uo=4"
+  },
+  {
+    "id": "薛之谦-丑八怪",
+    "title": "丑八怪",
+    "artist": "薛之谦",
+    "aliases": [],
+    "searchTerm": "薛之谦 丑八怪",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bc/19/ae/bc19ae84-2cd1-b288-b6af-cfe5aba18b4f/mzaf_13380983838078582315.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E4%B8%91%E5%85%AB%E6%80%AA/1788255148?i=1788255149&uo=4"
+  },
+  {
+    "id": "薛之谦-刚刚好",
+    "title": "刚刚好",
+    "artist": "薛之谦",
+    "aliases": [],
+    "searchTerm": "薛之谦 刚刚好",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9b/4c/1f/9b4c1f0e-6f52-9e3f-6b7d-ea4e3e000c39/mzaf_14230230267821624221.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%88%9A%E5%88%9A%E5%A5%BD/1787929894?i=1787929902&uo=4"
+  },
+  {
+    "id": "光良-童话",
+    "title": "童话",
+    "artist": "光良",
+    "aliases": [],
+    "searchTerm": "光良 童话",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cd/6a/0d/cd6a0d51-bc88-01dc-f3ab-acc7e315f84b/mzaf_12382882328959368849.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%AB%A5%E8%AF%9D/165274168?i=165274273&uo=4"
+  },
+  {
+    "id": "光良-第一次",
+    "title": "第一次",
+    "artist": "光良",
+    "aliases": [],
+    "searchTerm": "光良 第一次",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3f/5b/47/3f5b476b-f1e7-4018-a2cc-bfde0afe196f/mzaf_8727504433341747887.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%AC%AC%E4%B8%80%E6%AC%A1/163296569?i=163296591&uo=4"
+  },
+  {
+    "id": "刘若英-后来",
+    "title": "后来",
+    "artist": "刘若英",
+    "aliases": [],
+    "searchTerm": "刘若英 后来",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/e7/60/dc/e760dced-56e7-627b-451d-09f5000885a9/mzaf_6531998665876880774.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%90%8E%E6%9D%A5/1073564049?i=1073564359&uo=4"
+  },
+  {
+    "id": "刘若英-很爱很爱你",
+    "title": "很爱很爱你",
+    "artist": "刘若英",
+    "aliases": [],
+    "searchTerm": "刘若英 很爱很爱你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e6/1e/0a/e61e0ae1-61c6-948a-844c-cf06328ad7a5/mzaf_12022723742600538898.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%BE%88%E7%88%B1%E5%BE%88%E7%88%B1%E4%BD%A0/1480803339?i=1480803340&uo=4"
+  },
+  {
+    "id": "刘若英-成全",
+    "title": "成全",
+    "artist": "刘若英",
+    "aliases": [],
+    "searchTerm": "刘若英 成全",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f2/4c/4c/f24c4c6d-0fa0-ee41-bb99-24444f3aef43/mzaf_17786016249081459504.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%88%90%E5%85%A8/153674309?i=153674310&uo=4"
+  },
+  {
+    "id": "王心凌-爱你",
+    "title": "爱你",
+    "artist": "王心凌",
+    "aliases": [],
+    "searchTerm": "王心凌 爱你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9d/82/4d/9d824db9-ec9d-536b-6a71-a4ccd84f17c2/mzaf_10697347728632727496.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%88%B1%E4%BD%A0/1708557388?i=1708557590&uo=4"
+  },
+  {
+    "id": "王心凌-第一次爱的人",
+    "title": "第一次爱的人",
+    "artist": "王心凌",
+    "aliases": [],
+    "searchTerm": "王心凌 第一次爱的人",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3a/43/1c/3a431cbe-f553-2639-b2af-9462e5667e8a/mzaf_803388145650974508.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%88%B1%E7%9A%84%E4%BA%BA/1708557388?i=1708558463&uo=4"
+  },
+  {
+    "id": "王心凌-当你",
+    "title": "当你",
+    "artist": "王心凌",
+    "aliases": [],
+    "searchTerm": "王心凌 当你",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5b/72/50/5b7250db-5d78-deff-5321-3eeecb242620/mzaf_2579726940319655002.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%BD%93%E4%BD%A0/1847591578?i=1847591741&uo=4"
+  },
+  {
+    "id": "张韶涵-隐形的翅膀",
+    "title": "隐形的翅膀",
+    "artist": "张韶涵",
+    "aliases": [],
+    "searchTerm": "张韶涵 隐形的翅膀",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/72/d5/6972d5f5-0e1f-8815-203d-db19418cb646/mzaf_7240048494576774626.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E9%9A%90%E5%BD%A2%E7%9A%84%E7%BF%85%E8%86%80/535741165?i=535741167&uo=4"
+  },
+  {
+    "id": "张韶涵-遗失的美好",
+    "title": "遗失的美好",
+    "artist": "张韶涵",
+    "aliases": [],
+    "searchTerm": "张韶涵 遗失的美好",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/95/96/ca/9596cada-71b4-10da-662b-727ab6586856/mzaf_290736174716263343.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E9%81%97%E5%A4%B1%E7%9A%84%E7%BE%8E%E5%A5%BD/536111049?i=536111075&uo=4"
   }
 ]

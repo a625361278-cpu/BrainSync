@@ -38,6 +38,7 @@ var InMemoryGameRoom = class {
   playerSeq = 0;
   messageSeq = 0;
   songCursor = 0;
+  songDeck = [];
   idiomCursor = 0;
   constructor(options) {
     this.code = options.code ?? createRoomCode();
@@ -86,6 +87,7 @@ var InMemoryGameRoom = class {
     this.settlement = void 0;
     this.usedIdioms.clear();
     this.songCursor = 0;
+    this.songDeck = [];
     this.idiomCursor = 0;
     for (const player of this.players.values()) {
       player.score = 0;
@@ -172,7 +174,7 @@ var InMemoryGameRoom = class {
     if (this.songCursor >= this.songRounds) {
       return void 0;
     }
-    const song = this.songs[this.songCursor % this.songs.length];
+    const song = this.pickNextSong();
     const question = {
       gameType: "song",
       roundIndex: this.songCursor,
@@ -185,6 +187,17 @@ var InMemoryGameRoom = class {
     };
     this.songCursor += 1;
     return question;
+  }
+  pickNextSong() {
+    if (this.songDeck.length === 0) {
+      this.songDeck = [...this.songs];
+    }
+    const index = Math.min(this.songDeck.length - 1, Math.floor(this.random() * this.songDeck.length));
+    const [song] = this.songDeck.splice(index, 1);
+    if (!song) {
+      throw new Error("\u6B4C\u66F2\u9898\u5E93\u72B6\u6001\u5F02\u5E38\uFF1A\u65E0\u6CD5\u62BD\u53D6\u6B4C\u66F2");
+    }
+    return song;
   }
   nextIdiomQuestion(fromTimeout) {
     if (this.idiomCursor >= this.idiomRounds) {
@@ -221,7 +234,7 @@ var InMemoryGameRoom = class {
         throw new Error("\u6B4C\u66F2\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u6B4C\u66F2\u6570\u636E");
       }
       const normalized = normalizeAnswer(text);
-      const candidates = [song.title, song.artist, ...song.aliases].map(normalizeAnswer);
+      const candidates = [song.title, ...song.aliases].map(normalizeAnswer);
       return candidates.includes(normalized) ? song.title : void 0;
     }
     const previous = this.activeQuestion.previousIdiom;
