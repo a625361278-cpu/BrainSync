@@ -1,0 +1,74 @@
+[
+  {
+    "id": "qing-tian",
+    "title": "晴天",
+    "artist": "周杰伦",
+    "aliases": ["晴 天"],
+    "searchTerm": "周杰伦 晴天",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/68/46/5d/68465d87-99db-f0e5-dcdb-5b8e3fe64a49/mzaf_4654864440578879672.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%99%B4%E5%A4%A9/535824731?i=535824738&uo=4"
+  },
+  {
+    "id": "hong-dou",
+    "title": "红豆",
+    "artist": "王菲",
+    "aliases": [],
+    "searchTerm": "王菲 红豆",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/80/4b/07/804b07ec-b2db-94f8-df3e-be7a64fc57cc/mzaf_4703697437529710995.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%BA%A2%E8%B1%86/965771664?i=965771855&uo=4"
+  },
+  {
+    "id": "jiang-nan",
+    "title": "江南",
+    "artist": "林俊杰",
+    "aliases": [],
+    "searchTerm": "林俊杰 江南",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/0a/1f/0d0a1f64-1faa-01a3-6b82-3f71c7f1ad53/mzaf_6171234305789252058.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%B1%9F%E5%8D%97/1071753622?i=1071753628&uo=4"
+  },
+  {
+    "id": "yu-jian",
+    "title": "遇见",
+    "artist": "孙燕姿",
+    "aliases": [],
+    "searchTerm": "孙燕姿 遇见",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7b/14/b8/7b14b886-0db8-e205-5b58-c326e5ac92c2/mzaf_13557911601938906506.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E9%81%87%E8%A7%81/541856819?i=541857030&uo=4"
+  },
+  {
+    "id": "zhi-zu",
+    "title": "知足",
+    "artist": "五月天",
+    "aliases": [],
+    "searchTerm": "五月天 知足",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/09/67/c5/0967c50e-7916-c968-f539-61bf6c52a7d4/mzaf_4152165657563875643.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E7%9F%A5%E8%B6%B3/1554431588?i=1554431591&uo=4"
+  },
+  {
+    "id": "shi-nian",
+    "title": "十年",
+    "artist": "陈奕迅",
+    "aliases": [],
+    "searchTerm": "陈奕迅 十年",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e7/77/04/e7770492-18d1-e5dc-0765-ddacbbe068c5/mzaf_1628518296724984899.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E5%8D%81%E5%B9%B4/542922079?i=542922095&uo=4"
+  },
+  {
+    "id": "pao-mo",
+    "title": "泡沫",
+    "artist": "邓紫棋",
+    "aliases": [],
+    "searchTerm": "邓紫棋 泡沫",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5c/af/2f/5caf2fed-5cf9-d559-4d3c-fc1a4553aba4/mzaf_3652775084205541469.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%B3%A1%E6%B2%AB/544934803?i=544934807&uo=4"
+  },
+  {
+    "id": "yan-yuan",
+    "title": "演员",
+    "artist": "薛之谦",
+    "aliases": [],
+    "searchTerm": "薛之谦 演员",
+    "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ad/2f/57/ad2f57f6-0ce7-bd8e-85ef-0c71e72929c8/mzaf_16845033123643244140.plus.aac.p.m4a",
+    "sourceUrl": "https://music.apple.com/cn/album/%E6%BC%94%E5%91%98/1787929823?i=1787929825&uo=4"
+  }
+]
