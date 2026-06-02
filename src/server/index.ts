@@ -1,11 +1,15 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import express from "express";
+import express, { type Request, type Response } from "express";
 import { Server } from "socket.io";
 import { createGameRoom, type GameRoom } from "./game/room";
 import { loadGameData } from "./data/loadData";
+import { createAuthService, type AuthService } from "./account/authService";
+import { createMysqlAccountRepository, readMysqlConfig } from "./account/mysqlRepository";
+import { DEFAULT_PVE_LEVELS } from "./pve/levels";
+import { createPveService, type PveService } from "./pve/pveService";
 import type { GameType, RoomSnapshot } from "../shared/types";
 
 interface ClientJoinPayload {
@@ -37,6 +41,8 @@ interface AckPayload {
   error?: string;
 }
 
+loadDotEnv();
+
 const PORT = Number(process.env.PORT ?? 3000);
 const ROUND_SECONDS = Number(process.env.ROUND_SECONDS ?? 30);
 const data = loadGameData();
@@ -51,10 +57,105 @@ const io = new Server(httpServer, {
 
 const rooms = new Map<string, GameRoom>();
 const timers = new Map<string, NodeJS.Timeout>();
+const accountContext = await initializeAccountContext();
+
+app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, rooms: rooms.size });
+  res.json({ ok: true, rooms: rooms.size, account: accountContext.ready ? "ready" : "unavailable" });
 });
+
+app.post(
+  "/api/auth/register",
+  asyncRoute(async (req, res) => {
+    const { auth } = requireAccountContext();
+    const result = await auth.register({
+      username: String(req.body?.username ?? ""),
+      password: String(req.body?.password ?? ""),
+      nickname: String(req.body?.nickname ?? "")
+    });
+    res.json({ ok: true, ...result });
+  })
+);
+
+app.post(
+  "/api/auth/login",
+  asyncRoute(async (req, res) => {
+    const { auth } = requireAccountContext();
+    const result = await auth.login({
+      username: String(req.body?.username ?? ""),
+      password: String(req.body?.password ?? "")
+    });
+    res.json({ ok: true, ...result });
+  })
+);
+
+app.post(
+  "/api/auth/logout",
+  asyncRoute(async (req, res) => {
+    const { auth } = requireAccountContext();
+    const token = readBearerToken(req);
+    if (token) {
+      await auth.logout(token);
+    }
+    res.json({ ok: true });
+  })
+);
+
+app.get(
+  "/api/me",
+  asyncRoute(async (req, res) => {
+    const user = await requireHttpUser(req);
+    res.json({ ok: true, user });
+  })
+);
+
+app.get("/api/pve/levels", (_req, res) => {
+  res.json({ ok: true, levels: DEFAULT_PVE_LEVELS });
+});
+
+app.get(
+  "/api/pve/profile",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({ ok: true, profile: await pve.profile(user.id) });
+  })
+);
+
+app.post(
+  "/api/pve/start",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({ ok: true, run: await pve.start(user.id, Number(req.body?.level)) });
+  })
+);
+
+app.post(
+  "/api/pve/answer",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({
+      ok: true,
+      result: await pve.answer(user.id, {
+        runId: String(req.body?.runId ?? ""),
+        questionId: String(req.body?.questionId ?? ""),
+        answer: String(req.body?.answer ?? "")
+      })
+    });
+  })
+);
+
+app.post(
+  "/api/pve/finish",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({ ok: true, summary: await pve.finish(user.id, String(req.body?.runId ?? "")) });
+  })
+);
 
 const serverDir = path.dirname(fileURLToPath(import.meta.url));
 const distPath = [
@@ -202,4 +303,129 @@ function scheduleRoundTimeout(code: string): void {
     }
   }, ROUND_SECONDS * 1000);
   timers.set(code, timer);
+}
+
+interface AccountContextReady {
+  ready: true;
+  auth: AuthService;
+  pve: PveService;
+}
+
+interface AccountContextUnavailable {
+  ready: false;
+  error: Error;
+}
+
+type AccountContext = AccountContextReady | AccountContextUnavailable;
+
+class ServiceUnavailableError extends Error {
+  readonly statusCode = 503;
+}
+
+async function initializeAccountContext(): Promise<AccountContext> {
+  const config = readMysqlConfig(process.env);
+  if (!config) {
+    return {
+      ready: false,
+      error: new Error("MySQL未配置，账号和PVE功能不可用；PVP房间仍可继续使用")
+    };
+  }
+  try {
+    const repo = await createMysqlAccountRepository(config);
+    return {
+      ready: true,
+      auth: createAuthService({ repo }),
+      pve: createPveService({ repo, songs: data.songs, levels: DEFAULT_PVE_LEVELS })
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "未知MySQL初始化错误";
+    console.error(`账号/PVE MySQL初始化失败：${message}`);
+    return {
+      ready: false,
+      error: new Error(`MySQL初始化失败：${message}`)
+    };
+  }
+}
+
+function requireAccountContext(): AccountContextReady {
+  if (!accountContext.ready) {
+    throw new ServiceUnavailableError(accountContext.error.message);
+  }
+  return accountContext;
+}
+
+async function requireHttpUser(req: Request) {
+  const { auth } = requireAccountContext();
+  const token = readBearerToken(req);
+  if (!token) {
+    throw new HttpError(401, "未登录");
+  }
+  return auth.requireUserByToken(token);
+}
+
+function readBearerToken(req: Request): string | undefined {
+  const authorization = req.header("authorization") ?? "";
+  const match = /^Bearer\s+(.+)$/i.exec(authorization);
+  return match?.[1]?.trim();
+}
+
+class HttpError extends Error {
+  constructor(
+    readonly statusCode: number,
+    message: string
+  ) {
+    super(message);
+  }
+}
+
+function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
+  return (req: Request, res: Response) => {
+    handler(req, res).catch((error: unknown) => {
+      const statusCode =
+        error instanceof HttpError || error instanceof ServiceUnavailableError ? error.statusCode : inferStatusCode(error);
+      const message = error instanceof Error ? error.message : "未知错误";
+      res.status(statusCode).json({ ok: false, error: message });
+    });
+  };
+}
+
+function inferStatusCode(error: unknown): number {
+  if (!(error instanceof Error)) {
+    return 500;
+  }
+  if (["未登录", "登录状态不存在", "登录已过期"].some((message) => error.message.includes(message))) {
+    return 401;
+  }
+  return 400;
+}
+
+function loadDotEnv(): void {
+  const envPath = path.resolve(process.cwd(), ".env");
+  if (!existsSync(envPath)) {
+    return;
+  }
+  const content = readFileSync(envPath, "utf8");
+  for (const [index, rawLine] of content.split(/\r?\n/).entries()) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+    const separatorIndex = line.indexOf("=");
+    if (separatorIndex <= 0) {
+      throw new Error(`.env 配置格式错误：第 ${index + 1} 行`);
+    }
+    const key = line.slice(0, separatorIndex).trim();
+    const value = stripEnvQuotes(line.slice(separatorIndex + 1).trim());
+    if (!/^[A-Z_][A-Z0-9_]*$/i.test(key)) {
+      throw new Error(`.env 配置键名不合法：第 ${index + 1} 行`);
+    }
+    process.env[key] ??= value;
+  }
+}
+
+function stripEnvQuotes(value: string): string {
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    return value.slice(1, -1);
+  }
+  return value;
 }
