@@ -14,12 +14,12 @@ import type { GameType, RoomSnapshot } from "../shared/types";
 
 interface ClientJoinPayload {
   roomCode: string;
-  name: string;
+  token?: string;
   playerId?: string;
 }
 
 interface ClientCreatePayload {
-  name: string;
+  token?: string;
 }
 
 interface ClientStartPayload {
@@ -133,6 +133,21 @@ app.post(
 );
 
 app.post(
+  "/api/pve/question/start",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({
+      ok: true,
+      result: await pve.startQuestion(user.id, {
+        runId: String(req.body?.runId ?? ""),
+        questionId: String(req.body?.questionId ?? "")
+      })
+    });
+  })
+);
+
+app.post(
   "/api/pve/answer",
   asyncRoute(async (req, res) => {
     const { pve } = requireAccountContext();
@@ -143,6 +158,21 @@ app.post(
         runId: String(req.body?.runId ?? ""),
         questionId: String(req.body?.questionId ?? ""),
         answer: String(req.body?.answer ?? "")
+      })
+    });
+  })
+);
+
+app.post(
+  "/api/pve/timeout",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({
+      ok: true,
+      result: await pve.timeoutQuestion(user.id, {
+        runId: String(req.body?.runId ?? ""),
+        questionId: String(req.body?.questionId ?? "")
       })
     });
   })
@@ -170,11 +200,12 @@ if (distPath) {
 
 io.on("connection", (socket) => {
   socket.on("createRoom", (payload: ClientCreatePayload, ack?: (payload: AckPayload) => void) => {
-    handleAck(ack, () => {
+    handleAck(ack, async () => {
+      const user = await requireSocketUser(payload.token);
       const code = createUniqueRoomCode();
       const room = createGameRoom({ code, idioms: data.idioms, songs: data.songs, roundSeconds: ROUND_SECONDS });
       rooms.set(code, room);
-      const player = room.join(payload.name);
+      const player = room.join(user.nickname);
       socket.join(socketRoom(code));
       socket.data.roomCode = code;
       socket.data.playerId = player.id;
@@ -185,9 +216,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("joinRoom", (payload: ClientJoinPayload, ack?: (payload: AckPayload) => void) => {
-    handleAck(ack, () => {
+    handleAck(ack, async () => {
+      const user = await requireSocketUser(payload.token);
       const room = requireRoom(payload.roomCode);
-      const player = room.join(payload.name, payload.playerId);
+      const player = room.join(user.nickname, payload.playerId);
       socket.join(socketRoom(payload.roomCode));
       socket.data.roomCode = payload.roomCode;
       socket.data.playerId = player.id;
@@ -238,9 +270,9 @@ httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`BrainSync party games listening on http://localhost:${PORT}`);
 });
 
-function handleAck(ack: ((payload: AckPayload) => void) | undefined, action: () => AckPayload): void {
+async function handleAck(ack: ((payload: AckPayload) => void) | undefined, action: () => AckPayload | Promise<AckPayload>): Promise<void> {
   try {
-    ack?.(action());
+    ack?.(await action());
   } catch (error) {
     const message = error instanceof Error ? error.message : "未知错误";
     ack?.({ ok: false, error: message });
@@ -248,7 +280,7 @@ function handleAck(ack: ((payload: AckPayload) => void) | undefined, action: () 
 }
 
 function requireRoom(code: string): GameRoom {
-  const normalized = code.trim().toUpperCase();
+  const normalized = code.trim();
   const room = rooms.get(normalized);
   if (!room) {
     throw new Error(`房间不存在：${normalized}`);
@@ -258,7 +290,9 @@ function requireRoom(code: string): GameRoom {
 
 function createUniqueRoomCode(): string {
   for (let i = 0; i < 20; i += 1) {
-    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+    const code = Math.floor(Math.random() * 1_000_000)
+      .toString()
+      .padStart(6, "0");
     if (!rooms.has(code)) {
       return code;
     }
@@ -267,7 +301,7 @@ function createUniqueRoomCode(): string {
 }
 
 function socketRoom(code: string): string {
-  return `room:${code.trim().toUpperCase()}`;
+  return `room:${code.trim()}`;
 }
 
 function emitRoom(code: string, snapshot: RoomSnapshot): void {
@@ -327,7 +361,7 @@ async function initializeAccountContext(): Promise<AccountContext> {
   if (!config) {
     return {
       ready: false,
-      error: new Error("MySQL未配置，账号和PVE功能不可用；PVP房间仍可继续使用")
+      error: new Error("MySQL未配置，账号、PVE和PVP开房功能不可用")
     };
   }
   try {
@@ -359,6 +393,14 @@ async function requireHttpUser(req: Request) {
   const token = readBearerToken(req);
   if (!token) {
     throw new HttpError(401, "未登录");
+  }
+  return auth.requireUserByToken(token);
+}
+
+async function requireSocketUser(token: string | undefined) {
+  const { auth } = requireAccountContext();
+  if (!token?.trim()) {
+    throw new Error("未登录");
   }
   return auth.requireUserByToken(token);
 }

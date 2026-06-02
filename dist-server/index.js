@@ -952,7 +952,7 @@ var DefaultPveService = class {
       correctCount: 0,
       combo: 0,
       startedAt: now,
-      currentQuestionStartedAt: now
+      currentQuestionStartedAt: 0
     };
     stamina.current -= 1;
     await this.repo.upsertStamina(stamina);
@@ -966,20 +966,36 @@ var DefaultPveService = class {
       stamina
     };
   }
+  async startQuestion(userId, payload) {
+    const run = await this.requireRunForUser(payload.runId, userId);
+    if (run.status !== "playing") {
+      throw new Error("\u6311\u6218\u5DF2\u7ED3\u675F");
+    }
+    const question = this.requireCurrentQuestion(run, payload.questionId);
+    if (question.answeredAt || question.timedOutAt) {
+      throw new Error("\u9898\u76EE\u5DF2\u7ECF\u7ED3\u675F");
+    }
+    const startedAt = this.now();
+    question.startedAt = startedAt;
+    run.currentQuestionStartedAt = startedAt;
+    await this.repo.updateRun(run);
+    return {
+      question: toPublicQuestion2(question, run.currentIndex, this.requireLevel(run.level)),
+      startedAt,
+      timeLimitSeconds: question.timeLimitSeconds
+    };
+  }
   async answer(userId, payload) {
     const run = await this.requireRunForUser(payload.runId, userId);
     if (run.status !== "playing") {
       throw new Error("\u6311\u6218\u5DF2\u7ED3\u675F");
     }
-    const question = run.questions[run.currentIndex];
-    if (!question) {
-      throw new Error("PVE\u6311\u6218\u72B6\u6001\u5F02\u5E38\uFF1A\u5F53\u524D\u9898\u76EE\u7F3A\u5931");
-    }
-    if (question.questionId !== payload.questionId) {
-      throw new Error("\u9898\u76EE\u987A\u5E8F\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u6311\u6218\u72B6\u6001");
-    }
+    const question = this.requireCurrentQuestion(run, payload.questionId);
     const config = this.requireLevel(run.level);
-    const elapsedMs = Math.max(0, this.now() - run.currentQuestionStartedAt);
+    const elapsedMs = this.requireQuestionElapsedMs(question);
+    if (elapsedMs > question.timeLimitSeconds * 1e3) {
+      throw new Error("\u672C\u9898\u5DF2\u8D85\u65F6");
+    }
     const correct = isSongAnswer(payload.answer, question.song);
     const answerTitle = question.song.title;
     let scoreDelta = 0;
@@ -993,7 +1009,7 @@ var DefaultPveService = class {
       question.correct = true;
       question.scoreDelta = scoreDelta;
       run.currentIndex += 1;
-      run.currentQuestionStartedAt = this.now();
+      run.currentQuestionStartedAt = 0;
     } else {
       run.combo = 0;
       question.wrongCount = (question.wrongCount ?? 0) + 1;
@@ -1012,6 +1028,40 @@ var DefaultPveService = class {
       correctCount: run.correctCount,
       nextQuestion: finished ? void 0 : toPublicQuestion2(run.questions[run.currentIndex], run.currentIndex, config),
       finished
+    };
+  }
+  async timeoutQuestion(userId, payload) {
+    const run = await this.requireRunForUser(payload.runId, userId);
+    if (run.status !== "playing") {
+      throw new Error("\u6311\u6218\u5DF2\u7ED3\u675F");
+    }
+    const question = this.requireCurrentQuestion(run, payload.questionId);
+    const config = this.requireLevel(run.level);
+    const elapsedMs = this.requireQuestionElapsedMs(question);
+    if (elapsedMs < question.timeLimitSeconds * 1e3) {
+      throw new Error("\u5C1A\u672A\u8D85\u65F6");
+    }
+    question.timedOutAt = this.now();
+    question.correct = false;
+    question.scoreDelta = 0;
+    run.combo = 0;
+    run.currentIndex += 1;
+    run.currentQuestionStartedAt = 0;
+    const finished = run.currentIndex >= run.questions.length;
+    if (finished) {
+      await this.finalizeRun(run, config);
+    } else {
+      await this.repo.updateRun(run);
+    }
+    return {
+      correct: false,
+      answer: question.song.title,
+      scoreDelta: 0,
+      totalScore: run.totalScore,
+      correctCount: run.correctCount,
+      nextQuestion: finished ? void 0 : toPublicQuestion2(run.questions[run.currentIndex], run.currentIndex, config),
+      finished,
+      summary: finished && run.summary ? { runId: run.id, level: run.level, ...run.summary } : void 0
     };
   }
   async finish(userId, runId) {
@@ -1081,6 +1131,25 @@ var DefaultPveService = class {
       throw new Error("\u4E0D\u80FD\u64CD\u4F5C\u5176\u4ED6\u73A9\u5BB6\u7684\u6311\u6218\u8BB0\u5F55");
     }
     return run;
+  }
+  requireCurrentQuestion(run, questionId) {
+    const question = run.questions[run.currentIndex];
+    if (!question) {
+      throw new Error("PVE\u6311\u6218\u72B6\u6001\u5F02\u5E38\uFF1A\u5F53\u524D\u9898\u76EE\u7F3A\u5931");
+    }
+    if (question.questionId !== questionId) {
+      throw new Error("\u9898\u76EE\u987A\u5E8F\u5F02\u5E38\uFF0C\u8BF7\u5237\u65B0\u6311\u6218\u72B6\u6001");
+    }
+    if (question.timedOutAt || question.answeredAt) {
+      throw new Error("\u9898\u76EE\u5DF2\u7ECF\u7ED3\u675F");
+    }
+    return question;
+  }
+  requireQuestionElapsedMs(question) {
+    if (!question.startedAt) {
+      throw new Error("\u9898\u76EE\u5C1A\u672A\u5F00\u59CB");
+    }
+    return Math.max(0, this.now() - question.startedAt);
   }
   requireLevel(level2) {
     const config = this.levelConfigs.find((item) => item.level === level2);
@@ -1255,6 +1324,20 @@ app.post(
   })
 );
 app.post(
+  "/api/pve/question/start",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({
+      ok: true,
+      result: await pve.startQuestion(user.id, {
+        runId: String(req.body?.runId ?? ""),
+        questionId: String(req.body?.questionId ?? "")
+      })
+    });
+  })
+);
+app.post(
   "/api/pve/answer",
   asyncRoute(async (req, res) => {
     const { pve } = requireAccountContext();
@@ -1265,6 +1348,20 @@ app.post(
         runId: String(req.body?.runId ?? ""),
         questionId: String(req.body?.questionId ?? ""),
         answer: String(req.body?.answer ?? "")
+      })
+    });
+  })
+);
+app.post(
+  "/api/pve/timeout",
+  asyncRoute(async (req, res) => {
+    const { pve } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({
+      ok: true,
+      result: await pve.timeoutQuestion(user.id, {
+        runId: String(req.body?.runId ?? ""),
+        questionId: String(req.body?.questionId ?? "")
       })
     });
   })
@@ -1289,11 +1386,12 @@ if (distPath) {
 }
 io.on("connection", (socket) => {
   socket.on("createRoom", (payload, ack) => {
-    handleAck(ack, () => {
+    handleAck(ack, async () => {
+      const user = await requireSocketUser(payload.token);
       const code = createUniqueRoomCode();
       const room = createGameRoom({ code, idioms: data.idioms, songs: data.songs, roundSeconds: ROUND_SECONDS });
       rooms.set(code, room);
-      const player = room.join(payload.name);
+      const player = room.join(user.nickname);
       socket.join(socketRoom(code));
       socket.data.roomCode = code;
       socket.data.playerId = player.id;
@@ -1303,9 +1401,10 @@ io.on("connection", (socket) => {
     });
   });
   socket.on("joinRoom", (payload, ack) => {
-    handleAck(ack, () => {
+    handleAck(ack, async () => {
+      const user = await requireSocketUser(payload.token);
       const room = requireRoom(payload.roomCode);
-      const player = room.join(payload.name, payload.playerId);
+      const player = room.join(user.nickname, payload.playerId);
       socket.join(socketRoom(payload.roomCode));
       socket.data.roomCode = payload.roomCode;
       socket.data.playerId = player.id;
@@ -1351,16 +1450,16 @@ io.on("connection", (socket) => {
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`BrainSync party games listening on http://localhost:${PORT}`);
 });
-function handleAck(ack, action) {
+async function handleAck(ack, action) {
   try {
-    ack?.(action());
+    ack?.(await action());
   } catch (error) {
     const message = error instanceof Error ? error.message : "\u672A\u77E5\u9519\u8BEF";
     ack?.({ ok: false, error: message });
   }
 }
 function requireRoom(code) {
-  const normalized = code.trim().toUpperCase();
+  const normalized = code.trim();
   const room = rooms.get(normalized);
   if (!room) {
     throw new Error(`\u623F\u95F4\u4E0D\u5B58\u5728\uFF1A${normalized}`);
@@ -1369,7 +1468,7 @@ function requireRoom(code) {
 }
 function createUniqueRoomCode() {
   for (let i = 0; i < 20; i += 1) {
-    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+    const code = Math.floor(Math.random() * 1e6).toString().padStart(6, "0");
     if (!rooms.has(code)) {
       return code;
     }
@@ -1377,7 +1476,7 @@ function createUniqueRoomCode() {
   throw new Error("\u623F\u95F4\u53F7\u751F\u6210\u5931\u8D25");
 }
 function socketRoom(code) {
-  return `room:${code.trim().toUpperCase()}`;
+  return `room:${code.trim()}`;
 }
 function emitRoom(code, snapshot) {
   io.to(socketRoom(code)).emit("roomSnapshot", snapshot);
@@ -1419,7 +1518,7 @@ async function initializeAccountContext() {
   if (!config) {
     return {
       ready: false,
-      error: new Error("MySQL\u672A\u914D\u7F6E\uFF0C\u8D26\u53F7\u548CPVE\u529F\u80FD\u4E0D\u53EF\u7528\uFF1BPVP\u623F\u95F4\u4ECD\u53EF\u7EE7\u7EED\u4F7F\u7528")
+      error: new Error("MySQL\u672A\u914D\u7F6E\uFF0C\u8D26\u53F7\u3001PVE\u548CPVP\u5F00\u623F\u529F\u80FD\u4E0D\u53EF\u7528")
     };
   }
   try {
@@ -1449,6 +1548,13 @@ async function requireHttpUser(req) {
   const token = readBearerToken(req);
   if (!token) {
     throw new HttpError(401, "\u672A\u767B\u5F55");
+  }
+  return auth.requireUserByToken(token);
+}
+async function requireSocketUser(token) {
+  const { auth } = requireAccountContext();
+  if (!token?.trim()) {
+    throw new Error("\u672A\u767B\u5F55");
   }
   return auth.requireUserByToken(token);
 }

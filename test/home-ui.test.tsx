@@ -20,6 +20,10 @@ describe("首页登录入口", () => {
   beforeEach(() => {
     localStorage.clear();
     document.body.innerHTML = '<div id="root"></div>';
+    Object.defineProperty(HTMLMediaElement.prototype, "play", {
+      configurable: true,
+      value: vi.fn(() => Promise.resolve())
+    });
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string) => {
@@ -57,6 +61,160 @@ describe("首页登录入口", () => {
 
     expect(document.querySelector(".home-auth-modal")).not.toBeNull();
   });
+
+  it("登录后进入PVP入口不再显示昵称输入，只输入6位数字房间号", async () => {
+    localStorage.setItem("brainsync.authToken", "token-1");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/pve/levels") {
+          return jsonResponse({ ok: true, levels: [] });
+        }
+        if (url === "/api/me") {
+          return jsonResponse({ ok: true, user: { id: "u1", username: "jim", nickname: "jim", title: "新声挑战者", createdAt: 1 } });
+        }
+        if (url === "/api/pve/profile") {
+          return jsonResponse({
+            ok: true,
+            profile: {
+              stamina: { current: 4, max: 5, lastRecoveredAt: 1, adRestoreCount: 0 },
+              highestUnlockedLevel: 1,
+              progress: []
+            }
+          });
+        }
+        return jsonResponse({ ok: false, error: "未知接口" }, 404);
+      })
+    );
+
+    await act(async () => {
+      createRoot(document.getElementById("root")!).render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".room-mode button")?.click();
+    });
+
+    expect(document.body.textContent).not.toContain("昵称");
+    expect(document.body.textContent).toContain("创建房间");
+    expect(document.querySelector<HTMLInputElement>('input[placeholder="6位数字房间号"]')).not.toBeNull();
+  });
+
+  it("猜歌挑战中显示当前得分并在答对后更新", async () => {
+    localStorage.setItem("brainsync.authToken", "token-1");
+    vi.useFakeTimers();
+    const question = {
+      questionId: "q1",
+      songId: "s1",
+      index: 1,
+      total: 5,
+      audioUrl: "/audio/demo.mp3",
+      sourceUrl: "",
+      timeLimitSeconds: 30,
+      audioFilter: "phone"
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/pve/levels") {
+          return jsonResponse({
+            ok: true,
+            levels: [
+              {
+                level: 1,
+                name: "初听旋律",
+                songCount: 5,
+                timeLimitSeconds: 30,
+                passScore: 1800,
+                starScores: [1800, 2600, 3400],
+                audioFilter: "phone",
+                difficultyRange: [1, 2]
+              }
+            ]
+          });
+        }
+        if (url === "/api/me") {
+          return jsonResponse({ ok: true, user: { id: "u1", username: "jim", nickname: "jim", title: "新声挑战者", createdAt: 1 } });
+        }
+        if (url === "/api/pve/profile") {
+          return jsonResponse({
+            ok: true,
+            profile: {
+              stamina: { current: 4, max: 5, lastRecoveredAt: 1, adRestoreCount: 0 },
+              highestUnlockedLevel: 1,
+              progress: []
+            }
+          });
+        }
+        if (url === "/api/pve/start") {
+          return jsonResponse({
+            ok: true,
+            run: {
+              runId: "run-1",
+              level: 1,
+              questions: [question],
+              currentQuestion: question,
+              stamina: { current: 3, max: 5, lastRecoveredAt: 1, adRestoreCount: 0 }
+            }
+          });
+        }
+        if (url === "/api/pve/question/start") {
+          return jsonResponse({ ok: true, result: { timeLimitSeconds: 30 } });
+        }
+        if (url === "/api/pve/answer") {
+          return jsonResponse({
+            ok: true,
+            result: {
+              correct: true,
+              answer: "晴天",
+              scoreDelta: 850,
+              totalScore: 850,
+              correctCount: 1,
+              finished: false
+            }
+          });
+        }
+        return jsonResponse({ ok: false, error: "未知接口" }, 404);
+      })
+    );
+
+    await act(async () => {
+      createRoot(document.getElementById("root")!).render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".guess-mode button")?.click();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".level-card button")?.click();
+    });
+
+    expect(document.querySelector(".score-strip")?.textContent).toContain("当前得分");
+    expect(document.querySelector(".score-strip strong")?.textContent).toBe("0");
+
+    for (let second = 0; second < 4; second += 1) {
+      await act(async () => {
+        vi.advanceTimersByTime(1000);
+        await Promise.resolve();
+      });
+    }
+    await act(async () => {
+      setNativeInputValue(document.querySelector<HTMLInputElement>(".answer-row input")!, "晴天");
+      await Promise.resolve();
+    });
+    expect(document.body.textContent).toContain("剩余");
+    expect(document.querySelector<HTMLButtonElement>(".answer-row button")?.disabled).toBe(false);
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".answer-row button")?.click();
+    });
+
+    expect(document.querySelector(".score-strip strong")?.textContent).toBe("850");
+    vi.useRealTimers();
+  });
 });
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -65,4 +223,13 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     json: async () => body
   } as Response;
+}
+
+function setNativeInputValue(input: HTMLInputElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+  setter?.call(input, value);
+  input.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: value }));
+  const reactPropsKey = Object.keys(input).find((key) => key.startsWith("__reactProps$"));
+  const reactProps = reactPropsKey ? (input as unknown as Record<string, { onChange?: (event: { target: { value: string } }) => void }>)[reactPropsKey] : undefined;
+  reactProps?.onChange?.({ target: { value } });
 }

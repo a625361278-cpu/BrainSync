@@ -811,6 +811,21 @@ input:focus {
   background: linear-gradient(180deg, #f3fff7, #ffffff);
 }
 
+.pve-phone-shell {
+  grid-template-rows: 1fr;
+  justify-items: center;
+  background: #dfeff7;
+}
+
+.pve-phone-page {
+  width: min(493px, 100vw);
+  min-height: 900px;
+  background:
+    radial-gradient(circle at 80% 11%, rgba(255, 245, 175, 0.42), transparent 18%),
+    url("/home-assets/bg-living-room.svg") top center / cover no-repeat;
+  box-shadow: 0 18px 46px rgba(35, 71, 58, 0.2);
+}
+
 .pve-header {
   height: 58px;
   display: grid;
@@ -844,11 +859,11 @@ input:focus {
 }
 
 .level-list {
-  width: min(860px, 100%);
+  width: 100%;
   justify-self: center;
   display: grid;
   gap: 12px;
-  padding: 16px;
+  padding: 16px 14px 24px;
 }
 
 .level-card {
@@ -861,6 +876,13 @@ input:focus {
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 8px 20px rgba(31, 35, 41, 0.05);
+}
+
+.pve-phone-page .level-card {
+  min-height: 92px;
+  border: 2px solid rgba(255, 255, 255, 0.86);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .level-card div:first-child,
@@ -892,14 +914,17 @@ input:focus {
 }
 
 .challenge-card {
-  width: min(560px, calc(100% - 28px));
+  position: relative;
+  width: min(430px, calc(100% - 28px));
   align-self: center;
   justify-self: center;
   display: grid;
   gap: 16px;
+  margin: 170px auto 0;
   padding: 20px;
-  border-radius: 8px;
-  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 14px 34px rgba(31, 35, 41, 0.08);
 }
 
@@ -921,10 +946,60 @@ input:focus {
   color: #687076;
 }
 
+.score-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #087443;
+  background: linear-gradient(90deg, #e8fbef, #fff7c2);
+  box-shadow: inset 0 0 0 1px rgba(7, 193, 96, 0.12);
+}
+
+.score-strip span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.score-strip strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
 .pve-audio {
   padding: 14px;
   border-radius: 8px;
   background: #effcf4;
+}
+
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  color: #07a85a;
+  background: rgba(255, 255, 255, 0.84);
+  font-size: 88px;
+  font-weight: 900;
+  text-shadow: 0 5px 0 rgba(7, 193, 96, 0.16);
+}
+
+.time-bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dcefe6;
+}
+
+.time-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #07c160, #ffe15c);
+  transition: width 0.2s linear;
 }
 
 .pve-audio .audio-message {
@@ -977,6 +1052,67 @@ input:focus {
   color: #07a85a;
   font-size: 38px;
   font-weight: 800;
+}
+
+.pvp-entry-panel {
+  width: min(430px, calc(100% - 28px));
+}
+
+.pvp-player-chip {
+  width: fit-content;
+  margin-bottom: 14px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: #087443;
+  background: #e9fbf1;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pvp-choice-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.pvp-create-card,
+.pvp-join-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.pvp-create-card {
+  color: #fff;
+  background: linear-gradient(135deg, #20c46f, #0aa66c);
+}
+
+.pvp-create-card strong,
+.pvp-join-card strong {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.pvp-create-card span {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+}
+
+.pvp-join-card {
+  border: 1px solid #e5efe9;
+  background: #f7fffa;
+}
+
+.pvp-join-card input {
+  width: 100%;
+  font-size: 20px;
+  letter-spacing: 3px;
+  text-align: center;
+}
+
+.pvp-join-card button {
+  width: 100%;
 }
 
 .brand-row {

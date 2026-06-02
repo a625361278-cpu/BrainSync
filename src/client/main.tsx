@@ -77,6 +77,7 @@ interface PveAnswerResult {
   correctCount: number;
   nextQuestion?: PveQuestion;
   finished: boolean;
+  summary?: PveSummary;
 }
 
 interface PveSummary {
@@ -91,6 +92,7 @@ interface PveSummary {
 
 type View = "home" | "pvp" | "pve";
 type PvpIntent = "idiom" | "song" | undefined;
+type ChallengePhase = "levels" | "countdown" | "playing" | "feedback";
 
 const PLAYER_ID_KEY = "brainsync.playerId";
 const AUTH_TOKEN_KEY = "brainsync.authToken";
@@ -246,16 +248,33 @@ export function App() {
   }
 
   if (view === "pvp") {
+    if (!user) {
+      return (
+        <Home
+          user={user}
+          profile={profile}
+          busy={busy}
+          error={error || "请先登录后再开房对战"}
+          onLogin={login}
+          onRegister={register}
+          onLogout={logout}
+          showAuthModal={true}
+          onCloseAuth={() => setView("home")}
+          onOpenAuth={() => setShowAuthModal(true)}
+          onOpenPve={() => setShowAuthModal(true)}
+          onOpenPvp={() => setShowAuthModal(true)}
+        />
+      );
+    }
     return (
       <Landing
         busy={busy}
         error={error}
-        name={name}
+        nickname={user.nickname}
         roomCode={roomCode}
-        onNameChange={setName}
         onRoomCodeChange={setRoomCode}
-        onCreate={() => emitWithAck("createRoom", { name })}
-        onJoin={() => emitWithAck("joinRoom", { name, roomCode, playerId })}
+        onCreate={() => emitWithAck("createRoom", { token })}
+        onJoin={() => emitWithAck("joinRoom", { token, roomCode, playerId })}
         intent={pvpIntent}
         onHome={() => {
           setView("home");
@@ -303,6 +322,10 @@ export function App() {
         setView("pve");
       }}
       onOpenPvp={(intent) => {
+        if (!user) {
+          setShowAuthModal(true);
+          return;
+        }
         setPvpIntent(intent);
         setView("pvp");
       }}
@@ -513,10 +536,9 @@ function AuthBox(props: {
 function Landing(props: {
   busy: boolean;
   error: string;
-  name: string;
+  nickname: string;
   roomCode: string;
   intent: PvpIntent;
-  onNameChange: (value: string) => void;
   onRoomCodeChange: (value: string) => void;
   onCreate: () => void;
   onJoin: () => void;
@@ -524,7 +546,7 @@ function Landing(props: {
 }) {
   return (
     <main className="landing">
-      <section className="login-panel">
+      <section className="login-panel pvp-entry-panel">
         <button className="ghost-button back-home" onClick={props.onHome}>
           返回大厅
         </button>
@@ -542,23 +564,23 @@ function Landing(props: {
           </div>
         </div>
 
-        <label>
-          昵称
-          <input value={props.name} onChange={(event) => props.onNameChange(event.target.value)} maxLength={12} />
-        </label>
+        <div className="pvp-player-chip">当前玩家：{props.nickname}</div>
 
-        <div className="action-grid">
-          <button disabled={props.busy || !props.name.trim()} onClick={props.onCreate}>
-            创建房间
+        <div className="pvp-choice-grid">
+          <button className="pvp-create-card" disabled={props.busy} onClick={props.onCreate}>
+            <strong>创建房间</strong>
+            <span>生成 6 位数字房间号，邀请好友加入</span>
           </button>
-          <div className="join-row">
+          <div className="pvp-join-card">
+            <strong>加入房间</strong>
             <input
               value={props.roomCode}
-              onChange={(event) => props.onRoomCodeChange(event.target.value.toUpperCase())}
-              placeholder="房间号"
+              onChange={(event) => props.onRoomCodeChange(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="6位数字房间号"
+              inputMode="numeric"
               maxLength={6}
             />
-            <button disabled={props.busy || !props.name.trim() || !props.roomCode.trim()} onClick={props.onJoin}>
+            <button disabled={props.busy || props.roomCode.length !== 6} onClick={props.onJoin}>
               加入
             </button>
           </div>
@@ -584,15 +606,44 @@ function PveChallenge(props: {
 }) {
   const [run, setRun] = useState<PveRun | undefined>();
   const [currentQuestion, setCurrentQuestion] = useState<PveQuestion | undefined>();
+  const [phase, setPhase] = useState<ChallengePhase>("levels");
+  const [countdown, setCountdown] = useState(3);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [currentScore, setCurrentScore] = useState(0);
   const [answer, setAnswer] = useState("");
   const [result, setResult] = useState<PveAnswerResult | undefined>();
   const [summary, setSummary] = useState<PveSummary | undefined>();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const timeoutBusyRef = useRef(false);
 
   useEffect(() => {
     pauseOtherAudio(null);
   }, [currentQuestion?.questionId]);
+
+  useEffect(() => {
+    if (phase !== "countdown" || !run || !currentQuestion) {
+      return;
+    }
+    if (countdown <= 0) {
+      void markQuestionStarted(run, currentQuestion);
+      return;
+    }
+    const timer = window.setTimeout(() => setCountdown((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [phase, countdown, run, currentQuestion]);
+
+  useEffect(() => {
+    if (phase !== "playing" || !run || !currentQuestion) {
+      return;
+    }
+    if (secondsLeft <= 0) {
+      void timeoutCurrentQuestion(run, currentQuestion);
+      return;
+    }
+    const timer = window.setTimeout(() => setSecondsLeft((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [phase, secondsLeft, run, currentQuestion]);
 
   if (!props.user) {
     return (
@@ -617,6 +668,7 @@ function PveChallenge(props: {
     setError("");
     setSummary(undefined);
     setResult(undefined);
+    setCurrentScore(0);
     try {
       const response = await apiRequest<{ run: PveRun }>("/api/pve/start", {
         method: "POST",
@@ -624,7 +676,7 @@ function PveChallenge(props: {
         body: { level }
       });
       setRun(response.run);
-      setCurrentQuestion(response.run.currentQuestion);
+      beginQuestion(response.run.currentQuestion);
       if (props.profile) {
         props.onProfileChange({ ...props.profile, stamina: response.run.stamina });
       }
@@ -635,8 +687,43 @@ function PveChallenge(props: {
     }
   }
 
+  function beginQuestion(question: PveQuestion) {
+    pauseOtherAudio(null);
+    timeoutBusyRef.current = false;
+    setCurrentQuestion(question);
+    setAnswer("");
+    setResult(undefined);
+    setSecondsLeft(question.timeLimitSeconds);
+    setCountdown(3);
+    setPhase("countdown");
+  }
+
+  async function markQuestionStarted(activeRun: PveRun, question: PveQuestion) {
+    if (phase !== "countdown") {
+      return;
+    }
+    setPhase("playing");
+    setError("");
+    try {
+      const response = await apiRequest<{ result: { timeLimitSeconds: number } }>("/api/pve/question/start", {
+        method: "POST",
+        token: props.token,
+        body: { runId: activeRun.runId, questionId: question.questionId }
+      });
+      setSecondsLeft(response.result.timeLimitSeconds);
+      window.setTimeout(() => {
+        const audio = document.querySelector<HTMLAudioElement>(".pve-audio audio");
+        const playResult = audio?.play();
+        playResult?.catch(() => setError("浏览器阻止自动播放，请手动点击播放"));
+      }, 80);
+    } catch (err) {
+      setPhase("feedback");
+      setError(err instanceof Error ? err.message : "题目开始失败");
+    }
+  }
+
   async function submitAnswer() {
-    if (!run || !currentQuestion || !answer.trim()) {
+    if (!run || !currentQuestion || !answer.trim() || phase !== "playing") {
       return;
     }
     setBusy(true);
@@ -648,10 +735,9 @@ function PveChallenge(props: {
         body: { runId: run.runId, questionId: currentQuestion.questionId, answer }
       });
       setResult(response.result);
+      setCurrentScore(response.result.totalScore);
       setAnswer("");
-      if (response.result.nextQuestion) {
-        setCurrentQuestion(response.result.nextQuestion);
-      }
+      setPhase("feedback");
       if (response.result.finished) {
         const finish = await apiRequest<{ summary: PveSummary }>("/api/pve/finish", {
           method: "POST",
@@ -661,7 +747,12 @@ function PveChallenge(props: {
         setSummary(finish.summary);
         setRun(undefined);
         setCurrentQuestion(undefined);
+        setPhase("levels");
         await props.onRefreshProfile();
+      } else if (response.result.correct && response.result.nextQuestion) {
+        window.setTimeout(() => beginQuestion(response.result.nextQuestion!), 1200);
+      } else {
+        setPhase("playing");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "提交答案失败");
@@ -670,77 +761,129 @@ function PveChallenge(props: {
     }
   }
 
-  return (
-    <main className="pve-shell">
-      <header className="pve-header">
-        <button className="ghost-button" onClick={props.onBack}>
-          返回大厅
-        </button>
-        <strong>猜歌挑战</strong>
-        <span>
-          体力 {props.profile?.stamina.current ?? "-"} / {props.profile?.stamina.max ?? "-"}
-        </span>
-      </header>
+  async function timeoutCurrentQuestion(activeRun: PveRun, question: PveQuestion) {
+    if (timeoutBusyRef.current) {
+      return;
+    }
+    timeoutBusyRef.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await apiRequest<{ result: PveAnswerResult }>("/api/pve/timeout", {
+        method: "POST",
+        token: props.token,
+        body: { runId: activeRun.runId, questionId: question.questionId }
+      });
+      setResult(response.result);
+      setCurrentScore(response.result.totalScore);
+      setAnswer("");
+      setPhase("feedback");
+      if (response.result.finished) {
+        setSummary(response.result.summary);
+        setRun(undefined);
+        setCurrentQuestion(undefined);
+        setPhase("levels");
+        await props.onRefreshProfile();
+      } else if (response.result.nextQuestion) {
+        window.setTimeout(() => beginQuestion(response.result.nextQuestion!), 1500);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "超时结算失败");
+      setPhase("playing");
+      timeoutBusyRef.current = false;
+    } finally {
+      setBusy(false);
+    }
+  }
 
-      {!run || !currentQuestion ? (
-        <section className="level-list">
-          {props.levels.map((level) => {
-            const progress = props.profile?.progress.find((row) => row.level === level.level);
-            const locked = level.level > (props.profile?.highestUnlockedLevel ?? 1);
-            return (
-              <article key={level.level} className={`level-card ${locked ? "locked" : ""}`}>
-                <div>
-                  <span>第 {level.level} 关</span>
-                  <strong>{level.name}</strong>
-                  <small>
-                    {level.songCount} 首 / {level.timeLimitSeconds} 秒 / 过关 {level.passScore} 分
-                  </small>
-                </div>
-                <div className="level-meta">
-                  <span>{renderStars(progress?.stars ?? 0)}</span>
-                  <small>最高 {progress?.highestScore ?? 0}</small>
-                  <button disabled={busy || locked || (props.profile?.stamina.current ?? 0) <= 0} onClick={() => startLevel(level.level)}>
-                    {locked ? "未解锁" : "开始"}
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-          {summary ? <PveSummaryPanel summary={summary} /> : null}
-        </section>
-      ) : (
-        <section className="challenge-card">
-          <div className="challenge-top">
-            <span>
-              第 {currentQuestion.index}/{currentQuestion.total} 首
-            </span>
-            <strong>{run.level} 关挑战中</strong>
-            <small>限时 {currentQuestion.timeLimitSeconds} 秒，答错不换歌但会扣本题分</small>
-          </div>
-          <FilteredAudio question={currentQuestion} />
-          <div className="answer-row">
-            <input
-              value={answer}
-              onChange={(event) => setAnswer(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  void submitAnswer();
-                }
-              }}
-              placeholder="输入歌名"
-            />
-            <button disabled={busy || !answer.trim()} onClick={submitAnswer}>
-              抢答
-            </button>
-          </div>
-          {result ? (
-            <div className={`answer-result ${result.correct ? "correct" : "wrong"}`}>
-              {result.correct ? `答对 +${result.scoreDelta}，总分 ${result.totalScore}` : "答案不对，继续听继续猜"}
+  return (
+    <main className="pve-shell pve-phone-shell">
+      <section className="pve-phone-page">
+        <header className="pve-header">
+          <button className="ghost-button" onClick={props.onBack}>
+            返回大厅
+          </button>
+          <strong>猜歌挑战</strong>
+          <span>
+            体力 {props.profile?.stamina.current ?? "-"} / {props.profile?.stamina.max ?? "-"}
+          </span>
+        </header>
+
+        {!run || !currentQuestion ? (
+          <section className="level-list">
+            {summary ? <PveSummaryPanel summary={summary} /> : null}
+            {props.levels.map((level) => {
+              const progress = props.profile?.progress.find((row) => row.level === level.level);
+              const locked = level.level > (props.profile?.highestUnlockedLevel ?? 1);
+              return (
+                <article key={level.level} className={`level-card ${locked ? "locked" : ""}`}>
+                  <div>
+                    <span>第 {level.level} 关</span>
+                    <strong>{level.name}</strong>
+                    <small>
+                      {level.songCount} 首 / {level.timeLimitSeconds} 秒 / 过关 {level.passScore} 分
+                    </small>
+                  </div>
+                  <div className="level-meta">
+                    <span>{renderStars(progress?.stars ?? 0)}</span>
+                    <small>最高 {progress?.highestScore ?? 0}</small>
+                    <button disabled={busy || locked || (props.profile?.stamina.current ?? 0) <= 0} onClick={() => startLevel(level.level)}>
+                      {locked ? "未解锁" : "开始"}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        ) : (
+          <section className="challenge-card">
+            <div className="challenge-top">
+              <span>
+                第 {currentQuestion.index}/{currentQuestion.total} 首
+              </span>
+              <strong>{phase === "countdown" ? "准备听歌" : `${run.level} 关挑战中`}</strong>
+              <small>
+                {phase === "playing" ? `剩余 ${secondsLeft} 秒` : "倒计时结束后自动播放，限时 30 秒"}
+              </small>
             </div>
-          ) : null}
-        </section>
-      )}
-      {error ? <div className="toast">{error}</div> : null}
+            <div className="score-strip">
+              <span>当前得分</span>
+              <strong>{currentScore}</strong>
+            </div>
+            {phase === "countdown" ? <div className="countdown-overlay">{countdown || "GO"}</div> : null}
+            <div className="time-bar">
+              <span style={{ width: `${Math.max(0, (secondsLeft / currentQuestion.timeLimitSeconds) * 100)}%` }} />
+            </div>
+            <FilteredAudio question={currentQuestion} />
+            <div className="answer-row">
+              <input
+                value={answer}
+                onChange={(event) => setAnswer(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    void submitAnswer();
+                  }
+                }}
+                placeholder={phase === "playing" ? "输入歌名" : "等待倒计时..."}
+                disabled={phase !== "playing"}
+              />
+              <button disabled={busy || phase !== "playing" || !answer.trim()} onClick={submitAnswer}>
+                抢答
+              </button>
+            </div>
+            {result ? (
+              <div className={`answer-result ${result.correct ? "correct" : "wrong"}`}>
+                {result.correct
+                  ? `答对 +${result.scoreDelta}，总分 ${result.totalScore}`
+                  : result.answer
+                    ? `本题超时，正确答案是《${result.answer}》`
+                    : "答案不对，继续听继续猜"}
+              </div>
+            ) : null}
+          </section>
+        )}
+        {error ? <div className="toast">{error}</div> : null}
+      </section>
     </main>
   );
 }

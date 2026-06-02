@@ -48,7 +48,9 @@ export interface PveRunQuestionRecord {
   questionId: string;
   song: SongEntry;
   timeLimitSeconds: number;
+  startedAt?: number;
   answeredAt?: number;
+  timedOutAt?: number;
   correct?: boolean;
   scoreDelta?: number;
   wrongCount?: number;

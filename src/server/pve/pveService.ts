@@ -55,6 +55,17 @@ export interface PveAnswerPayload {
   answer: string;
 }
 
+export interface PveQuestionActionPayload {
+  runId: string;
+  questionId: string;
+}
+
+export interface PveQuestionStartResult {
+  question: PublicPveQuestion;
+  startedAt: number;
+  timeLimitSeconds: number;
+}
+
 export interface PveAnswerResult {
   correct: boolean;
   answer: string;
@@ -63,6 +74,7 @@ export interface PveAnswerResult {
   correctCount: number;
   nextQuestion?: PublicPveQuestion;
   finished: boolean;
+  summary?: PveFinishResult;
 }
 
 export interface PveFinishResult extends PveRunSummaryRecord {
@@ -74,7 +86,9 @@ export interface PveService {
   profile(userId: string): Promise<PveProfile>;
   levels(): PveLevelConfig[];
   start(userId: string, level: number): Promise<PveStartResult>;
+  startQuestion(userId: string, payload: PveQuestionActionPayload): Promise<PveQuestionStartResult>;
   answer(userId: string, payload: PveAnswerPayload): Promise<PveAnswerResult>;
+  timeoutQuestion(userId: string, payload: PveQuestionActionPayload): Promise<PveAnswerResult>;
   finish(userId: string, runId: string): Promise<PveFinishResult>;
 }
 
@@ -138,7 +152,7 @@ class DefaultPveService implements PveService {
       correctCount: 0,
       combo: 0,
       startedAt: now,
-      currentQuestionStartedAt: now
+      currentQuestionStartedAt: 0
     };
     stamina.current -= 1;
     await this.repo.upsertStamina(stamina);
@@ -153,20 +167,37 @@ class DefaultPveService implements PveService {
     };
   }
 
+  async startQuestion(userId: string, payload: PveQuestionActionPayload): Promise<PveQuestionStartResult> {
+    const run = await this.requireRunForUser(payload.runId, userId);
+    if (run.status !== "playing") {
+      throw new Error("挑战已结束");
+    }
+    const question = this.requireCurrentQuestion(run, payload.questionId);
+    if (question.answeredAt || question.timedOutAt) {
+      throw new Error("题目已经结束");
+    }
+    const startedAt = this.now();
+    question.startedAt = startedAt;
+    run.currentQuestionStartedAt = startedAt;
+    await this.repo.updateRun(run);
+    return {
+      question: toPublicQuestion(question, run.currentIndex, this.requireLevel(run.level)),
+      startedAt,
+      timeLimitSeconds: question.timeLimitSeconds
+    };
+  }
+
   async answer(userId: string, payload: PveAnswerPayload): Promise<PveAnswerResult> {
     const run = await this.requireRunForUser(payload.runId, userId);
     if (run.status !== "playing") {
       throw new Error("挑战已结束");
     }
-    const question = run.questions[run.currentIndex];
-    if (!question) {
-      throw new Error("PVE挑战状态异常：当前题目缺失");
-    }
-    if (question.questionId !== payload.questionId) {
-      throw new Error("题目顺序异常，请刷新挑战状态");
-    }
+    const question = this.requireCurrentQuestion(run, payload.questionId);
     const config = this.requireLevel(run.level);
-    const elapsedMs = Math.max(0, this.now() - run.currentQuestionStartedAt);
+    const elapsedMs = this.requireQuestionElapsedMs(question);
+    if (elapsedMs > question.timeLimitSeconds * 1000) {
+      throw new Error("本题已超时");
+    }
     const correct = isSongAnswer(payload.answer, question.song);
     const answerTitle = question.song.title;
     let scoreDelta = 0;
@@ -180,7 +211,7 @@ class DefaultPveService implements PveService {
       question.correct = true;
       question.scoreDelta = scoreDelta;
       run.currentIndex += 1;
-      run.currentQuestionStartedAt = this.now();
+      run.currentQuestionStartedAt = 0;
     } else {
       run.combo = 0;
       question.wrongCount = (question.wrongCount ?? 0) + 1;
@@ -199,6 +230,41 @@ class DefaultPveService implements PveService {
       correctCount: run.correctCount,
       nextQuestion: finished ? undefined : toPublicQuestion(run.questions[run.currentIndex], run.currentIndex, config),
       finished
+    };
+  }
+
+  async timeoutQuestion(userId: string, payload: PveQuestionActionPayload): Promise<PveAnswerResult> {
+    const run = await this.requireRunForUser(payload.runId, userId);
+    if (run.status !== "playing") {
+      throw new Error("挑战已结束");
+    }
+    const question = this.requireCurrentQuestion(run, payload.questionId);
+    const config = this.requireLevel(run.level);
+    const elapsedMs = this.requireQuestionElapsedMs(question);
+    if (elapsedMs < question.timeLimitSeconds * 1000) {
+      throw new Error("尚未超时");
+    }
+    question.timedOutAt = this.now();
+    question.correct = false;
+    question.scoreDelta = 0;
+    run.combo = 0;
+    run.currentIndex += 1;
+    run.currentQuestionStartedAt = 0;
+    const finished = run.currentIndex >= run.questions.length;
+    if (finished) {
+      await this.finalizeRun(run, config);
+    } else {
+      await this.repo.updateRun(run);
+    }
+    return {
+      correct: false,
+      answer: question.song.title,
+      scoreDelta: 0,
+      totalScore: run.totalScore,
+      correctCount: run.correctCount,
+      nextQuestion: finished ? undefined : toPublicQuestion(run.questions[run.currentIndex], run.currentIndex, config),
+      finished,
+      summary: finished && run.summary ? { runId: run.id, level: run.level, ...run.summary } : undefined
     };
   }
 
@@ -274,6 +340,27 @@ class DefaultPveService implements PveService {
       throw new Error("不能操作其他玩家的挑战记录");
     }
     return run;
+  }
+
+  private requireCurrentQuestion(run: PveRunRecord, questionId: string): PveRunQuestionRecord {
+    const question = run.questions[run.currentIndex];
+    if (!question) {
+      throw new Error("PVE挑战状态异常：当前题目缺失");
+    }
+    if (question.questionId !== questionId) {
+      throw new Error("题目顺序异常，请刷新挑战状态");
+    }
+    if (question.timedOutAt || question.answeredAt) {
+      throw new Error("题目已经结束");
+    }
+    return question;
+  }
+
+  private requireQuestionElapsedMs(question: PveRunQuestionRecord): number {
+    if (!question.startedAt) {
+      throw new Error("题目尚未开始");
+    }
+    return Math.max(0, this.now() - question.startedAt);
   }
 
   private requireLevel(level: number): PveLevelConfig {

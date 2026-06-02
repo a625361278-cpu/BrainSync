@@ -87,6 +87,18 @@ describe("PVE猜歌挑战服务端规则", () => {
     const { user } = await auth.register({ username: "jim", password: "secret123", nickname: "Jim" });
     const started = await pve.start(user.id, 1);
 
+    await expect(
+      pve.answer(user.id, {
+        runId: started.runId,
+        questionId: started.currentQuestion.questionId,
+        answer: "晴天"
+      })
+    ).rejects.toThrow("题目尚未开始");
+
+    await pve.startQuestion(user.id, {
+      runId: started.runId,
+      questionId: started.currentQuestion.questionId
+    });
     now += 10_000;
     const wrong = await pve.answer(user.id, {
       runId: started.runId,
@@ -119,6 +131,10 @@ describe("PVE猜歌挑战服务端规则", () => {
     const answers = ["晴天", "红豆", "江南", "遇见", "知足"];
 
     for (let i = 0; i < started.questions.length; i += 1) {
+      await pve.startQuestion(user.id, {
+        runId: started.runId,
+        questionId: started.questions[i].questionId
+      });
       now += 2000;
       const result = await pve.answer(user.id, {
         runId: started.runId,
@@ -134,6 +150,52 @@ describe("PVE猜歌挑战服务端规则", () => {
     expect(summary.stars).toBeGreaterThanOrEqual(1);
     expect(profile.highestUnlockedLevel).toBe(2);
     expect(profile.progress.find((row) => row.level === 1)?.highestScore).toBe(summary.totalScore);
+  });
+
+  it("单题30秒超时后公布正确答案并进入下一题，最后一题超时会结算", async () => {
+    let now = 1000;
+    const { auth, pve } = createServices({ now: () => now });
+    const { user } = await auth.register({ username: "jim", password: "secret123", nickname: "Jim" });
+    const started = await pve.start(user.id, 1);
+
+    await pve.startQuestion(user.id, {
+      runId: started.runId,
+      questionId: started.currentQuestion.questionId
+    });
+    now += 29_000;
+    await expect(
+      pve.timeoutQuestion(user.id, {
+        runId: started.runId,
+        questionId: started.currentQuestion.questionId
+      })
+    ).rejects.toThrow("尚未超时");
+
+    now += 1_000;
+    const firstTimeout = await pve.timeoutQuestion(user.id, {
+      runId: started.runId,
+      questionId: started.currentQuestion.questionId
+    });
+
+    expect(firstTimeout.answer).toBe("晴天");
+    expect(firstTimeout.scoreDelta).toBe(0);
+    expect(firstTimeout.nextQuestion?.questionId).toBe(started.questions[1].questionId);
+    expect(firstTimeout.finished).toBe(false);
+
+    for (let i = 1; i < started.questions.length; i += 1) {
+      await pve.startQuestion(user.id, {
+        runId: started.runId,
+        questionId: started.questions[i].questionId
+      });
+      now += 30_000;
+      const result = await pve.timeoutQuestion(user.id, {
+        runId: started.runId,
+        questionId: started.questions[i].questionId
+      });
+      if (i === started.questions.length - 1) {
+        expect(result.finished).toBe(true);
+        expect(result.summary?.correctCount).toBe(0);
+      }
+    }
   });
 });
 
