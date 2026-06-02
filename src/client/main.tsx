@@ -90,11 +90,12 @@ interface PveSummary {
 }
 
 type View = "home" | "pvp" | "pve";
+type PvpIntent = "idiom" | "song" | undefined;
 
 const PLAYER_ID_KEY = "brainsync.playerId";
 const AUTH_TOKEN_KEY = "brainsync.authToken";
 
-function App() {
+export function App() {
   const socket = useMemo<Socket>(() => io(), []);
   const [view, setView] = useState<View>("home");
   const [room, setRoom] = useState<RoomSnapshot | undefined>();
@@ -107,6 +108,8 @@ function App() {
   const [user, setUser] = useState<PublicUser | undefined>();
   const [profile, setProfile] = useState<PveProfile | undefined>();
   const [levels, setLevels] = useState<PveLevel[]>([]);
+  const [showAuthModal, setShowAuthModal] = useState(() => !localStorage.getItem(AUTH_TOKEN_KEY));
+  const [pvpIntent, setPvpIntent] = useState<PvpIntent>();
 
   useEffect(() => {
     socket.on("roomSnapshot", (snapshot: RoomSnapshot) => setRoom(snapshot));
@@ -145,6 +148,7 @@ function App() {
       setToken("");
       setUser(undefined);
       setProfile(undefined);
+      setShowAuthModal(true);
       setError(err instanceof Error ? err.message : "登录状态失效");
     }
   }
@@ -160,6 +164,7 @@ function App() {
       setToken(result.token);
       setUser(result.user);
       await refreshMe(result.token);
+      setShowAuthModal(false);
     } finally {
       setBusy(false);
     }
@@ -176,6 +181,7 @@ function App() {
       setToken(result.token);
       setUser(result.user);
       await refreshMe(result.token);
+      setShowAuthModal(false);
     } finally {
       setBusy(false);
     }
@@ -233,6 +239,7 @@ function App() {
           setRoom(undefined);
           setError("");
           setView("home");
+          setPvpIntent(undefined);
         }}
       />
     );
@@ -249,9 +256,11 @@ function App() {
         onRoomCodeChange={setRoomCode}
         onCreate={() => emitWithAck("createRoom", { name })}
         onJoin={() => emitWithAck("joinRoom", { name, roomCode, playerId })}
+        intent={pvpIntent}
         onHome={() => {
           setView("home");
           setError("");
+          setPvpIntent(undefined);
         }}
       />
     );
@@ -283,8 +292,20 @@ function App() {
       onLogin={login}
       onRegister={register}
       onLogout={logout}
-      onOpenPve={() => setView("pve")}
-      onOpenPvp={() => setView("pvp")}
+      showAuthModal={showAuthModal}
+      onCloseAuth={() => setShowAuthModal(false)}
+      onOpenAuth={() => setShowAuthModal(true)}
+      onOpenPve={() => {
+        if (!user) {
+          setShowAuthModal(true);
+          return;
+        }
+        setView("pve");
+      }}
+      onOpenPvp={(intent) => {
+        setPvpIntent(intent);
+        setView("pvp");
+      }}
     />
   );
 }
@@ -297,72 +318,148 @@ function Home(props: {
   onLogin: (payload: { username: string; password: string }) => Promise<void>;
   onRegister: (payload: { username: string; password: string; nickname: string }) => Promise<void>;
   onLogout: () => Promise<void>;
+  showAuthModal: boolean;
+  onCloseAuth: () => void;
+  onOpenAuth: () => void;
   onOpenPve: () => void;
-  onOpenPvp: () => void;
+  onOpenPvp: (intent?: Exclude<PvpIntent, undefined>) => void;
 }) {
   return (
     <main className="home-shell">
-      <section className="home-hero">
-        <div className="hero-copy">
-          <span className="pill">BrainSync</span>
-          <h1>猜歌开局，好友接招</h1>
-          <p>一个像微信小游戏大厅的实时猜歌房间：自己闯关，也可以拉朋友开房抢答。</p>
+      <section className="mini-home-page">
+        <div className="home-statusbar">
+          <span>16:02</span>
+          <span>5G 68%</span>
         </div>
-        <div className="profile-card">
-          {props.user ? (
-            <>
-              <div className="profile-main">
-                <img src="/avatars/player-2.svg" alt="" />
-                <div>
-                  <strong>{props.user.nickname}</strong>
-                  <span>{props.user.title}</span>
-                </div>
-              </div>
-              <div className="stamina-line">
-                <span>体力</span>
-                <strong>
-                  {props.profile?.stamina.current ?? "-"} / {props.profile?.stamina.max ?? "-"}
-                </strong>
-              </div>
-              <button className="light-button" onClick={props.onLogout}>
-                退出登录
-              </button>
-            </>
-          ) : (
-            <AuthBox busy={props.busy} onLogin={props.onLogin} onRegister={props.onRegister} />
-          )}
-        </div>
-      </section>
+        <header className="home-topbar">
+          <div className="home-player">
+            <img src="/home-assets/avatar-dog.svg" alt="" />
+            <div>
+              <strong>{props.user?.nickname ?? "欢迎来到 BrainSync"}</strong>
+              <span>{props.user ? props.user.title : "未登录"}</span>
+            </div>
+          </div>
+          <div className="home-actions">
+            <button type="button" className="round-action" aria-label="好友">
+              <span>👥</span>
+              <small>好友</small>
+            </button>
+            <button type="button" className="round-action has-dot" aria-label="消息">
+              <span>💬</span>
+              <small>消息</small>
+            </button>
+            <button type="button" className="capsule-action" aria-label="更多">
+              •••
+            </button>
+          </div>
+        </header>
 
-      <section className="mode-grid">
-        <button className="mode-card primary-mode" onClick={props.onOpenPve}>
-          <span>主玩法</span>
-          <strong>猜歌挑战</strong>
-          <small>5 首一关，越快答对分越高</small>
-        </button>
-        <button className="mode-card battle-mode" onClick={props.onOpenPvp}>
-          <span>实时对战</span>
-          <strong>开房间对战</strong>
-          <small>成语接龙 / 猜歌名，像群聊一样抢答</small>
-        </button>
-        <button className="mode-card" onClick={props.onOpenPvp}>
-          <span>小游戏</span>
-          <strong>成语接龙</strong>
-          <small>同音接龙，房主开局</small>
-        </button>
-        <button className="mode-card disabled-card" disabled>
-          <span>预留</span>
-          <strong>每日挑战</strong>
-          <small>后续加入广告恢复体力</small>
-        </button>
-        <button className="mode-card disabled-card" disabled>
-          <span>预留</span>
-          <strong>排行榜</strong>
-          <small>好友星级和闯关进度</small>
-        </button>
+        <section className="home-title-stage">
+          <img className="floating-note note-left" src="/home-assets/note.svg" alt="" />
+          <img className="floating-note note-right" src="/home-assets/note.svg" alt="" />
+          <img className="home-logo" src="/home-assets/logo.svg" alt="BrainSync 欢乐房间" />
+          <div className="bot-speech">嗨！欢迎来到BrainSync，一起猜歌接龙，快乐翻倍！</div>
+          <img className="hero-microphone" src="/home-assets/microphone.svg" alt="" />
+          <img className="hero-robot" src="/home-assets/robot.svg" alt="" />
+        </section>
+
+        <section className="home-main-modes">
+          <article className="big-mode guess-mode">
+            <span className="mode-ribbon">主打玩法</span>
+            <strong>猜歌挑战</strong>
+            <small>听歌猜歌名，赢星星！</small>
+            <div className="stamina-badge">
+              ⚡ {props.profile ? `体力 ${props.profile.stamina.current}/${props.profile.stamina.max}` : "登录查看体力"}
+            </div>
+            <div className="star-track" aria-hidden="true">★★★★</div>
+            <img className="mode-art record-art" src="/home-assets/record.svg" alt="" />
+            <button type="button" onClick={props.onOpenPve}>开始挑战</button>
+          </article>
+
+          <article className="big-mode room-mode">
+            <strong>开房间对战</strong>
+            <small>邀请好友，实时对战</small>
+            <div className="chat-vs">
+              <span>•••</span>
+              <b>VS</b>
+              <span>•••</span>
+            </div>
+            <button type="button" onClick={() => props.onOpenPvp()}>快速开始</button>
+          </article>
+        </section>
+
+        <section className="home-sub-modes">
+          <SmallMode title="成语接龙" desc="妙趣接龙，才思无限" art="/home-assets/scroll.svg" tone="purple" onClick={() => props.onOpenPvp("idiom")} />
+          <SmallMode title="猜歌名" desc="经典金曲，等你来猜" art="/home-assets/headphones.svg" tone="yellow" onClick={() => props.onOpenPvp("song")} />
+          <SmallMode title="每日挑战" desc="每日更新，赢取星星" art="/home-assets/calendar.svg" tone="blue" onClick={() => alert("每日挑战功能开发中")} />
+          <SmallMode title="好友排行" desc="好友比拼，谁更厉害" art="/home-assets/trophy.svg" tone="pink" onClick={() => alert("好友排行功能开发中")} />
+        </section>
+
+        <section className="online-strip">
+          <span className="online-dot"></span>
+          <strong>32</strong>
+          <span>位好友在线</span>
+          <div className="friend-stack">
+            <img src="/home-assets/friend-1.svg" alt="" />
+            <img src="/home-assets/friend-2.svg" alt="" />
+            <img src="/home-assets/avatar-dog.svg" alt="" />
+            <img src="/home-assets/friend-3.svg" alt="" />
+          </div>
+          <button type="button">邀请好友</button>
+        </section>
+
+        <section className="system-strip">
+          <span>💬</span>
+          <p>系统消息：欢迎来到 BrainSync 欢乐房间！🎉</p>
+          <b>›</b>
+        </section>
       </section>
+      {props.showAuthModal ? (
+        <AuthModal
+          busy={props.busy}
+          error={props.error}
+          onLogin={props.onLogin}
+          onRegister={props.onRegister}
+          onClose={props.onCloseAuth}
+        />
+      ) : null}
       {props.error ? <p className="home-error">{props.error}</p> : null}
     </main>
+  );
+}
+
+function SmallMode(props: { title: string; desc: string; art: string; tone: string; onClick: () => void }) {
+  return (
+    <button type="button" className={`small-mode ${props.tone}`} onClick={props.onClick}>
+      <div>
+        <strong>{props.title}</strong>
+        <span>{props.desc}</span>
+      </div>
+      <img src={props.art} alt="" />
+    </button>
+  );
+}
+
+function AuthModal(props: {
+  busy: boolean;
+  error: string;
+  onLogin: (payload: { username: string; password: string }) => Promise<void>;
+  onRegister: (payload: { username: string; password: string; nickname: string }) => Promise<void>;
+  onClose: () => void;
+}) {
+  return (
+    <div className="home-auth-modal" role="dialog" aria-modal="true" aria-label="登录 BrainSync">
+      <section className="auth-modal-card">
+        <button type="button" className="modal-close" aria-label="关闭登录弹窗" onClick={props.onClose}>
+          ×
+        </button>
+        <img src="/home-assets/avatar-dog.svg" alt="" />
+        <h2>欢迎来到 BrainSync</h2>
+        <p>登录后保存体力、星级和闯关进度；关闭弹窗也可以游客开房对战。</p>
+        <AuthBox busy={props.busy} onLogin={props.onLogin} onRegister={props.onRegister} />
+        {props.error ? <span className="form-error">{props.error}</span> : null}
+      </section>
+    </div>
   );
 }
 
@@ -418,6 +515,7 @@ function Landing(props: {
   error: string;
   name: string;
   roomCode: string;
+  intent: PvpIntent;
   onNameChange: (value: string) => void;
   onRoomCodeChange: (value: string) => void;
   onCreate: () => void;
@@ -434,7 +532,13 @@ function Landing(props: {
           <img src="/avatars/bot.svg" alt="" className="brand-avatar" />
           <div>
             <h1>开房间对战</h1>
-            <p>像微信群一样抢答：成语接龙、猜歌名。游客也可以玩。</p>
+            <p>
+              {props.intent === "idiom"
+                ? "准备开一局成语接龙。游客也可以玩。"
+                : props.intent === "song"
+                  ? "准备开一局猜歌名。游客也可以玩。"
+                  : "像微信群一样抢答：成语接龙、猜歌名。游客也可以玩。"}
+            </p>
           </div>
         </div>
 
@@ -859,4 +963,7 @@ declare global {
   }
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  createRoot(rootElement).render(<App />);
+}
