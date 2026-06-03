@@ -1566,10 +1566,7 @@ input:focus {
   }
 
   .star-track {
-    width: 140px;
-    padding: 6px 9px;
-    font-size: 20px;
-    letter-spacing: 5px;
+    display: none;
   }
 
   .record-art {
@@ -1579,19 +1576,25 @@ input:focus {
   }
 
   .chat-vs {
-    left: 12px;
-    right: 12px;
+    left: 15px;
+    right: 15px;
     bottom: 76px;
+    display: flex;
+    justify-content: center;
     gap: 5px;
   }
 
   .chat-vs span {
+    flex: 0 0 48px;
+    width: 48px;
     height: 47px;
     border-radius: 18px;
     font-size: 24px;
+    letter-spacing: 2px;
   }
 
   .chat-vs b {
+    flex: 0 0 auto;
     font-size: 36px;
   }
 
@@ -1665,12 +1668,25 @@ input:focus {
   }
 
   .stamina-badge {
-    margin-top: 41px;
+    margin-top: 52px;
     font-size: 11px;
   }
 
   .record-art {
     width: 112px;
+  }
+
+  .chat-vs {
+    left: 12px;
+    right: 12px;
+    gap: 4px;
+  }
+
+  .chat-vs span {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
   }
 
   .chat-vs b {
