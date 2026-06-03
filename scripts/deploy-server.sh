@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_NAME="${APP_NAME:-brainsync}"
-BRANCH="${BRANCH:-main}"
+BRANCH="${BRANCH:-feature/home-and-pve}"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/api/health}"
 
 echo "==> Updating ${APP_NAME} from origin/${BRANCH}"

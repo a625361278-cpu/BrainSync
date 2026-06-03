@@ -91,18 +91,18 @@ PORT=3000 npm start
 bash scripts/deploy-server.sh
 ```
 
-脚本会执行：拉取 `origin/main`、安装生产依赖、重启 PM2 应用 `brainsync`、检查 `http://127.0.0.1:3000/api/health`。当前新首页/PVE功能在 `feature/home-and-pve` 分支，未合并前不要用它覆盖 `main` 的稳定部署，除非你明确要预览新版本。
+脚本会执行：拉取 `origin/feature/home-and-pve`、安装生产依赖、重启 PM2 应用 `brainsync`、检查 `http://127.0.0.1:3000/api/health`。服务器默认使用当前新首页/PVE分支。
 
 可用环境变量覆盖默认值：
 
 ```bash
-APP_NAME=brainsync BRANCH=main HEALTH_URL=http://127.0.0.1:3000/api/health bash scripts/deploy-server.sh
+APP_NAME=brainsync BRANCH=feature/home-and-pve HEALTH_URL=http://127.0.0.1:3000/api/health bash scripts/deploy-server.sh
 ```
 
-预览本分支时可以临时指定：
+如果以后要临时部署其他分支，可以覆盖 `BRANCH`：
 
 ```bash
-APP_NAME=brainsync BRANCH=feature/home-and-pve bash scripts/deploy-server.sh
+APP_NAME=brainsync BRANCH=main bash scripts/deploy-server.sh
 ```
 
 ## 音乐来源说明
