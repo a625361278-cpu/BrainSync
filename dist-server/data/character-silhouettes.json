@@ -1,37 +1,72 @@
 [
   {
-    "id": "nezha",
-    "name": "哪吒",
-    "aliases": ["哪吒三太子", "三太子"],
-    "work": "哪吒闹海",
-    "imageUrl": "/pvp-assets/silhouettes/nezha.svg"
+    "id": "shin-chan",
+    "name": "蜡笔小新",
+    "aliases": ["小新", "野原新之助"],
+    "work": "蜡笔小新",
+    "imageUrl": "/pvp-assets/silhouettes/shin-chan.png"
   },
   {
-    "id": "sun-wukong",
+    "id": "doraemon",
+    "name": "哆啦A梦",
+    "aliases": ["哆啦a梦", "机器猫", "小叮当"],
+    "work": "哆啦A梦",
+    "imageUrl": "/pvp-assets/silhouettes/doraemon.png"
+  },
+  {
+    "id": "goku",
     "name": "孙悟空",
-    "aliases": ["齐天大圣", "美猴王"],
-    "work": "西游记",
-    "imageUrl": "/pvp-assets/silhouettes/sun-wukong.svg"
+    "aliases": ["悟空", "卡卡罗特"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/goku.png"
   },
   {
-    "id": "bai-suzhen",
-    "name": "白素贞",
-    "aliases": ["白娘子"],
-    "work": "白蛇传",
-    "imageUrl": "/pvp-assets/silhouettes/bai-suzhen.svg"
+    "id": "vegeta",
+    "name": "贝吉塔",
+    "aliases": ["达尔", "贝吉达"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/vegeta.png"
   },
   {
-    "id": "hua-mulan",
-    "name": "花木兰",
-    "aliases": ["木兰"],
-    "work": "木兰从军",
-    "imageUrl": "/pvp-assets/silhouettes/hua-mulan.svg"
+    "id": "piccolo",
+    "name": "比克",
+    "aliases": ["短笛", "比克大魔王"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/piccolo.png"
   },
   {
-    "id": "jiang-ziya",
-    "name": "姜子牙",
-    "aliases": ["姜太公", "太公望"],
-    "work": "封神演义",
-    "imageUrl": "/pvp-assets/silhouettes/jiang-ziya.svg"
+    "id": "krillin",
+    "name": "克林",
+    "aliases": ["小林", "库林"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/krillin.png"
+  },
+  {
+    "id": "trunks",
+    "name": "特兰克斯",
+    "aliases": ["未来特兰克斯", "特南克斯"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/trunks.png"
+  },
+  {
+    "id": "frieza",
+    "name": "弗利萨",
+    "aliases": ["弗利沙"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/frieza.png"
+  },
+  {
+    "id": "bardock",
+    "name": "巴达克",
+    "aliases": ["巴达克斯"],
+    "work": "七龙珠",
+    "imageUrl": "/pvp-assets/silhouettes/bardock.png"
+  },
+  {
+    "id": "naruto",
+    "name": "漩涡鸣人",
+    "aliases": ["鸣人", "火影"],
+    "work": "火影忍者",
+    "imageUrl": "/pvp-assets/silhouettes/naruto.png"
   }
 ]

@@ -5,8 +5,8 @@ import characters from "../src/server/data/character-silhouettes.json";
 import movies from "../src/server/data/movie-stills.json";
 
 describe("PVP图片题库质量", () => {
-  it("剪影猜人和剧照猜电影至少各包含5题", () => {
-    expect(characters.length).toBeGreaterThanOrEqual(5);
+  it("剪影猜人至少包含10题，剧照猜电影至少包含5题", () => {
+    expect(characters.length).toBeGreaterThanOrEqual(10);
     expect(movies.length).toBeGreaterThanOrEqual(5);
   });
 
@@ -16,7 +16,7 @@ describe("PVP图片题库质量", () => {
       expect(character.name).toBeTruthy();
       expect(character.work).toBeTruthy();
       expect(character.aliases).toBeInstanceOf(Array);
-      expect(character.imageUrl).toMatch(/^\/pvp-assets\/silhouettes\/.+\.svg$/);
+      expect(character.imageUrl).toMatch(/^\/pvp-assets\/silhouettes\/.+\.png$/);
       expect(existsSync(resolve("public", character.imageUrl.slice(1)))).toBe(true);
     }
 

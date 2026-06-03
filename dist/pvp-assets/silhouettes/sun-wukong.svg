@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240" role="img" aria-label="剪影题">
-  <rect width="360" height="240" rx="22" fill="#fff8e9"/>
-  <circle cx="294" cy="64" r="34" fill="#fff0c2"/>
-  <path d="M181 48c32 0 58 27 58 60 0 22-12 41-29 52l18 48h-96l19-48c-18-11-29-30-29-52 0-33 26-60 59-60Z" fill="#111827"/>
-  <path d="M143 70c-27-14-49-9-65 14 30-2 51 5 63 23M219 70c27-14 49-9 65 14-30-2-51 5-63 23" fill="#111827"/>
-  <path d="M86 183 288 40" stroke="#111827" stroke-width="13" stroke-linecap="round"/>
-  <path d="M151 39c16 14 43 14 59 0" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
-</svg>
