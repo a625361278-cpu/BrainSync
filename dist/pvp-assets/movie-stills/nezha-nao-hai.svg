@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240" role="img" aria-label="剧照题">
+  <rect width="360" height="240" rx="22" fill="#eaf8ff"/>
+  <path d="M0 164c49-28 92-28 129 0s80 28 129 0 83-28 102 0v76H0Z" fill="#53b8e8"/>
+  <circle cx="178" cy="81" r="38" fill="#111827"/>
+  <path d="M138 69c-24-18-42-31-55-39 4 32 22 51 54 58M218 69c24-18 42-31 55-39-4 32-22 51-54 58" fill="#111827"/>
+  <path d="M110 154h136M84 127l49 27-49 27M276 127l-49 27 49 27" stroke="#111827" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

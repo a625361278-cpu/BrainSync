@@ -1,7 +1,7 @@
-export type GameType = "idiom" | "song";
+export type GameType = "idiom" | "song" | "silhouette" | "movie";
 export type RoomStatus = "waiting" | "playing" | "finished";
 export type MessageSender = "bot" | "player" | "system";
-export type MessageKind = "chat" | "round" | "audio" | "result" | "system";
+export type MessageKind = "chat" | "round" | "audio" | "image" | "hint" | "result" | "system";
 
 export interface IdiomEntry {
   text: string;
@@ -17,6 +17,24 @@ export interface SongEntry {
   searchTerm: string;
   previewUrl: string;
   sourceUrl: string;
+}
+
+export interface CharacterEntry {
+  id: string;
+  name: string;
+  aliases: string[];
+  work: string;
+  imageUrl: string;
+}
+
+export interface MovieEntry {
+  id: string;
+  title: string;
+  aliases: string[];
+  year: number;
+  region: string;
+  genre: string;
+  imageUrl: string;
 }
 
 export interface Player {
@@ -37,6 +55,8 @@ export interface ChatMessage {
   playerName?: string;
   avatar?: string;
   audioUrl?: string;
+  imageUrl?: string;
+  imageAlt?: string;
   createdAt: number;
 }
 
@@ -47,11 +67,13 @@ export interface SettlementRow {
 }
 
 export interface PublicQuestion {
+  questionId: string;
   gameType: GameType;
   round: number;
   totalRounds: number;
   prompt: string;
   audioUrl?: string;
+  imageUrl?: string;
   sourceUrl?: string;
   endsWithPinyin?: string;
 }

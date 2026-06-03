@@ -1,0 +1,47 @@
+[
+  {
+    "id": "da-nao-tian-gong",
+    "title": "大闹天宫",
+    "aliases": ["大闹天宫上集", "大闹天宫下集"],
+    "year": 1961,
+    "region": "中国",
+    "genre": "动画",
+    "imageUrl": "/pvp-assets/movie-stills/da-nao-tian-gong.svg"
+  },
+  {
+    "id": "nezha-nao-hai",
+    "title": "哪吒闹海",
+    "aliases": ["哪吒闹海动画电影"],
+    "year": 1979,
+    "region": "中国",
+    "genre": "动画",
+    "imageUrl": "/pvp-assets/movie-stills/nezha-nao-hai.svg"
+  },
+  {
+    "id": "bao-lian-deng",
+    "title": "宝莲灯",
+    "aliases": ["动画电影宝莲灯"],
+    "year": 1999,
+    "region": "中国",
+    "genre": "动画",
+    "imageUrl": "/pvp-assets/movie-stills/bao-lian-deng.svg"
+  },
+  {
+    "id": "da-sheng-gui-lai",
+    "title": "西游记之大圣归来",
+    "aliases": ["大圣归来"],
+    "year": 2015,
+    "region": "中国",
+    "genre": "动画",
+    "imageUrl": "/pvp-assets/movie-stills/da-sheng-gui-lai.svg"
+  },
+  {
+    "id": "chang-an-san-wan-li",
+    "title": "长安三万里",
+    "aliases": ["长安三万里动画电影"],
+    "year": 2023,
+    "region": "中国",
+    "genre": "动画",
+    "imageUrl": "/pvp-assets/movie-stills/chang-an-san-wan-li.svg"
+  }
+]

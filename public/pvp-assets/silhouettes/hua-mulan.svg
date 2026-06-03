@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240" role="img" aria-label="剪影题">
+  <rect width="360" height="240" rx="22" fill="#fff1f5"/>
+  <path d="M176 48c31 0 56 26 56 58 0 22-12 42-31 52l19 50h-88l19-50c-19-10-31-30-31-52 0-32 25-58 56-58Z" fill="#111827"/>
+  <path d="M91 58 285 202M276 50l-42 12 30 29Z" stroke="#111827" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M135 78c-30 8-50 27-60 57 32-18 58-23 77-16M218 78c30 8 50 27 60 57-32-18-58-23-77-16" fill="#111827"/>
+</svg>

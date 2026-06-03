@@ -1,0 +1,37 @@
+[
+  {
+    "id": "nezha",
+    "name": "哪吒",
+    "aliases": ["哪吒三太子", "三太子"],
+    "work": "哪吒闹海",
+    "imageUrl": "/pvp-assets/silhouettes/nezha.svg"
+  },
+  {
+    "id": "sun-wukong",
+    "name": "孙悟空",
+    "aliases": ["齐天大圣", "美猴王"],
+    "work": "西游记",
+    "imageUrl": "/pvp-assets/silhouettes/sun-wukong.svg"
+  },
+  {
+    "id": "bai-suzhen",
+    "name": "白素贞",
+    "aliases": ["白娘子"],
+    "work": "白蛇传",
+    "imageUrl": "/pvp-assets/silhouettes/bai-suzhen.svg"
+  },
+  {
+    "id": "hua-mulan",
+    "name": "花木兰",
+    "aliases": ["木兰"],
+    "work": "木兰从军",
+    "imageUrl": "/pvp-assets/silhouettes/hua-mulan.svg"
+  },
+  {
+    "id": "jiang-ziya",
+    "name": "姜子牙",
+    "aliases": ["姜太公", "太公望"],
+    "work": "封神演义",
+    "imageUrl": "/pvp-assets/silhouettes/jiang-ziya.svg"
+  }
+]

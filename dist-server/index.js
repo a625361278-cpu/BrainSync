@@ -26,8 +26,11 @@ var InMemoryGameRoom = class {
   random;
   idioms;
   songs;
+  characters;
+  movies;
   idiomRounds;
   songRounds;
+  imageRounds;
   players = /* @__PURE__ */ new Map();
   usedIdioms = /* @__PURE__ */ new Set();
   messages = [];
@@ -40,6 +43,10 @@ var InMemoryGameRoom = class {
   messageSeq = 0;
   songCursor = 0;
   songDeck = [];
+  characterCursor = 0;
+  characterDeck = [];
+  movieCursor = 0;
+  movieDeck = [];
   idiomCursor = 0;
   constructor(options) {
     this.code = options.code ?? createRoomCode();
@@ -47,8 +54,11 @@ var InMemoryGameRoom = class {
     this.random = options.random ?? Math.random;
     this.idioms = [...options.idioms];
     this.songs = [...options.songs];
+    this.characters = [...options.characters ?? []];
+    this.movies = [...options.movies ?? []];
     this.idiomRounds = options.idiomRounds ?? 10;
     this.songRounds = options.songRounds ?? 5;
+    this.imageRounds = options.imageRounds ?? 5;
   }
   join(name, playerId) {
     const normalizedName = name.trim();
@@ -98,11 +108,15 @@ var InMemoryGameRoom = class {
     this.usedIdioms.clear();
     this.songCursor = 0;
     this.songDeck = [];
+    this.characterCursor = 0;
+    this.characterDeck = [];
+    this.movieCursor = 0;
+    this.movieDeck = [];
     this.idiomCursor = 0;
     for (const player of this.players.values()) {
       player.score = 0;
     }
-    const intro = gameType === "song" ? `\u5F00\u59CB\u731C\u6B4C\u540D\u6216\u6B4C\u624B\uFF01\u603B\u5171 ${this.songRounds} \u9898\u3002\u542C\u97F3\u731C\u6B4C\uFF01` : `\u5F00\u59CB\u6210\u8BED\u63A5\u9F99\uFF01\u603B\u5171 ${this.idiomRounds} \u9898\u3002\u540C\u97F3\u63A5\u9F99\uFF01`;
+    const intro = this.buildIntro(gameType);
     const messages = [this.pushBot(intro, "round")];
     messages.push(...this.advanceToNextRound());
     return messages;
@@ -130,9 +144,32 @@ var InMemoryGameRoom = class {
     this.advanceToNextRound();
     return result;
   }
-  timeoutRound() {
+  hintRound(questionId) {
     if (this.status !== "playing" || !this.activeQuestion) {
+      if (questionId) {
+        return [];
+      }
+      throw new Error("\u5F53\u524D\u6CA1\u6709\u53EF\u63D0\u793A\u7684\u9898\u76EE");
+    }
+    if (questionId && this.activeQuestion.questionId !== questionId) {
+      return [];
+    }
+    if (this.activeQuestion.hinted) {
+      return [];
+    }
+    const hint = this.resolveHint();
+    this.activeQuestion.hinted = true;
+    return [this.pushBot(hint, "hint")];
+  }
+  timeoutRound(questionId) {
+    if (this.status !== "playing" || !this.activeQuestion) {
+      if (questionId) {
+        return [];
+      }
       throw new Error("\u5F53\u524D\u6CA1\u6709\u53EF\u8D85\u65F6\u7684\u9898\u76EE");
+    }
+    if (questionId && this.activeQuestion.questionId !== questionId) {
+      return [];
     }
     const timeoutAnswer = this.resolveTimeoutAnswer();
     const messages = [this.pushBot(timeoutAnswer.message, "result")];
@@ -161,7 +198,7 @@ var InMemoryGameRoom = class {
     if (!this.gameType) {
       throw new Error("\u6E38\u620F\u7C7B\u578B\u7F3A\u5931\uFF0C\u65E0\u6CD5\u8FDB\u5165\u4E0B\u4E00\u9898");
     }
-    const nextQuestion = this.gameType === "song" ? this.nextSongQuestion() : this.nextIdiomQuestion(fromTimeout);
+    const nextQuestion = this.nextQuestion(fromTimeout);
     if (!nextQuestion) {
       this.finishGame();
       return [this.pushBot(formatSettlement(this.requireSettlement()), "result")];
@@ -174,6 +211,18 @@ var InMemoryGameRoom = class {
         this.pushBot("\u8BED\u97F3 15''", "audio", void 0, nextQuestion.audioUrl)
       ];
     }
+    if (nextQuestion.gameType === "silhouette") {
+      return [
+        this.pushBot(`\u7B2C ${questionNo}/${nextQuestion.totalRounds} \u9898\uFF0C\u770B\u526A\u5F71\u731C\u52A8\u6F2B\u89D2\u8272\u3002`, "round"),
+        this.pushBot("\u526A\u5F71\u9898", "image", void 0, void 0, nextQuestion.imageUrl, "\u52A8\u6F2B\u89D2\u8272\u526A\u5F71")
+      ];
+    }
+    if (nextQuestion.gameType === "movie") {
+      return [
+        this.pushBot(`\u7B2C ${questionNo}/${nextQuestion.totalRounds} \u9898\uFF0C\u770B\u5267\u7167\u731C\u7535\u5F71\u540D\u3002`, "round"),
+        this.pushBot("\u5267\u7167\u9898", "image", void 0, void 0, nextQuestion.imageUrl, "\u7535\u5F71\u5267\u7167\u9898")
+      ];
+    }
     return [
       this.pushBot(
         `\u7B2C ${questionNo}/${nextQuestion.totalRounds} \u9898\uFF0C\u8BF7\u63A5\uFF1A${nextQuestion.previousIdiom?.text}\uFF08${nextQuestion.previousIdiom?.pinyin.at(-1)}\uFF09`,
@@ -181,22 +230,77 @@ var InMemoryGameRoom = class {
       )
     ];
   }
+  nextQuestion(fromTimeout) {
+    if (!this.gameType) {
+      throw new Error("\u6E38\u620F\u7C7B\u578B\u7F3A\u5931\uFF0C\u65E0\u6CD5\u62BD\u9898");
+    }
+    if (this.gameType === "song") {
+      return this.nextSongQuestion();
+    }
+    if (this.gameType === "silhouette") {
+      return this.nextCharacterQuestion();
+    }
+    if (this.gameType === "movie") {
+      return this.nextMovieQuestion();
+    }
+    return this.nextIdiomQuestion(fromTimeout);
+  }
   nextSongQuestion() {
     if (this.songCursor >= this.songRounds) {
       return void 0;
     }
     const song = this.pickNextSong();
     const question = {
+      questionId: this.nextQuestionId("song", this.songCursor),
       gameType: "song",
       roundIndex: this.songCursor,
       totalRounds: this.songRounds,
       answer: song.title,
       prompt: `\u731C\u6B4C\u540D\uFF1A${song.artist}`,
+      hinted: false,
       audioUrl: song.previewUrl,
       sourceUrl: song.sourceUrl,
       song
     };
     this.songCursor += 1;
+    return question;
+  }
+  nextCharacterQuestion() {
+    if (this.characterCursor >= this.imageRounds) {
+      return void 0;
+    }
+    const character = this.pickNextCharacter();
+    const question = {
+      questionId: this.nextQuestionId("silhouette", this.characterCursor),
+      gameType: "silhouette",
+      roundIndex: this.characterCursor,
+      totalRounds: this.imageRounds,
+      answer: character.name,
+      prompt: "\u770B\u526A\u5F71\u731C\u52A8\u6F2B\u89D2\u8272",
+      hinted: false,
+      imageUrl: character.imageUrl,
+      character
+    };
+    this.characterCursor += 1;
+    return question;
+  }
+  nextMovieQuestion() {
+    if (this.movieCursor >= this.imageRounds) {
+      return void 0;
+    }
+    const movie = this.pickNextMovie();
+    const question = {
+      questionId: this.nextQuestionId("movie", this.movieCursor),
+      gameType: "movie",
+      roundIndex: this.movieCursor,
+      totalRounds: this.imageRounds,
+      answer: movie.title,
+      prompt: "\u770B\u5267\u7167\u731C\u7535\u5F71\u540D",
+      hinted: false,
+      imageUrl: movie.imageUrl,
+      movie
+    };
+    this.movieCursor += 1;
     return question;
   }
   pickNextSong() {
@@ -209,6 +313,28 @@ var InMemoryGameRoom = class {
       throw new Error("\u6B4C\u66F2\u9898\u5E93\u72B6\u6001\u5F02\u5E38\uFF1A\u65E0\u6CD5\u62BD\u53D6\u6B4C\u66F2");
     }
     return song;
+  }
+  pickNextCharacter() {
+    if (this.characterDeck.length === 0) {
+      this.characterDeck = [...this.characters];
+    }
+    const index = Math.min(this.characterDeck.length - 1, Math.floor(this.random() * this.characterDeck.length));
+    const [character] = this.characterDeck.splice(index, 1);
+    if (!character) {
+      throw new Error("\u526A\u5F71\u731C\u4EBA\u9898\u5E93\u72B6\u6001\u5F02\u5E38\uFF1A\u65E0\u6CD5\u62BD\u53D6\u89D2\u8272");
+    }
+    return character;
+  }
+  pickNextMovie() {
+    if (this.movieDeck.length === 0) {
+      this.movieDeck = [...this.movies];
+    }
+    const index = Math.min(this.movieDeck.length - 1, Math.floor(this.random() * this.movieDeck.length));
+    const [movie] = this.movieDeck.splice(index, 1);
+    if (!movie) {
+      throw new Error("\u5267\u7167\u731C\u7535\u5F71\u9898\u5E93\u72B6\u6001\u5F02\u5E38\uFF1A\u65E0\u6CD5\u62BD\u53D6\u7535\u5F71");
+    }
+    return movie;
   }
   nextIdiomQuestion(fromTimeout) {
     if (this.idiomCursor >= this.idiomRounds) {
@@ -225,11 +351,13 @@ var InMemoryGameRoom = class {
       previous = this.requireIdiom(this.activeQuestion.answer);
     }
     const question = {
+      questionId: this.nextQuestionId("idiom", this.idiomCursor),
       gameType: "idiom",
       roundIndex: this.idiomCursor,
       totalRounds: this.idiomRounds,
       answer: "",
       prompt: `\u8BF7\u63A5\uFF1A${previous.text}`,
+      hinted: false,
       previousIdiom: previous
     };
     this.idiomCursor += 1;
@@ -247,6 +375,24 @@ var InMemoryGameRoom = class {
       const normalized = normalizeAnswer(text);
       const candidates = [song.title, ...song.aliases].map(normalizeAnswer);
       return candidates.includes(normalized) ? song.title : void 0;
+    }
+    if (this.activeQuestion.gameType === "silhouette") {
+      const character = this.activeQuestion.character;
+      if (!character) {
+        throw new Error("\u526A\u5F71\u731C\u4EBA\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u89D2\u8272\u6570\u636E");
+      }
+      const normalized = normalizeAnswer(text);
+      const candidates = [character.name, ...character.aliases].map(normalizeAnswer);
+      return candidates.includes(normalized) ? character.name : void 0;
+    }
+    if (this.activeQuestion.gameType === "movie") {
+      const movie = this.activeQuestion.movie;
+      if (!movie) {
+        throw new Error("\u5267\u7167\u731C\u7535\u5F71\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u7535\u5F71\u6570\u636E");
+      }
+      const normalized = normalizeAnswer(text);
+      const candidates = [movie.title, ...movie.aliases].map(normalizeAnswer);
+      return candidates.includes(normalized) ? movie.title : void 0;
     }
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
@@ -309,6 +455,24 @@ var InMemoryGameRoom = class {
         message: `\u672C\u8F6E\u8D85\u65F6\uFF0C\u6B63\u786E\u7B54\u6848\u662F\u300A${this.activeQuestion.answer}\u300B`
       };
     }
+    if (this.activeQuestion.gameType === "silhouette") {
+      if (!this.activeQuestion.answer) {
+        throw new Error("\u526A\u5F71\u731C\u4EBA\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u6B63\u786E\u7B54\u6848");
+      }
+      return {
+        chosenAnswer: this.activeQuestion.answer,
+        message: `\u672C\u8F6E\u8D85\u65F6\uFF0C\u6B63\u786E\u7B54\u6848\u662F\u300A${this.activeQuestion.answer}\u300B`
+      };
+    }
+    if (this.activeQuestion.gameType === "movie") {
+      if (!this.activeQuestion.answer) {
+        throw new Error("\u5267\u7167\u731C\u7535\u5F71\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u6B63\u786E\u7B54\u6848");
+      }
+      return {
+        chosenAnswer: this.activeQuestion.answer,
+        message: `\u672C\u8F6E\u8D85\u65F6\uFF0C\u6B63\u786E\u7B54\u6848\u662F\u300A${this.activeQuestion.answer}\u300B`
+      };
+    }
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
       throw new Error("\u6210\u8BED\u63A5\u9F99\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u4E0A\u4E00\u6210\u8BED");
@@ -324,6 +488,42 @@ var InMemoryGameRoom = class {
       chosenAnswer: chosen.text,
       message: `\u672C\u8F6E\u8D85\u65F6\uFF0C\u53C2\u8003\u7B54\u6848\uFF1A${sample}${suffix}`
     };
+  }
+  resolveHint() {
+    if (!this.activeQuestion) {
+      throw new Error("\u5F53\u524D\u9898\u76EE\u7F3A\u5931");
+    }
+    if (this.activeQuestion.gameType === "song") {
+      const song = this.activeQuestion.song;
+      if (!song?.artist) {
+        throw new Error("\u6B4C\u66F2\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u6B4C\u624B\u63D0\u793A\u6570\u636E");
+      }
+      return `\u63D0\u793A\uFF1A\u6B4C\u624B\u662F\u300C${song.artist}\u300D\uFF0C\u6B4C\u540D\u5171 ${countChineseChars(song.title)} \u4E2A\u5B57`;
+    }
+    if (this.activeQuestion.gameType === "silhouette") {
+      const character = this.activeQuestion.character;
+      if (!character?.work) {
+        throw new Error("\u526A\u5F71\u731C\u4EBA\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u4F5C\u54C1\u63D0\u793A\u6570\u636E");
+      }
+      return `\u63D0\u793A\uFF1A\u6765\u81EA\u300A${character.work}\u300B\uFF0C\u89D2\u8272\u540D\u5171 ${countChineseChars(character.name)} \u4E2A\u5B57`;
+    }
+    if (this.activeQuestion.gameType === "movie") {
+      const movie = this.activeQuestion.movie;
+      if (!movie?.year || !movie.region || !movie.genre) {
+        throw new Error("\u5267\u7167\u731C\u7535\u5F71\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u5E74\u4EE3/\u5730\u533A/\u7C7B\u578B\u63D0\u793A\u6570\u636E");
+      }
+      return `\u63D0\u793A\uFF1A${movie.year} \u5E74\uFF0C${movie.region}${movie.genre}\uFF0C\u7247\u540D\u5171 ${countChineseChars(movie.title)} \u4E2A\u5B57`;
+    }
+    const previous = this.activeQuestion.previousIdiom;
+    if (!previous) {
+      throw new Error("\u6210\u8BED\u63A5\u9F99\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u4E0A\u4E00\u6210\u8BED");
+    }
+    const answers = this.findNextIdioms(previous);
+    if (answers.length === 0) {
+      throw new Error(`\u6210\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A\u627E\u4E0D\u5230\u53EF\u63A5 ${previous.text} \u7684\u6210\u8BED`);
+    }
+    const firstChars = [...new Set(answers.map((entry) => [...entry.text][0]).filter(Boolean))].slice(0, 3).join("\u3001");
+    return `\u63D0\u793A\uFF1A\u53EF\u63A5\u6210\u8BED\u5171 ${answers.length} \u4E2A\uFF0C\u9996\u5B57\u53EF\u4EE5\u4ECE\u300C${firstChars}\u300D\u91CC\u60F3`;
   }
   requireIdiom(text) {
     const idiom = this.idioms.find((entry) => entry.text === text);
@@ -345,6 +545,18 @@ var InMemoryGameRoom = class {
     }
     return this.settlement;
   }
+  buildIntro(gameType) {
+    if (gameType === "song") {
+      return `\u5F00\u59CB\u731C\u6B4C\u540D\uFF01\u603B\u5171 ${this.songRounds} \u9898\u3002\u542C\u97F3\u731C\u6B4C\uFF01`;
+    }
+    if (gameType === "silhouette") {
+      return `\u5F00\u59CB\u526A\u5F71\u731C\u4EBA\uFF01\u603B\u5171 ${this.imageRounds} \u9898\u3002\u770B\u526A\u5F71\u62A2\u7B54\u89D2\u8272\u540D\uFF01`;
+    }
+    if (gameType === "movie") {
+      return `\u5F00\u59CB\u5267\u7167\u731C\u7535\u5F71\uFF01\u603B\u5171 ${this.imageRounds} \u9898\u3002\u770B\u56FE\u62A2\u7B54\u7535\u5F71\u540D\uFF01`;
+    }
+    return `\u5F00\u59CB\u6210\u8BED\u63A5\u9F99\uFF01\u603B\u5171 ${this.idiomRounds} \u9898\u3002\u540C\u97F3\u63A5\u9F99\uFF01`;
+  }
   finishGame() {
     this.status = "finished";
     this.activeQuestion = void 0;
@@ -364,7 +576,7 @@ var InMemoryGameRoom = class {
     this.messages.push(message);
     return message;
   }
-  pushBot(text, kind, atPlayerId, audioUrl) {
+  pushBot(text, kind, atPlayerId, audioUrl, imageUrl, imageAlt) {
     const message = {
       id: this.nextMessageId(),
       sender: "bot",
@@ -373,6 +585,8 @@ var InMemoryGameRoom = class {
       atPlayerId,
       avatar: BOT_AVATAR,
       audioUrl,
+      imageUrl,
+      imageAlt,
       createdAt: this.now()
     };
     this.messages.push(message);
@@ -382,6 +596,9 @@ var InMemoryGameRoom = class {
     this.messageSeq += 1;
     return `m_${this.messageSeq}_${randomToken(5)}`;
   }
+  nextQuestionId(gameType, roundIndex) {
+    return `q_${gameType}_${roundIndex + 1}_${randomToken(5)}`;
+  }
 };
 function validateOptions(options) {
   if (!Number.isInteger(options.roundSeconds) || options.roundSeconds <= 0) {
@@ -389,6 +606,8 @@ function validateOptions(options) {
   }
   validateIdioms(options.idioms);
   validateSongs(options.songs);
+  validateCharacters(options.characters ?? []);
+  validateMovies(options.movies ?? []);
 }
 function validateIdioms(idioms) {
   if (idioms.length === 0) {
@@ -405,6 +624,20 @@ function validateIdioms(idioms) {
       if (!syllable || /[1-5āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/i.test(syllable)) {
         throw new Error(`\u6210\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A${idiom.text} \u62FC\u97F3\u5FC5\u987B\u53BB\u58F0\u8C03`);
       }
+    }
+  }
+}
+function validateCharacters(characters) {
+  for (const character of characters) {
+    if (!character.id || !character.name || !character.work || !character.imageUrl || !Array.isArray(character.aliases)) {
+      throw new Error(`\u526A\u5F71\u731C\u4EBA\u9898\u5E93\u5F02\u5E38\uFF1A${character.name || character.id || "\u672A\u77E5\u89D2\u8272"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
+    }
+  }
+}
+function validateMovies(movies) {
+  for (const movie of movies) {
+    if (!movie.id || !movie.title || !Number.isInteger(movie.year) || !movie.region || !movie.genre || !movie.imageUrl || !Array.isArray(movie.aliases)) {
+      throw new Error(`\u5267\u7167\u731C\u7535\u5F71\u9898\u5E93\u5F02\u5E38\uFF1A${movie.title || movie.id || "\u672A\u77E5\u7535\u5F71"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
     }
   }
 }
@@ -450,11 +683,13 @@ function normalizeIdiomText(value) {
 }
 function toPublicQuestion(question) {
   return {
+    questionId: question.questionId,
     gameType: question.gameType,
     round: question.roundIndex + 1,
     totalRounds: question.totalRounds,
     prompt: question.prompt,
     audioUrl: question.audioUrl,
+    imageUrl: question.imageUrl,
     sourceUrl: question.sourceUrl,
     endsWithPinyin: question.previousIdiom?.pinyin.at(-1)
   };
@@ -470,6 +705,9 @@ ${details}`;
 function failNoIdiom(previous) {
   throw new Error(`\u6210\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A\u627E\u4E0D\u5230\u53EF\u63A5 ${previous.text} \u7684\u6210\u8BED`);
 }
+function countChineseChars(value) {
+  return [...value.replace(/\s/g, "")].length;
+}
 function createRoomCode() {
   return randomToken(6).toUpperCase();
 }
@@ -482,10 +720,15 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 function loadGameData() {
-  return {
+  const data2 = {
     idioms: readJson("./idioms.json"),
-    songs: readJson("./songs.json")
+    songs: readJson("./songs.json"),
+    characters: readJson("./character-silhouettes.json"),
+    movies: readJson("./movie-stills.json")
   };
+  validateImageQuestions(data2.characters, "\u526A\u5F71\u731C\u4EBA", "name");
+  validateImageQuestions(data2.movies, "\u5267\u7167\u731C\u7535\u5F71", "title");
+  return data2;
 }
 function readJson(relativePath) {
   const fileName = relativePath.replace(/^\.\//, "");
@@ -501,6 +744,31 @@ function readJson(relativePath) {
     throw new Error(`\u9898\u5E93\u6587\u4EF6\u4E0D\u5B58\u5728\uFF1A${fileName}`);
   }
   return JSON.parse(readFileSync(filePath, "utf8"));
+}
+function validateImageQuestions(entries, label, answerKey) {
+  if (entries.length === 0) {
+    throw new Error(`${label}\u9898\u5E93\u5F02\u5E38\uFF1A\u4E0D\u80FD\u4E3A\u7A7A`);
+  }
+  for (const entry of entries) {
+    const answer = String(entry[answerKey] ?? "");
+    if (!entry.id || !answer || !entry.imageUrl) {
+      throw new Error(`${label}\u9898\u5E93\u5F02\u5E38\uFF1A${answer || entry.id || "\u672A\u77E5\u9898\u76EE"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
+    }
+    if (!entry.imageUrl.startsWith("/")) {
+      throw new Error(`${label}\u9898\u5E93\u5F02\u5E38\uFF1A${answer} \u56FE\u7247\u8DEF\u5F84\u5FC5\u987B\u662F\u7AD9\u5185\u7EDD\u5BF9\u8DEF\u5F84`);
+    }
+    if (!assetExists(entry.imageUrl)) {
+      throw new Error(`${label}\u9898\u5E93\u5F02\u5E38\uFF1A${answer} \u56FE\u7247\u6587\u4EF6\u4E0D\u5B58\u5728\uFF1A${entry.imageUrl}`);
+    }
+  }
+}
+function assetExists(publicUrl) {
+  const relativePath = publicUrl.replace(/^\//, "");
+  const candidates = [
+    resolve(process.cwd(), "public", relativePath),
+    resolve(process.cwd(), "dist", relativePath)
+  ];
+  return candidates.some((candidate) => existsSync(candidate));
 }
 
 // src/server/account/authService.ts
@@ -1261,6 +1529,7 @@ function resolveHighestUnlockedLevel(progress) {
 loadDotEnv();
 var PORT = Number(process.env.PORT ?? 3e3);
 var ROUND_SECONDS = Number(process.env.ROUND_SECONDS ?? 30);
+var HINT_REMAINING_SECONDS = Number(process.env.PVP_HINT_REMAINING_SECONDS ?? 15);
 var data = loadGameData();
 var app = express();
 var httpServer = createServer(app);
@@ -1403,7 +1672,14 @@ io.on("connection", (socket) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
       const code = createUniqueRoomCode();
-      const room = createGameRoom({ code, idioms: data.idioms, songs: data.songs, roundSeconds: ROUND_SECONDS });
+      const room = createGameRoom({
+        code,
+        idioms: data.idioms,
+        songs: data.songs,
+        characters: data.characters,
+        movies: data.movies,
+        roundSeconds: ROUND_SECONDS
+      });
       rooms.set(code, room);
       const player = room.join(user.nickname);
       socket.join(socketRoom(code));
@@ -1431,7 +1707,7 @@ io.on("connection", (socket) => {
     handleAck(ack, () => {
       const room = requireRoom(payload.roomCode);
       room.start(payload.gameType, payload.playerId);
-      scheduleRoundTimeout(payload.roomCode);
+      scheduleRoundTimers(payload.roomCode);
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
       return { ok: true, room: snapshot };
@@ -1440,8 +1716,10 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", (payload, ack) => {
     handleAck(ack, () => {
       const room = requireRoom(payload.roomCode);
-      room.submitMessage(payload.playerId, payload.text);
-      scheduleRoundTimeout(payload.roomCode);
+      const result = room.submitMessage(payload.playerId, payload.text);
+      if (result.hit) {
+        scheduleRoundTimers(payload.roomCode);
+      }
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
       return { ok: true, room: snapshot };
@@ -1459,6 +1737,7 @@ io.on("connection", (socket) => {
       socket.leave(socketRoom(payload.roomCode));
       socket.data.roomCode = void 0;
       socket.data.playerId = void 0;
+      clearRoomTimersIfEmpty(payload.roomCode, room.snapshot());
       emitRoom(payload.roomCode, room.snapshot());
       return { ok: true };
     });
@@ -1474,7 +1753,9 @@ io.on("connection", (socket) => {
       return;
     }
     room.leave(playerId);
-    emitRoom(roomCode, room.snapshot());
+    const snapshot = room.snapshot();
+    clearRoomTimersIfEmpty(roomCode, snapshot);
+    emitRoom(roomCode, snapshot);
   });
 });
 httpServer.listen(PORT, "0.0.0.0", () => {
@@ -1511,34 +1792,62 @@ function socketRoom(code) {
 function emitRoom(code, snapshot) {
   io.to(socketRoom(code)).emit("roomSnapshot", snapshot);
 }
-function scheduleRoundTimeout(code) {
+function scheduleRoundTimers(code) {
   const room = requireRoom(code);
   const snapshot = room.snapshot();
-  const existing = timers.get(code);
-  if (existing) {
-    clearTimeout(existing);
-    timers.delete(code);
-  }
+  clearRoundTimers(code);
   if (snapshot.status !== "playing" || !snapshot.currentQuestion) {
     return;
   }
-  const timer = setTimeout(() => {
+  const questionId = snapshot.currentQuestion.questionId;
+  const hintDelay = Math.max(0, ROUND_SECONDS - HINT_REMAINING_SECONDS) * 1e3;
+  const roomTimers = {};
+  roomTimers.hint = setTimeout(() => {
     const liveRoom = rooms.get(code);
     if (!liveRoom) {
       return;
     }
-    const before = liveRoom.snapshot().currentQuestion;
-    if (!before) {
+    const messages = liveRoom.hintRound(questionId);
+    if (messages.length > 0) {
+      emitRoom(code, liveRoom.snapshot());
+    }
+  }, hintDelay);
+  roomTimers.timeout = setTimeout(() => {
+    const liveRoom = rooms.get(code);
+    if (!liveRoom) {
       return;
     }
-    liveRoom.timeoutRound();
+    const messages = liveRoom.timeoutRound(questionId);
+    if (messages.length === 0) {
+      return;
+    }
     const after = liveRoom.snapshot();
     emitRoom(code, after);
     if (after.status === "playing") {
-      scheduleRoundTimeout(code);
+      scheduleRoundTimers(code);
+    } else {
+      clearRoundTimers(code);
     }
   }, ROUND_SECONDS * 1e3);
-  timers.set(code, timer);
+  timers.set(code, roomTimers);
+}
+function clearRoundTimers(code) {
+  const existing = timers.get(code);
+  if (!existing) {
+    return;
+  }
+  if (existing.hint) {
+    clearTimeout(existing.hint);
+  }
+  if (existing.timeout) {
+    clearTimeout(existing.timeout);
+  }
+  timers.delete(code);
+}
+function clearRoomTimersIfEmpty(code, snapshot) {
+  if (snapshot.players.every((player) => !player.connected)) {
+    clearRoundTimers(code);
+  }
 }
 var ServiceUnavailableError = class extends Error {
   statusCode = 503;

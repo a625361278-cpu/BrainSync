@@ -50,6 +50,7 @@ loadDotEnv();
 
 const PORT = Number(process.env.PORT ?? 3000);
 const ROUND_SECONDS = Number(process.env.ROUND_SECONDS ?? 30);
+const HINT_REMAINING_SECONDS = Number(process.env.PVP_HINT_REMAINING_SECONDS ?? 15);
 const data = loadGameData();
 const app = express();
 const httpServer = createServer(app);
@@ -61,7 +62,12 @@ const io = new Server(httpServer, {
 });
 
 const rooms = new Map<string, GameRoom>();
-const timers = new Map<string, NodeJS.Timeout>();
+interface RoomTimers {
+  hint?: NodeJS.Timeout;
+  timeout?: NodeJS.Timeout;
+}
+
+const timers = new Map<string, RoomTimers>();
 const accountContext = await initializeAccountContext();
 
 app.use(express.json({ limit: "1mb" }));
@@ -208,7 +214,14 @@ io.on("connection", (socket) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
       const code = createUniqueRoomCode();
-      const room = createGameRoom({ code, idioms: data.idioms, songs: data.songs, roundSeconds: ROUND_SECONDS });
+      const room = createGameRoom({
+        code,
+        idioms: data.idioms,
+        songs: data.songs,
+        characters: data.characters,
+        movies: data.movies,
+        roundSeconds: ROUND_SECONDS
+      });
       rooms.set(code, room);
       const player = room.join(user.nickname);
       socket.join(socketRoom(code));
@@ -238,7 +251,7 @@ io.on("connection", (socket) => {
     handleAck(ack, () => {
       const room = requireRoom(payload.roomCode);
       room.start(payload.gameType, payload.playerId);
-      scheduleRoundTimeout(payload.roomCode);
+      scheduleRoundTimers(payload.roomCode);
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
       return { ok: true, room: snapshot };
@@ -248,8 +261,10 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", (payload: ClientMessagePayload, ack?: (payload: AckPayload) => void) => {
     handleAck(ack, () => {
       const room = requireRoom(payload.roomCode);
-      room.submitMessage(payload.playerId, payload.text);
-      scheduleRoundTimeout(payload.roomCode);
+      const result = room.submitMessage(payload.playerId, payload.text);
+      if (result.hit) {
+        scheduleRoundTimers(payload.roomCode);
+      }
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
       return { ok: true, room: snapshot };
@@ -268,6 +283,7 @@ io.on("connection", (socket) => {
       socket.leave(socketRoom(payload.roomCode));
       socket.data.roomCode = undefined;
       socket.data.playerId = undefined;
+      clearRoomTimersIfEmpty(payload.roomCode, room.snapshot());
       emitRoom(payload.roomCode, room.snapshot());
       return { ok: true };
     });
@@ -284,7 +300,9 @@ io.on("connection", (socket) => {
       return;
     }
     room.leave(playerId);
-    emitRoom(roomCode, room.snapshot());
+    const snapshot = room.snapshot();
+    clearRoomTimersIfEmpty(roomCode, snapshot);
+    emitRoom(roomCode, snapshot);
   });
 });
 
@@ -330,35 +348,66 @@ function emitRoom(code: string, snapshot: RoomSnapshot): void {
   io.to(socketRoom(code)).emit("roomSnapshot", snapshot);
 }
 
-function scheduleRoundTimeout(code: string): void {
+function scheduleRoundTimers(code: string): void {
   const room = requireRoom(code);
   const snapshot = room.snapshot();
-  const existing = timers.get(code);
-  if (existing) {
-    clearTimeout(existing);
-    timers.delete(code);
-  }
+  clearRoundTimers(code);
   if (snapshot.status !== "playing" || !snapshot.currentQuestion) {
     return;
   }
 
-  const timer = setTimeout(() => {
+  const questionId = snapshot.currentQuestion.questionId;
+  const hintDelay = Math.max(0, ROUND_SECONDS - HINT_REMAINING_SECONDS) * 1000;
+  const roomTimers: RoomTimers = {};
+  roomTimers.hint = setTimeout(() => {
     const liveRoom = rooms.get(code);
     if (!liveRoom) {
       return;
     }
-    const before = liveRoom.snapshot().currentQuestion;
-    if (!before) {
+    const messages = liveRoom.hintRound(questionId);
+    if (messages.length > 0) {
+      emitRoom(code, liveRoom.snapshot());
+    }
+  }, hintDelay);
+
+  roomTimers.timeout = setTimeout(() => {
+    const liveRoom = rooms.get(code);
+    if (!liveRoom) {
       return;
     }
-    liveRoom.timeoutRound();
+    const messages = liveRoom.timeoutRound(questionId);
+    if (messages.length === 0) {
+      return;
+    }
     const after = liveRoom.snapshot();
     emitRoom(code, after);
     if (after.status === "playing") {
-      scheduleRoundTimeout(code);
+      scheduleRoundTimers(code);
+    } else {
+      clearRoundTimers(code);
     }
   }, ROUND_SECONDS * 1000);
-  timers.set(code, timer);
+  timers.set(code, roomTimers);
+}
+
+function clearRoundTimers(code: string): void {
+  const existing = timers.get(code);
+  if (!existing) {
+    return;
+  }
+  if (existing.hint) {
+    clearTimeout(existing.hint);
+  }
+  if (existing.timeout) {
+    clearTimeout(existing.timeout);
+  }
+  timers.delete(code);
+}
+
+function clearRoomTimersIfEmpty(code: string, snapshot: RoomSnapshot): void {
+  if (snapshot.players.every((player) => !player.connected)) {
+    clearRoundTimers(code);
+  }
 }
 
 interface AccountContextReady {

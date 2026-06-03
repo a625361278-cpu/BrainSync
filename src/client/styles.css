@@ -560,7 +560,7 @@ input:focus {
   position: absolute;
   left: 17px;
   right: 17px;
-  bottom: 78px;
+  bottom: 69px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -583,6 +583,26 @@ input:focus {
   font-size: 44px;
   font-style: italic;
   text-shadow: 0 4px 0 #c27013, 0 7px 10px rgba(88, 63, 10, 0.22);
+}
+
+.room-game-tags {
+  position: relative;
+  z-index: 3;
+  width: min(100%, 172px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.room-game-tags span {
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #07754d;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.1;
 }
 
 .home-sub-modes {
@@ -1213,6 +1233,7 @@ input:focus {
 
 .game-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
@@ -1221,6 +1242,7 @@ input:focus {
 }
 
 .game-toolbar button {
+  flex: 0 0 auto;
   padding: 7px 10px;
   font-size: 13px;
 }
@@ -1338,6 +1360,39 @@ input:focus {
 .audio-message audio {
   width: 100%;
   height: 32px;
+}
+
+.hint-bubble {
+  color: #7a4b00;
+  background: #fff7d6;
+}
+
+.hint-bubble::before {
+  border-color: transparent #fff7d6 transparent transparent;
+}
+
+.image-bubble {
+  max-width: 260px;
+  padding: 6px;
+}
+
+.image-question {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.image-question img {
+  width: 100%;
+  max-height: 210px;
+  object-fit: cover;
+  border-radius: 7px;
+  background: #f3f4f6;
+}
+
+.image-question figcaption {
+  color: #4b5563;
+  font-size: 13px;
 }
 
 .settlement-panel {
@@ -1578,7 +1633,7 @@ input:focus {
   .chat-vs {
     left: 15px;
     right: 15px;
-    bottom: 76px;
+    bottom: 69px;
     display: flex;
     justify-content: center;
     gap: 5px;
@@ -1596,6 +1651,16 @@ input:focus {
   .chat-vs b {
     flex: 0 0 auto;
     font-size: 36px;
+  }
+
+  .room-game-tags {
+    width: 130px;
+    gap: 4px;
+  }
+
+  .room-game-tags span {
+    padding: 3px 6px;
+    font-size: 11px;
   }
 
   .big-mode button {
@@ -1679,6 +1744,7 @@ input:focus {
   .chat-vs {
     left: 12px;
     right: 12px;
+    bottom: 66px;
     gap: 4px;
   }
 

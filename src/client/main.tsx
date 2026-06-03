@@ -91,7 +91,7 @@ interface PveSummary {
 }
 
 type View = "home" | "pvp" | "pve";
-type PvpIntent = "idiom" | "song" | undefined;
+type PvpIntent = GameType | undefined;
 type ChallengePhase = "levels" | "countdown" | "playing" | "feedback";
 
 const PLAYER_ID_KEY = "brainsync.playerId";
@@ -433,6 +433,12 @@ function Home(props: {
           <article className="big-mode room-mode">
             <strong>开房间对战</strong>
             <small>邀请好友，实时对战</small>
+            <div className="room-game-tags" aria-label="开房间支持玩法">
+              <span>成语</span>
+              <span>猜歌</span>
+              <span>剪影</span>
+              <span>剧照</span>
+            </div>
             <div className="chat-vs">
               <span>•••</span>
               <b>VS</b>
@@ -443,8 +449,6 @@ function Home(props: {
         </section>
 
         <section className="home-sub-modes">
-          <SmallMode title="成语接龙" desc="妙趣接龙，才思无限" art="/home-assets/scroll.svg" tone="purple" onClick={() => props.onOpenPvp("idiom")} />
-          <SmallMode title="猜歌名" desc="经典金曲，等你来猜" art="/home-assets/headphones.svg" tone="yellow" onClick={() => props.onOpenPvp("song")} />
           <SmallMode title="每日挑战" desc="每日更新，赢取星星" art="/home-assets/calendar.svg" tone="blue" onClick={() => alert("每日挑战功能开发中")} />
           <SmallMode title="好友排行" desc="好友比拼，谁更厉害" art="/home-assets/trophy.svg" tone="pink" onClick={() => alert("好友排行功能开发中")} />
         </section>
@@ -586,11 +590,7 @@ function Landing(props: {
           <div>
             <h1>开房间对战</h1>
             <p>
-              {props.intent === "idiom"
-                ? "准备开一局成语接龙。"
-                : props.intent === "song"
-                  ? "准备开一局猜歌名。"
-                  : "像微信群一样抢答：成语接龙、猜歌名。"}
+              {props.intent ? `准备开一局${gameTypeLabel(props.intent)}。` : "像微信群一样抢答：成语接龙、猜歌名、剪影猜人、剧照猜电影。"}
             </p>
           </div>
         </div>
@@ -982,12 +982,16 @@ function ChatRoom(props: {
       </header>
 
       <div className="game-toolbar">
-        <button disabled={startDisabled} title={isHost ? "开始成语接龙" : "只有房主可以开始"} onClick={() => props.onStart("idiom")}>
-          成语接龙
-        </button>
-        <button disabled={startDisabled} title={isHost ? "开始猜歌名" : "只有房主可以开始"} onClick={() => props.onStart("song")}>
-          猜歌名
-        </button>
+        {(["idiom", "song", "silhouette", "movie"] as GameType[]).map((gameType) => (
+          <button
+            key={gameType}
+            disabled={startDisabled}
+            title={isHost ? `开始${gameTypeLabel(gameType)}` : "只有房主可以开始"}
+            onClick={() => props.onStart(gameType)}
+          >
+            {gameTypeLabel(gameType)}
+          </button>
+        ))}
         <span>{me ? `我：${me.name}${isHost ? "（房主）" : ""}` : "未识别玩家"}</span>
       </div>
 
@@ -1028,12 +1032,23 @@ function MessageBubble({ message, isMine }: { message: ChatMessage; isMine: bool
       {!isMine ? <img className="avatar" src={message.avatar ?? "/avatars/bot.svg"} alt="" /> : null}
       <div className="bubble-stack">
         {showName ? <span className="sender-name">{message.playerName}</span> : null}
-        <div className={`bubble ${message.kind === "audio" ? "audio-bubble" : ""}`}>
-          {message.kind === "audio" && message.audioUrl ? <AudioPreview text={message.text} url={message.audioUrl} /> : message.text}
+        <div className={`bubble ${message.kind === "audio" ? "audio-bubble" : ""} ${message.kind === "image" ? "image-bubble" : ""} ${message.kind === "hint" ? "hint-bubble" : ""}`}>
+          {message.kind === "audio" && message.audioUrl ? <AudioPreview text={message.text} url={message.audioUrl} /> : null}
+          {message.kind === "image" && message.imageUrl ? <ImageQuestion text={message.text} url={message.imageUrl} alt={message.imageAlt} /> : null}
+          {message.kind !== "audio" && message.kind !== "image" ? message.text : null}
         </div>
       </div>
       {isMine ? <img className="avatar" src={message.avatar ?? "/avatars/player-1.svg"} alt="" /> : null}
     </article>
+  );
+}
+
+function ImageQuestion({ text, url, alt }: { text: string; url: string; alt?: string }) {
+  return (
+    <figure className="image-question">
+      <img src={url} alt={alt ?? text} />
+      <figcaption>{text}</figcaption>
+    </figure>
   );
 }
 
@@ -1127,8 +1142,20 @@ function formatRoomSubTitle(room: RoomSnapshot): string {
   if (!question) {
     return "游戏中";
   }
-  const gameName = question.gameType === "song" ? "猜歌名" : "成语接龙";
-  return `${gameName} ${question.round}/${question.totalRounds}`;
+  return `${gameTypeLabel(question.gameType)} ${question.round}/${question.totalRounds}`;
+}
+
+function gameTypeLabel(gameType: GameType): string {
+  if (gameType === "song") {
+    return "猜歌名";
+  }
+  if (gameType === "silhouette") {
+    return "剪影猜人";
+  }
+  if (gameType === "movie") {
+    return "剧照猜电影";
+  }
+  return "成语接龙";
 }
 
 declare global {
