@@ -101,6 +101,8 @@ export function App() {
   const socket = useMemo<Socket>(() => io(), []);
   const [view, setView] = useState<View>("home");
   const [room, setRoom] = useState<RoomSnapshot | undefined>();
+  const [activeRoomCode, setActiveRoomCodeState] = useState<string | undefined>();
+  const activeRoomCodeRef = useRef<string | undefined>(undefined);
   const [playerId, setPlayerId] = useState<string>(() => localStorage.getItem(PLAYER_ID_KEY) ?? "");
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState("");
@@ -114,7 +116,11 @@ export function App() {
   const [pvpIntent, setPvpIntent] = useState<PvpIntent>();
 
   useEffect(() => {
-    socket.on("roomSnapshot", (snapshot: RoomSnapshot) => setRoom(snapshot));
+    socket.on("roomSnapshot", (snapshot: RoomSnapshot) => {
+      if (activeRoomCodeRef.current === snapshot.code) {
+        setRoom(snapshot);
+      }
+    });
     return () => {
       socket.disconnect();
     };
@@ -210,10 +216,16 @@ export function App() {
       setPlayerId(payload.playerId);
     }
     if (payload.room) {
+      setActiveRoomCode(payload.room.code);
       setRoom(payload.room);
       setRoomCode(payload.room.code);
     }
     setError("");
+  }
+
+  function setActiveRoomCode(code: string | undefined) {
+    activeRoomCodeRef.current = code;
+    setActiveRoomCodeState(code);
   }
 
   async function emitWithAck(event: string, payload: Record<string, unknown>) {
@@ -228,7 +240,29 @@ export function App() {
     }
   }
 
-  if (room) {
+  async function leaveRoom(roomCodeToLeave: string, playerIdToLeave: string) {
+    setActiveRoomCode(undefined);
+    setRoom(undefined);
+    setError("");
+    setView("home");
+    setPvpIntent(undefined);
+    setBusy(true);
+    try {
+      const ack = (await socket.timeout(8000).emitWithAck("leaveRoom", {
+        roomCode: roomCodeToLeave,
+        playerId: playerIdToLeave
+      })) as AckPayload;
+      if (!ack.ok) {
+        setError(ack.error ?? "离开房间失败");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "离开房间失败");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (room && activeRoomCode === room.code) {
     return (
       <ChatRoom
         room={room}
@@ -238,10 +272,7 @@ export function App() {
         onStart={(gameType) => emitWithAck("startGame", { roomCode: room.code, gameType, playerId })}
         onSend={(text) => emitWithAck("sendMessage", { roomCode: room.code, playerId, text })}
         onBack={() => {
-          setRoom(undefined);
-          setError("");
-          setView("home");
-          setPvpIntent(undefined);
+          void leaveRoom(room.code, playerId);
         }}
       />
     );
@@ -478,7 +509,7 @@ function AuthModal(props: {
         </button>
         <img src="/home-assets/avatar-dog.svg" alt="" />
         <h2>欢迎来到 BrainSync</h2>
-        <p>登录后保存体力、星级和闯关进度；关闭弹窗也可以游客开房对战。</p>
+        <p>登录后保存体力、星级和闯关进度；开房对战也会使用你的账号昵称。</p>
         <AuthBox busy={props.busy} onLogin={props.onLogin} onRegister={props.onRegister} />
         {props.error ? <span className="form-error">{props.error}</span> : null}
       </section>
@@ -556,10 +587,10 @@ function Landing(props: {
             <h1>开房间对战</h1>
             <p>
               {props.intent === "idiom"
-                ? "准备开一局成语接龙。游客也可以玩。"
+                ? "准备开一局成语接龙。"
                 : props.intent === "song"
-                  ? "准备开一局猜歌名。游客也可以玩。"
-                  : "像微信群一样抢答：成语接龙、猜歌名。游客也可以玩。"}
+                  ? "准备开一局猜歌名。"
+                  : "像微信群一样抢答：成语接龙、猜歌名。"}
             </p>
           </div>
         </div>

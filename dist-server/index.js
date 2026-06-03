@@ -878,7 +878,10 @@ var DEFAULT_PVE_LEVELS = [
   level(7, "\u7535\u8BDD\u97F3\u6311\u6218", 18, 3400, [3400, 4300, 5e3], "short", [3, 5]),
   level(8, "\u5FEB\u95EE\u5FEB\u7B54", 16, 3600, [3600, 4400, 5050], "short", [3, 5]),
   level(9, "\u91D1\u66F2\u76F2\u542C", 15, 3800, [3800, 4500, 5100], "short", [4, 5]),
-  level(10, "\u597D\u53CB\u6B4C\u738B", 15, 4e3, [4e3, 4600, 5200], "short", [4, 5])
+  level(10, "\u597D\u53CB\u6B4C\u738B", 15, 4e3, [4e3, 4600, 5200], "short", [4, 5]),
+  level(11, "\u9AD8\u80FD\u8FA8\u97F3", 14, 4200, [4200, 4700, 5250], "short", [4, 5]),
+  level(12, "\u6B4C\u738B\u51B2\u523A", 13, 4400, [4400, 4800, 5300], "short", [5, 5]),
+  level(13, "\u6DF7\u54CD\u590D\u76D8", 12, 4600, [4600, 4900, 5350], "short", [5, 5])
 ];
 function level(levelNo, name, timeLimitSeconds, passScore, starScores, audioFilter, difficultyRange) {
   return {
@@ -1103,10 +1106,10 @@ var DefaultPveService = class {
     }
   }
   pickQuestions(config) {
-    if (this.songPool.length < config.songCount) {
+    const deck = this.createLevelSongDeck(config);
+    if (deck.length < config.songCount) {
       throw new Error(`\u6B4C\u66F2\u9898\u5E93\u4E0D\u8DB3\uFF1A\u5173\u5361 ${config.level} \u9700\u8981 ${config.songCount} \u9996\u6B4C`);
     }
-    const deck = [...this.songPool];
     const questions = [];
     for (let i = 0; i < config.songCount; i += 1) {
       const index = Math.min(deck.length - 1, Math.floor(this.random() * deck.length));
@@ -1121,6 +1124,17 @@ var DefaultPveService = class {
       });
     }
     return questions;
+  }
+  createLevelSongDeck(config) {
+    if (config.level <= 12) {
+      const segmentStart = (config.level - 1) * config.songCount;
+      const segmentEnd = segmentStart + config.songCount;
+      if (this.songPool.length < segmentEnd) {
+        throw new Error(`\u6B4C\u66F2\u9898\u5E93\u4E0D\u8DB3\uFF1A\u524D12\u5173\u9700\u8981\u81F3\u5C11 ${segmentEnd} \u9996\u6B4C\uFF0C\u5F53\u524D\u53EA\u6709 ${this.songPool.length} \u9996`);
+      }
+      return this.songPool.slice(segmentStart, segmentEnd);
+    }
+    return [...this.songPool];
   }
   async requireRunForUser(runId, userId) {
     const run = await this.repo.getRun(runId);
@@ -1431,6 +1445,22 @@ io.on("connection", (socket) => {
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
       return { ok: true, room: snapshot };
+    });
+  });
+  socket.on("leaveRoom", (payload, ack) => {
+    handleAck(ack, () => {
+      const socketRoomCode = socket.data.roomCode;
+      const socketPlayerId = socket.data.playerId;
+      if (socketRoomCode !== payload.roomCode || socketPlayerId !== payload.playerId) {
+        throw new Error("\u79BB\u5F00\u623F\u95F4\u72B6\u6001\u5F02\u5E38\uFF1A\u5F53\u524D\u8FDE\u63A5\u4E0D\u5728\u8BE5\u623F\u95F4");
+      }
+      const room = requireRoom(payload.roomCode);
+      room.leave(payload.playerId);
+      socket.leave(socketRoom(payload.roomCode));
+      socket.data.roomCode = void 0;
+      socket.data.playerId = void 0;
+      emitRoom(payload.roomCode, room.snapshot());
+      return { ok: true };
     });
   });
   socket.on("disconnect", () => {

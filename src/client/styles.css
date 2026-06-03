@@ -1434,3 +1434,250 @@ input:focus {
     justify-items: start;
   }
 }
+
+@media (max-width: 430px) {
+  .mini-home-page {
+    min-height: 860px;
+    padding: 9px 10px 16px;
+  }
+
+  .home-statusbar {
+    height: 24px;
+    font-size: 13px;
+  }
+
+  .home-topbar {
+    gap: 7px;
+  }
+
+  .home-player {
+    gap: 7px;
+  }
+
+  .home-player img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .home-player strong {
+    max-width: 118px;
+    font-size: 15px;
+  }
+
+  .home-player span {
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+
+  .home-actions {
+    gap: 6px;
+  }
+
+  .round-action {
+    width: 38px;
+    height: 44px;
+    border-radius: 13px;
+  }
+
+  .round-action span {
+    font-size: 17px;
+  }
+
+  .round-action small {
+    font-size: 9px;
+  }
+
+  .capsule-action {
+    width: 57px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .home-title-stage {
+    min-height: 205px;
+    margin-top: 2px;
+  }
+
+  .home-logo {
+    top: 28px;
+    left: 58px;
+    width: 260px;
+  }
+
+  .bot-speech {
+    left: 48px;
+    bottom: 9px;
+    width: 172px;
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+
+  .hero-robot {
+    right: -3px;
+    bottom: 0;
+    width: 156px;
+  }
+
+  .hero-microphone {
+    right: 115px;
+    width: 52px;
+  }
+
+  .note-left {
+    left: 18px;
+  }
+
+  .note-right {
+    right: 16px;
+  }
+
+  .home-main-modes {
+    gap: 9px;
+  }
+
+  .big-mode {
+    min-height: 220px;
+    gap: 6px;
+    padding: 20px 12px 13px;
+    border-width: 2px;
+    border-radius: 15px;
+  }
+
+  .big-mode strong {
+    font-size: 26px;
+    line-height: 1.06;
+  }
+
+  .big-mode small {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .mode-ribbon {
+    left: 10px;
+    padding: 4px 11px;
+    font-size: 12px;
+  }
+
+  .stamina-badge {
+    margin-top: 43px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .star-track {
+    width: 140px;
+    padding: 6px 9px;
+    font-size: 20px;
+    letter-spacing: 5px;
+  }
+
+  .record-art {
+    right: -18px;
+    bottom: 70px;
+    width: 122px;
+  }
+
+  .chat-vs {
+    left: 12px;
+    right: 12px;
+    bottom: 76px;
+    gap: 5px;
+  }
+
+  .chat-vs span {
+    height: 47px;
+    border-radius: 18px;
+    font-size: 24px;
+  }
+
+  .chat-vs b {
+    font-size: 36px;
+  }
+
+  .big-mode button {
+    left: 14px;
+    right: 14px;
+    bottom: 12px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .home-sub-modes {
+    gap: 9px;
+    margin-top: 10px;
+  }
+
+  .small-mode {
+    min-height: 72px;
+    grid-template-columns: 1fr 64px;
+    padding: 10px 7px 10px 13px;
+  }
+
+  .small-mode strong {
+    font-size: 18px;
+  }
+
+  .small-mode span {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .small-mode img {
+    width: 64px;
+    max-height: 60px;
+  }
+}
+
+@media (max-width: 375px) {
+  .home-player strong {
+    max-width: 98px;
+    font-size: 14px;
+  }
+
+  .home-logo {
+    left: 48px;
+    width: 240px;
+  }
+
+  .bot-speech {
+    left: 38px;
+    width: 158px;
+    font-size: 11px;
+  }
+
+  .hero-robot {
+    width: 145px;
+  }
+
+  .hero-microphone {
+    right: 104px;
+    width: 48px;
+  }
+
+  .big-mode {
+    min-height: 212px;
+    padding-inline: 10px;
+  }
+
+  .big-mode strong {
+    font-size: 23px;
+  }
+
+  .stamina-badge {
+    margin-top: 41px;
+    font-size: 11px;
+  }
+
+  .record-art {
+    width: 112px;
+  }
+
+  .chat-vs b {
+    font-size: 31px;
+  }
+
+  .big-mode button {
+    font-size: 16px;
+  }
+}

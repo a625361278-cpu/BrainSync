@@ -34,6 +34,11 @@ interface ClientMessagePayload {
   text: string;
 }
 
+interface ClientLeavePayload {
+  roomCode: string;
+  playerId: string;
+}
+
 interface AckPayload {
   ok: boolean;
   room?: RoomSnapshot;
@@ -248,6 +253,23 @@ io.on("connection", (socket) => {
       const snapshot = room.snapshot();
       emitRoom(payload.roomCode, snapshot);
       return { ok: true, room: snapshot };
+    });
+  });
+
+  socket.on("leaveRoom", (payload: ClientLeavePayload, ack?: (payload: AckPayload) => void) => {
+    handleAck(ack, () => {
+      const socketRoomCode = socket.data.roomCode as string | undefined;
+      const socketPlayerId = socket.data.playerId as string | undefined;
+      if (socketRoomCode !== payload.roomCode || socketPlayerId !== payload.playerId) {
+        throw new Error("离开房间状态异常：当前连接不在该房间");
+      }
+      const room = requireRoom(payload.roomCode);
+      room.leave(payload.playerId);
+      socket.leave(socketRoom(payload.roomCode));
+      socket.data.roomCode = undefined;
+      socket.data.playerId = undefined;
+      emitRoom(payload.roomCode, room.snapshot());
+      return { ok: true };
     });
   });
 

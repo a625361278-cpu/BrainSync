@@ -70,6 +70,63 @@ describe("PVE猜歌挑战服务端规则", () => {
     expect(started.currentQuestion.questionId).toBe(started.questions[0].questionId);
   });
 
+  it("前12关按60首歌稳定分段抽题，跨关不重复", async () => {
+    const allSongs = Array.from({ length: 60 }, (_, index) => song(`song-${index + 1}`, `歌曲${index + 1}`, "歌手"));
+    const allLevels = Array.from({ length: 13 }, (_, index): PveLevelConfig => ({
+      level: index + 1,
+      name: `第${index + 1}关`,
+      songCount: 5,
+      timeLimitSeconds: Math.max(12, 30 - index),
+      passScore: 1000,
+      starScores: [1000, 2000, 3000],
+      audioFilter: index < 6 ? "phone" : index < 12 ? "muffled" : "short",
+      difficultyRange: [1, 5]
+    }));
+    const repo = createMemoryAccountRepository();
+    let idSeq = 0;
+    const auth = createAuthService({
+      repo,
+      now: () => 1000,
+      tokenTtlMs: 60_000,
+      randomToken: () => "token-segment"
+    });
+    const pve = createPveService({
+      repo,
+      songs: allSongs,
+      levels: allLevels,
+      now: () => 1000,
+      random: () => 0.99,
+      randomId: () => `id-${++idSeq}`
+    });
+    const { user } = await auth.register({ username: "jim", password: "secret123", nickname: "Jim" });
+    const firstTwelve: string[] = [];
+    for (let level = 1; level <= 12; level += 1) {
+      if (level > 1) {
+        await repo.upsertProgress({
+          userId: user.id,
+          level: level - 1,
+          highestScore: 5000,
+          stars: 3,
+          passed: true,
+          updatedAt: 1000 + level
+        });
+      }
+      await repo.upsertStamina({ userId: user.id, current: 5, max: 5, lastRecoveredAt: 1000, adRestoreCount: 0 });
+      const run = await pve.start(user.id, level);
+      firstTwelve.push(...run.questions.map((question) => question.songId));
+      expect(new Set(run.questions.map((question) => question.songId)).size).toBe(5);
+      expect(run.questions.map((question) => question.songId).sort()).toEqual(
+        allSongs.slice((level - 1) * 5, level * 5).map((item) => item.id).sort()
+      );
+    }
+
+    expect(new Set(firstTwelve).size).toBe(60);
+    await repo.upsertProgress({ userId: user.id, level: 12, highestScore: 5000, stars: 3, passed: true, updatedAt: 5000 });
+    await repo.upsertStamina({ userId: user.id, current: 5, max: 5, lastRecoveredAt: 1000, adRestoreCount: 0 });
+    const thirteenth = await pve.start(user.id, 13);
+    expect(new Set(thirteenth.questions.map((question) => question.songId)).size).toBe(5);
+  });
+
   it("体力不足时不能开始PVE关卡", async () => {
     const { auth, pve } = createServices();
     const { user } = await auth.register({ username: "jim", password: "secret123", nickname: "Jim" });

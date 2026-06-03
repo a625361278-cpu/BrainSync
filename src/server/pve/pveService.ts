@@ -311,10 +311,10 @@ class DefaultPveService implements PveService {
   }
 
   private pickQuestions(config: PveLevelConfig): PveRunQuestionRecord[] {
-    if (this.songPool.length < config.songCount) {
+    const deck = this.createLevelSongDeck(config);
+    if (deck.length < config.songCount) {
       throw new Error(`歌曲题库不足：关卡 ${config.level} 需要 ${config.songCount} 首歌`);
     }
-    const deck = [...this.songPool];
     const questions: PveRunQuestionRecord[] = [];
     for (let i = 0; i < config.songCount; i += 1) {
       const index = Math.min(deck.length - 1, Math.floor(this.random() * deck.length));
@@ -329,6 +329,18 @@ class DefaultPveService implements PveService {
       });
     }
     return questions;
+  }
+
+  private createLevelSongDeck(config: PveLevelConfig): SongEntry[] {
+    if (config.level <= 12) {
+      const segmentStart = (config.level - 1) * config.songCount;
+      const segmentEnd = segmentStart + config.songCount;
+      if (this.songPool.length < segmentEnd) {
+        throw new Error(`歌曲题库不足：前12关需要至少 ${segmentEnd} 首歌，当前只有 ${this.songPool.length} 首`);
+      }
+      return this.songPool.slice(segmentStart, segmentEnd);
+    }
+    return [...this.songPool];
   }
 
   private async requireRunForUser(runId: string, userId: string): Promise<PveRunRecord> {

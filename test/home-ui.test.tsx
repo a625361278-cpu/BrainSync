@@ -3,13 +3,26 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../src/client/main";
+import type { RoomSnapshot } from "../src/shared/types";
+
+const socketMock = vi.hoisted(() => {
+  const handlers: Record<string, (payload: unknown) => void> = {};
+  return {
+    handlers,
+    emitWithAck: vi.fn(),
+    on: vi.fn((event: string, handler: (payload: unknown) => void) => {
+      handlers[event] = handler;
+    }),
+    disconnect: vi.fn()
+  };
+});
 
 vi.mock("socket.io-client", () => ({
   io: () => ({
-    on: vi.fn(),
-    disconnect: vi.fn(),
+    on: socketMock.on,
+    disconnect: socketMock.disconnect,
     timeout: () => ({
-      emitWithAck: vi.fn()
+      emitWithAck: socketMock.emitWithAck
     })
   })
 }));
@@ -20,9 +33,19 @@ describe("首页登录入口", () => {
   beforeEach(() => {
     localStorage.clear();
     document.body.innerHTML = '<div id="root"></div>';
+    socketMock.emitWithAck.mockReset();
+    socketMock.on.mockClear();
+    socketMock.disconnect.mockClear();
+    for (const key of Object.keys(socketMock.handlers)) {
+      delete socketMock.handlers[key];
+    }
     Object.defineProperty(HTMLMediaElement.prototype, "play", {
       configurable: true,
       value: vi.fn(() => Promise.resolve())
+    });
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+      configurable: true,
+      value: vi.fn()
     });
     vi.stubGlobal(
       "fetch",
@@ -215,6 +238,72 @@ describe("首页登录入口", () => {
     expect(document.querySelector(".score-strip strong")?.textContent).toBe("850");
     vi.useRealTimers();
   });
+
+  it("返回大厅会离开房间，并忽略旧房间后续快照", async () => {
+    localStorage.setItem("brainsync.authToken", "token-1");
+    const room = roomSnapshot("123456");
+    socketMock.emitWithAck.mockImplementation(async (event: string) => {
+      if (event === "createRoom") {
+        return { ok: true, room, playerId: "p1" };
+      }
+      if (event === "leaveRoom") {
+        return { ok: true };
+      }
+      return { ok: false, error: `未预期事件：${event}` };
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/pve/levels") {
+          return jsonResponse({ ok: true, levels: [] });
+        }
+        if (url === "/api/me") {
+          return jsonResponse({ ok: true, user: { id: "u1", username: "jim", nickname: "jim", title: "新声挑战者", createdAt: 1 } });
+        }
+        if (url === "/api/pve/profile") {
+          return jsonResponse({
+            ok: true,
+            profile: {
+              stamina: { current: 4, max: 5, lastRecoveredAt: 1, adRestoreCount: 0 },
+              highestUnlockedLevel: 1,
+              progress: []
+            }
+          });
+        }
+        return jsonResponse({ ok: false, error: "未知接口" }, 404);
+      })
+    );
+
+    await act(async () => {
+      createRoot(document.getElementById("root")!).render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".room-mode button")?.click();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".pvp-create-card")?.click();
+    });
+
+    expect(document.body.textContent).toContain("房间 123456");
+
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".room-header button")?.click();
+      await Promise.resolve();
+    });
+
+    expect(socketMock.emitWithAck).toHaveBeenCalledWith("leaveRoom", { roomCode: "123456", playerId: "p1" });
+    expect(document.body.textContent).toContain("BrainSync 欢乐房间");
+
+    await act(async () => {
+      socketMock.handlers.roomSnapshot?.(room);
+    });
+
+    expect(document.body.textContent).toContain("BrainSync 欢乐房间");
+    expect(document.body.textContent).not.toContain("房间 123456");
+  });
 });
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -232,4 +321,23 @@ function setNativeInputValue(input: HTMLInputElement, value: string) {
   const reactPropsKey = Object.keys(input).find((key) => key.startsWith("__reactProps$"));
   const reactProps = reactPropsKey ? (input as unknown as Record<string, { onChange?: (event: { target: { value: string } }) => void }>)[reactPropsKey] : undefined;
   reactProps?.onChange?.({ target: { value } });
+}
+
+function roomSnapshot(code: string): RoomSnapshot {
+  return {
+    code,
+    status: "waiting",
+    hostId: "p1",
+    players: [{ id: "p1", name: "jim", avatar: "/avatars/player-1.svg", score: 0, connected: true }],
+    messages: [
+      {
+        id: "m1",
+        sender: "bot",
+        kind: "system",
+        text: "房间已创建",
+        avatar: "/avatars/bot.svg",
+        createdAt: 1
+      }
+    ]
+  };
 }
