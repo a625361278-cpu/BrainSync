@@ -68,6 +68,18 @@ describe("首页登录入口", () => {
     expect(document.body.textContent).toContain("欢迎来到 BrainSync");
   });
 
+  it("首页开房间卡片只展示核心玩法标签和省略号", async () => {
+    await act(async () => {
+      createRoot(document.getElementById("root")!).render(<App />);
+    });
+
+    const tagWrap = document.querySelector(".room-game-tags");
+    const labels = Array.from(document.querySelectorAll(".room-game-tags span")).map((node) => node.textContent);
+
+    expect(tagWrap?.getAttribute("aria-label")).toBe("开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影");
+    expect(labels).toEqual(["成语", "猜歌", "..."]);
+  });
+
   it("关闭弹窗后点击猜歌挑战会重新要求登录", async () => {
     await act(async () => {
       createRoot(document.getElementById("root")!).render(<App />);

@@ -588,14 +588,17 @@ input:focus {
 .room-game-tags {
   position: relative;
   z-index: 3;
-  width: min(100%, 172px);
+  width: max-content;
+  max-width: 100%;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 5px;
   margin-top: 2px;
+  white-space: nowrap;
 }
 
 .room-game-tags span {
+  flex: 0 0 auto;
   padding: 3px 8px;
   border-radius: 999px;
   color: #07754d;
@@ -603,6 +606,11 @@ input:focus {
   font-size: 12px;
   font-weight: 900;
   line-height: 1.1;
+}
+
+.room-game-tags .more-tag {
+  padding-inline: 7px;
+  letter-spacing: 1px;
 }
 
 .home-sub-modes {
@@ -1654,13 +1662,17 @@ input:focus {
   }
 
   .room-game-tags {
-    width: 130px;
+    max-width: 118px;
     gap: 4px;
   }
 
   .room-game-tags span {
     padding: 3px 6px;
     font-size: 11px;
+  }
+
+  .room-game-tags .more-tag {
+    padding-inline: 5px;
   }
 
   .big-mode button {

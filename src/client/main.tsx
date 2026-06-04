@@ -433,11 +433,10 @@ function Home(props: {
           <article className="big-mode room-mode">
             <strong>开房间对战</strong>
             <small>邀请好友，实时对战</small>
-            <div className="room-game-tags" aria-label="开房间支持玩法">
+            <div className="room-game-tags" aria-label="开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影">
               <span>成语</span>
               <span>猜歌</span>
-              <span>剪影</span>
-              <span>剧照</span>
+              <span className="more-tag">...</span>
             </div>
             <div className="chat-vs">
               <span>•••</span>
