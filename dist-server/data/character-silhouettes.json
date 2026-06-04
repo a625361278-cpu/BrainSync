@@ -2,71 +2,743 @@
   {
     "id": "shin-chan",
     "name": "蜡笔小新",
-    "aliases": ["小新", "野原新之助"],
+    "aliases": [
+      "小新",
+      "野原新之助"
+    ],
     "work": "蜡笔小新",
-    "imageUrl": "/pvp-assets/silhouettes/shin-chan.png"
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/shin-chan.png",
+    "referenceNote": "透明角色参考图，保留标志性头型和站姿",
+    "assetMode": "processed-reference"
   },
   {
     "id": "doraemon",
     "name": "哆啦A梦",
-    "aliases": ["哆啦a梦", "机器猫", "小叮当"],
+    "aliases": [
+      "哆啦a梦",
+      "机器猫",
+      "小叮当"
+    ],
     "work": "哆啦A梦",
-    "imageUrl": "/pvp-assets/silhouettes/doraemon.png"
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/doraemon.png",
+    "referenceNote": "透明角色参考图，保留圆形头身和铃铛轮廓",
+    "assetMode": "processed-reference"
   },
   {
     "id": "goku",
     "name": "孙悟空",
-    "aliases": ["悟空", "卡卡罗特"],
+    "aliases": [
+      "悟空",
+      "卡卡罗特"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/goku.png"
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/goku.png",
+    "referenceNote": "透明角色参考图，保留刺猬头和战斗服姿态",
+    "assetMode": "processed-reference"
   },
   {
     "id": "vegeta",
     "name": "贝吉塔",
-    "aliases": ["达尔", "贝吉达"],
+    "aliases": [
+      "达尔",
+      "贝吉达"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/vegeta.png"
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/vegeta.png",
+    "referenceNote": "透明角色参考图，保留高发际发型和抱臂轮廓",
+    "assetMode": "processed-reference"
   },
   {
     "id": "piccolo",
     "name": "比克",
-    "aliases": ["短笛", "比克大魔王"],
+    "aliases": [
+      "短笛",
+      "比克大魔王"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/piccolo.png"
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/piccolo.png",
+    "referenceNote": "透明角色参考图，保留披风和头部触角轮廓",
+    "assetMode": "processed-reference"
   },
   {
     "id": "krillin",
     "name": "克林",
-    "aliases": ["小林", "库林"],
+    "aliases": [
+      "小林",
+      "库林"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/krillin.png"
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/krillin.png",
+    "referenceNote": "透明角色参考图，保留光头和武道服轮廓",
+    "assetMode": "processed-reference"
   },
   {
     "id": "trunks",
     "name": "特兰克斯",
-    "aliases": ["未来特兰克斯", "特南克斯"],
+    "aliases": [
+      "未来特兰克斯",
+      "特南克斯"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/trunks.png"
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/trunks.png",
+    "referenceNote": "透明角色参考图，保留长剑和发型轮廓",
+    "assetMode": "processed-reference"
   },
   {
     "id": "frieza",
     "name": "弗利萨",
-    "aliases": ["弗利沙"],
+    "aliases": [
+      "弗利沙"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/frieza.png"
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/frieza.png",
+    "referenceNote": "透明角色参考图，保留尾巴和外星体型",
+    "assetMode": "processed-reference"
   },
   {
     "id": "bardock",
     "name": "巴达克",
-    "aliases": ["巴达克斯"],
+    "aliases": [
+      "巴达克斯"
+    ],
     "work": "七龙珠",
-    "imageUrl": "/pvp-assets/silhouettes/bardock.png"
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/bardock.png",
+    "referenceNote": "透明角色参考图，保留发型和战斗姿势",
+    "assetMode": "processed-reference"
   },
   {
     "id": "naruto",
     "name": "漩涡鸣人",
-    "aliases": ["鸣人", "火影"],
+    "aliases": [
+      "鸣人",
+      "火影"
+    ],
     "work": "火影忍者",
-    "imageUrl": "/pvp-assets/silhouettes/naruto.png"
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/naruto.png",
+    "referenceNote": "透明角色参考图，保留忍者服和发型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "luffy",
+    "name": "蒙奇D路飞",
+    "aliases": [
+      "路飞",
+      "蒙奇·D·路飞",
+      "蒙奇D·路飞"
+    ],
+    "work": "海贼王",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/luffy.png",
+    "referenceNote": "透明角色参考图，保留草帽、外套和站姿轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "zoro",
+    "name": "罗罗诺亚索隆",
+    "aliases": [
+      "索隆",
+      "佐罗",
+      "罗罗诺亚·索隆"
+    ],
+    "work": "海贼王",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/zoro.png",
+    "referenceNote": "透明角色参考图，保留三刀流武器轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "sasuke",
+    "name": "宇智波佐助",
+    "aliases": [
+      "佐助"
+    ],
+    "work": "火影忍者",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/sasuke.png",
+    "referenceNote": "透明角色参考图，保留发型和忍者装束轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "kakashi",
+    "name": "旗木卡卡西",
+    "aliases": [
+      "卡卡西"
+    ],
+    "work": "火影忍者",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/kakashi.png",
+    "referenceNote": "透明角色参考图，保留护额、面罩和竖发轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "itachi",
+    "name": "宇智波鼬",
+    "aliases": [
+      "鼬",
+      "宇智波斑鸠"
+    ],
+    "work": "火影忍者",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/itachi.png",
+    "referenceNote": "透明角色参考图，保留披风和发型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "conan",
+    "name": "江户川柯南",
+    "aliases": [
+      "柯南",
+      "工藤新一"
+    ],
+    "work": "名侦探柯南",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/conan.png",
+    "referenceNote": "透明角色参考图，保留小学生体型和眼镜轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "ran-mouri",
+    "name": "毛利兰",
+    "aliases": [
+      "小兰",
+      "兰"
+    ],
+    "work": "名侦探柯南",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/ran-mouri.png",
+    "referenceNote": "透明角色参考图，保留长发和校服轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "ai-haibara",
+    "name": "灰原哀",
+    "aliases": [
+      "灰原",
+      "小哀",
+      "宫野志保"
+    ],
+    "work": "名侦探柯南",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/ai-haibara.png",
+    "referenceNote": "透明角色参考图，保留短发和儿童体型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "kaito-kid",
+    "name": "怪盗基德",
+    "aliases": [
+      "基德",
+      "黑羽快斗"
+    ],
+    "work": "名侦探柯南",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/kaito-kid.png",
+    "referenceNote": "透明角色参考图，保留礼帽和披风轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "sakuragi",
+    "name": "樱木花道",
+    "aliases": [
+      "樱木"
+    ],
+    "work": "灌篮高手",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/sakuragi.png",
+    "referenceNote": "透明角色参考图，保留篮球服和短发轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "rukawa",
+    "name": "流川枫",
+    "aliases": [
+      "流川"
+    ],
+    "work": "灌篮高手",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/rukawa.png",
+    "referenceNote": "透明角色参考图，保留篮球服和发型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "akagi",
+    "name": "赤木刚宪",
+    "aliases": [
+      "赤木",
+      "大猩猩"
+    ],
+    "work": "灌篮高手",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/akagi.png",
+    "referenceNote": "透明角色参考图，保留高大体型和篮球服轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "mitsui",
+    "name": "三井寿",
+    "aliases": [
+      "三井"
+    ],
+    "work": "灌篮高手",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/mitsui.png",
+    "referenceNote": "透明角色参考图，保留球衣和站姿轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "miyagi",
+    "name": "宫城良田",
+    "aliases": [
+      "宫城"
+    ],
+    "work": "灌篮高手",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/miyagi.png",
+    "referenceNote": "透明角色参考图，保留控卫体型和发型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "tanjiro",
+    "name": "灶门炭治郎",
+    "aliases": [
+      "炭治郎"
+    ],
+    "work": "鬼灭之刃",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/tanjiro.png",
+    "referenceNote": "透明角色参考图，保留耳饰、羽织和刀轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "nezuko",
+    "name": "灶门祢豆子",
+    "aliases": [
+      "祢豆子",
+      "弥豆子"
+    ],
+    "work": "鬼灭之刃",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/nezuko.png",
+    "referenceNote": "透明角色参考图，保留竹筒和长发轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "zenitsu",
+    "name": "我妻善逸",
+    "aliases": [
+      "善逸"
+    ],
+    "work": "鬼灭之刃",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/zenitsu.png",
+    "referenceNote": "透明角色参考图，保留羽织和蹲姿轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "inosuke",
+    "name": "嘴平伊之助",
+    "aliases": [
+      "伊之助"
+    ],
+    "work": "鬼灭之刃",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/inosuke.png",
+    "referenceNote": "透明角色参考图，保留野猪头套和双刀轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "rengoku",
+    "name": "炼狱杏寿郎",
+    "aliases": [
+      "炼狱",
+      "大哥"
+    ],
+    "work": "鬼灭之刃",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/rengoku.png",
+    "referenceNote": "透明角色参考图，保留火焰发型和披风轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "pikachu",
+    "name": "皮卡丘",
+    "aliases": [
+      "比卡丘"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/pikachu.png",
+    "referenceNote": "透明角色参考图，保留长耳和尾巴轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "psyduck",
+    "name": "可达鸭",
+    "aliases": [
+      "哥达鸭"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/psyduck.png",
+    "referenceNote": "透明角色参考图，保留鸭嘴和抱头姿态",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "charmander",
+    "name": "小火龙",
+    "aliases": [
+      "小火龍"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/charmander.png",
+    "referenceNote": "透明角色参考图，保留尾巴火焰轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "squirtle",
+    "name": "杰尼龟",
+    "aliases": [
+      "车厘龟"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/squirtle.png",
+    "referenceNote": "透明角色参考图，保留龟壳和尾巴轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "bulbasaur",
+    "name": "妙蛙种子",
+    "aliases": [
+      "妙蛙種子"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/bulbasaur.png",
+    "referenceNote": "透明角色参考图，保留背部种子轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "eevee",
+    "name": "伊布",
+    "aliases": [],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/eevee.png",
+    "referenceNote": "透明角色参考图，保留大耳朵和蓬松尾巴",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "meowth",
+    "name": "喵喵",
+    "aliases": [
+      "喵喵怪"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/meowth.png",
+    "referenceNote": "透明角色参考图，保留金币额饰和尾巴",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "snorlax",
+    "name": "卡比兽",
+    "aliases": [
+      "卡比"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/snorlax.png",
+    "referenceNote": "透明角色参考图，保留巨大圆身体型",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "gengar",
+    "name": "耿鬼",
+    "aliases": [
+      "梗鬼"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/gengar.png",
+    "referenceNote": "透明角色参考图，保留尖刺背影和坏笑轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "mewtwo",
+    "name": "超梦",
+    "aliases": [
+      "梦幻二号"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/mewtwo.png",
+    "referenceNote": "透明角色参考图，保留长尾和人形轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "jigglypuff",
+    "name": "胖丁",
+    "aliases": [
+      "布丁"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/jigglypuff.png",
+    "referenceNote": "透明角色参考图，保留圆形体型和卷发",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "charizard",
+    "name": "喷火龙",
+    "aliases": [
+      "喷火龍"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/charizard.png",
+    "referenceNote": "透明角色参考图，保留翅膀和尾焰轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "lucario",
+    "name": "路卡利欧",
+    "aliases": [
+      "卢卡利欧"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/lucario.png",
+    "referenceNote": "透明角色参考图，保留耳部和格斗姿态轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "greninja",
+    "name": "甲贺忍蛙",
+    "aliases": [
+      "甲賀忍蛙"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/greninja.png",
+    "referenceNote": "透明角色参考图，保留长舌围巾和忍者姿态",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "mimikyu",
+    "name": "谜拟Q",
+    "aliases": [
+      "谜拟丘",
+      "謎擬Q"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/mimikyu.png",
+    "referenceNote": "透明角色参考图，保留伪装布偶和折耳轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "lapras",
+    "name": "拉普拉斯",
+    "aliases": [
+      "乘龙"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/lapras.png",
+    "referenceNote": "透明角色参考图，保留长颈和背甲轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "gardevoir",
+    "name": "沙奈朵",
+    "aliases": [
+      "超能女皇"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/gardevoir.png",
+    "referenceNote": "透明角色参考图，保留裙摆和头部造型",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "dragonite",
+    "name": "快龙",
+    "aliases": [
+      "肥大"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/dragonite.png",
+    "referenceNote": "透明角色参考图，保留翅膀和圆身体型",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "piplup",
+    "name": "波加曼",
+    "aliases": [
+      "圆企鹅"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/piplup.png",
+    "referenceNote": "透明角色参考图，保留企鹅体型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "pichu",
+    "name": "皮丘",
+    "aliases": [],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/pichu.png",
+    "referenceNote": "透明角色参考图，保留大耳朵和小体型",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "vaporeon",
+    "name": "水伊布",
+    "aliases": [
+      "水精灵"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/vaporeon.png",
+    "referenceNote": "透明角色参考图，保留鱼尾和颈鳍轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "umbreon",
+    "name": "月亮伊布",
+    "aliases": [
+      "月伊布",
+      "月精灵"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/umbreon.png",
+    "referenceNote": "透明角色参考图，保留长耳和尾巴轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "mew",
+    "name": "梦幻",
+    "aliases": [
+      "梦梦"
+    ],
+    "work": "精灵宝可梦",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/mew.png",
+    "referenceNote": "透明角色参考图，保留长尾和小体型轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "mickey",
+    "name": "米奇",
+    "aliases": [
+      "米老鼠",
+      "米奇老鼠"
+    ],
+    "work": "迪士尼",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/mickey.png",
+    "referenceNote": "透明角色参考图，保留圆耳和手套轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "donald",
+    "name": "唐老鸭",
+    "aliases": [
+      "唐纳德鸭"
+    ],
+    "work": "迪士尼",
+    "difficulty": 1,
+    "imageUrl": "/pvp-assets/silhouettes/donald.png",
+    "referenceNote": "透明角色参考图，保留鸭嘴和水手帽轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "minnie",
+    "name": "米妮",
+    "aliases": [
+      "米妮老鼠"
+    ],
+    "work": "迪士尼",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/minnie.png",
+    "referenceNote": "透明角色参考图，保留蝴蝶结和圆耳轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "goofy",
+    "name": "高飞",
+    "aliases": [
+      "高飞狗"
+    ],
+    "work": "迪士尼",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/goofy.png",
+    "referenceNote": "透明角色参考图，保留高瘦体型和长耳轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "pluto",
+    "name": "布鲁托",
+    "aliases": [
+      "布鲁托狗"
+    ],
+    "work": "迪士尼",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/pluto.png",
+    "referenceNote": "透明角色参考图，保留四足姿态和长耳轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "gohan",
+    "name": "孙悟饭",
+    "aliases": [
+      "悟饭"
+    ],
+    "work": "七龙珠",
+    "difficulty": 2,
+    "imageUrl": "/pvp-assets/silhouettes/gohan.png",
+    "referenceNote": "透明角色参考图，保留短发和战斗服轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "android-18",
+    "name": "人造人18号",
+    "aliases": [
+      "18号",
+      "十八号"
+    ],
+    "work": "七龙珠",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/android-18.png",
+    "referenceNote": "透明角色参考图，保留短发和站姿轮廓",
+    "assetMode": "processed-reference"
+  },
+  {
+    "id": "bulma",
+    "name": "布尔玛",
+    "aliases": [
+      "布玛"
+    ],
+    "work": "七龙珠",
+    "difficulty": 3,
+    "imageUrl": "/pvp-assets/silhouettes/bulma.png",
+    "referenceNote": "透明角色参考图，保留发型和服装轮廓",
+    "assetMode": "processed-reference"
   }
 ]

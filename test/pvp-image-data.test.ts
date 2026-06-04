@@ -5,19 +5,29 @@ import characters from "../src/server/data/character-silhouettes.json";
 import movies from "../src/server/data/movie-stills.json";
 
 describe("PVP图片题库质量", () => {
-  it("剪影猜人至少包含10题，剧照猜电影至少包含5题", () => {
-    expect(characters.length).toBeGreaterThanOrEqual(10);
+  it("剪影猜人至少包含60题，剧照猜电影至少包含5题", () => {
+    expect(characters.length).toBeGreaterThanOrEqual(60);
     expect(movies.length).toBeGreaterThanOrEqual(5);
   });
 
   it("图片题字段完整且本地图片存在", () => {
+    const characterIds = new Set<string>();
+    const characterNames = new Set<string>();
     for (const character of characters) {
       expect(character.id).toBeTruthy();
       expect(character.name).toBeTruthy();
       expect(character.work).toBeTruthy();
       expect(character.aliases).toBeInstanceOf(Array);
+      expect(character.difficulty).toBeGreaterThanOrEqual(1);
+      expect(character.difficulty).toBeLessThanOrEqual(5);
+      expect(character.referenceNote).toBeTruthy();
+      expect(["processed-reference", "generated-reference"]).toContain(character.assetMode);
       expect(character.imageUrl).toMatch(/^\/pvp-assets\/silhouettes\/.+\.png$/);
       expect(existsSync(resolve("public", character.imageUrl.slice(1)))).toBe(true);
+      expect(characterIds.has(character.id)).toBe(false);
+      expect(characterNames.has(character.name)).toBe(false);
+      characterIds.add(character.id);
+      characterNames.add(character.name);
     }
 
     for (const movie of movies) {

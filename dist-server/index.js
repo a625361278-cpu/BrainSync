@@ -629,7 +629,7 @@ function validateIdioms(idioms) {
 }
 function validateCharacters(characters) {
   for (const character of characters) {
-    if (!character.id || !character.name || !character.work || !character.imageUrl || !Array.isArray(character.aliases)) {
+    if (!character.id || !character.name || !character.work || !character.imageUrl || !Array.isArray(character.aliases) || !Number.isInteger(character.difficulty) || character.difficulty < 1 || character.difficulty > 5 || !character.referenceNote || !["processed-reference", "generated-reference"].includes(character.assetMode)) {
       throw new Error(`\u526A\u5F71\u731C\u4EBA\u9898\u5E93\u5F02\u5E38\uFF1A${character.name || character.id || "\u672A\u77E5\u89D2\u8272"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
     }
   }

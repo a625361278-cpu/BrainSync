@@ -24,6 +24,9 @@ export interface CharacterEntry {
   name: string;
   aliases: string[];
   work: string;
+  difficulty: number;
+  referenceNote: string;
+  assetMode: "processed-reference" | "generated-reference";
   imageUrl: string;
 }
 

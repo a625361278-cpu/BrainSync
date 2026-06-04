@@ -753,7 +753,18 @@ function validateIdioms(idioms: IdiomEntry[]): void {
 
 function validateCharacters(characters: CharacterEntry[]): void {
   for (const character of characters) {
-    if (!character.id || !character.name || !character.work || !character.imageUrl || !Array.isArray(character.aliases)) {
+    if (
+      !character.id ||
+      !character.name ||
+      !character.work ||
+      !character.imageUrl ||
+      !Array.isArray(character.aliases) ||
+      !Number.isInteger(character.difficulty) ||
+      character.difficulty < 1 ||
+      character.difficulty > 5 ||
+      !character.referenceNote ||
+      !["processed-reference", "generated-reference"].includes(character.assetMode)
+    ) {
       throw new Error(`剪影猜人题库异常：${character.name || character.id || "未知角色"} 字段不完整`);
     }
   }

@@ -39,6 +39,9 @@ const characters: CharacterEntry[] = [
     name: "哪吒",
     aliases: ["三太子"],
     work: "哪吒闹海",
+    difficulty: 1,
+    referenceNote: "测试用剪影题",
+    assetMode: "processed-reference",
     imageUrl: "/pvp-assets/silhouettes/nezha.svg"
   },
   {
@@ -46,6 +49,9 @@ const characters: CharacterEntry[] = [
     name: "孙悟空",
     aliases: ["齐天大圣"],
     work: "西游记",
+    difficulty: 1,
+    referenceNote: "测试用剪影题",
+    assetMode: "processed-reference",
     imageUrl: "/pvp-assets/silhouettes/sun-wukong.svg"
   }
 ];
