@@ -1,6 +1,7 @@
 import React from "react";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
+import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../src/client/main";
 import type { RoomSnapshot } from "../src/shared/types";
@@ -78,6 +79,14 @@ describe("首页登录入口", () => {
 
     expect(tagWrap?.getAttribute("aria-label")).toBe("开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影");
     expect(labels).toEqual(["成语", "猜歌", "..."]);
+  });
+
+  it("首页开房间玩法标签使用独立定位，避免压住VS区域", () => {
+    const cssText = readClientStyles();
+    const roomTagRule = cssText.match(/\.room-mode \.room-game-tags \{[^}]+\}/)?.[0] ?? "";
+
+    expect(roomTagRule).toContain("position: absolute;");
+    expect(roomTagRule).toContain("top:");
   });
 
   it("关闭弹窗后点击猜歌挑战会重新要求登录", async () => {
@@ -333,6 +342,10 @@ function setNativeInputValue(input: HTMLInputElement, value: string) {
   const reactPropsKey = Object.keys(input).find((key) => key.startsWith("__reactProps$"));
   const reactProps = reactPropsKey ? (input as unknown as Record<string, { onChange?: (event: { target: { value: string } }) => void }>)[reactPropsKey] : undefined;
   reactProps?.onChange?.({ target: { value } });
+}
+
+function readClientStyles(): string {
+  return readFileSync("src/client/styles.css", "utf8");
 }
 
 function roomSnapshot(code: string): RoomSnapshot {

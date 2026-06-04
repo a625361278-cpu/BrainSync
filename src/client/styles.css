@@ -613,6 +613,13 @@ input:focus {
   letter-spacing: 1px;
 }
 
+.room-mode .room-game-tags {
+  position: absolute;
+  left: 17px;
+  top: 88px;
+  margin-top: 0;
+}
+
 .home-sub-modes {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1675,6 +1682,11 @@ input:focus {
     padding-inline: 5px;
   }
 
+  .room-mode .room-game-tags {
+    left: 12px;
+    top: 78px;
+  }
+
   .big-mode button {
     left: 14px;
     right: 14px;
@@ -1769,6 +1781,11 @@ input:focus {
 
   .chat-vs b {
     font-size: 31px;
+  }
+
+  .room-mode .room-game-tags {
+    left: 10px;
+    top: 76px;
   }
 
   .big-mode button {
