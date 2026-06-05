@@ -32,9 +32,12 @@ describe("微信小程序前端工程", () => {
     expect(home).toContain("home-main-modes");
     expect(home).toContain("每日挑战");
     expect(home).toContain("筹备中");
-    expect(home).toContain("微信一键登录");
     expect(home).toContain('type="nickname"');
     expect(home).toContain('open-type="chooseAvatar"');
+    expect(home).toContain("点击选择微信头像");
+    expect(home).toContain("头像已选择");
+    expect(home).toContain("请先选择微信头像");
+    expect(home).toContain("确认资料并登录");
   });
 
   it("小程序PVE页面复刻网页版关卡和答题正式结构", () => {

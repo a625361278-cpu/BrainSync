@@ -126,6 +126,9 @@ app.post(
       appSecret: process.env.WECHAT_APP_SECRET
     });
     const avatarUrl = await saveWechatAvatar(req.body?.avatarImage);
+    if (!avatarUrl) {
+      throw new Error("微信头像不能为空");
+    }
     const result = await auth.loginWithWechat({
       openid,
       nickname,

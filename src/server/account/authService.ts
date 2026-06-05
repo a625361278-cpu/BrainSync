@@ -27,7 +27,7 @@ export interface LoginPayload {
 export interface WechatLoginPayload {
   openid: string;
   nickname: string;
-  avatarUrl?: string;
+  avatarUrl: string;
 }
 
 export interface AuthResult {
@@ -206,10 +206,10 @@ function normalizeWechatNickname(nickname: string): string {
   return normalized;
 }
 
-function normalizeAvatarUrl(avatarUrl: string | undefined): string | undefined {
+function normalizeAvatarUrl(avatarUrl: string | undefined): string {
   const normalized = avatarUrl?.trim();
   if (!normalized) {
-    return undefined;
+    throw new Error("微信头像不能为空");
   }
   if (!normalized.startsWith("/user-avatars/")) {
     throw new Error("头像地址异常");

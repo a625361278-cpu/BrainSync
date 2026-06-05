@@ -98,8 +98,16 @@
     <view v-if="showLoginModal" class="home-auth-modal">
       <view class="auth-modal-card">
         <button class="modal-close" @tap="showLoginModal = false">×</button>
-        <button class="avatar-picker" open-type="chooseAvatar" @chooseavatar="chooseAvatar">
+        <button
+          :class="['avatar-picker', { 'is-missing': avatarMissing, 'is-selected': hasSelectedAvatar }]"
+          open-type="chooseAvatar"
+          @chooseavatar="chooseAvatar"
+        >
           <image :src="displayAvatar" mode="aspectFill" />
+          <view class="avatar-picker-copy">
+            <text class="avatar-picker-title">点击选择微信头像</text>
+            <text>{{ hasSelectedAvatar ? "头像已选择" : "登录前必须选择头像" }}</text>
+          </view>
         </button>
         <text class="modal-title">欢迎来到 BrainSync</text>
         <text class="modal-copy">登录后保存体力、星级和闯关进度；开房对战会使用你确认的微信昵称。</text>
@@ -107,10 +115,16 @@
           v-model="wechatNickname"
           class="nickname-input"
           type="nickname"
+          :focus="nicknameInputFocus"
           maxlength="16"
-          placeholder="请选择或填写微信昵称"
+          placeholder="点这里选择微信昵称"
+          @focus="nicknameInputFocus = false"
         />
-        <button class="green-button" :loading="busy" @tap="login">{{ user ? "刷新微信登录" : "微信一键登录" }}</button>
+        <view class="profile-status-row">
+          <text :class="hasSelectedAvatar ? 'status-ok' : 'status-missing'">{{ hasSelectedAvatar ? "头像已选择" : "头像待选择" }}</text>
+          <text :class="hasNickname ? 'status-ok' : 'status-missing'">{{ hasNickname ? "昵称已填写" : "昵称待填写" }}</text>
+        </view>
+        <button class="green-button" :loading="busy" @tap="login">确认资料并登录</button>
       </view>
     </view>
 
@@ -135,7 +149,9 @@ const busy = ref(false);
 const error = ref("");
 const showLoginModal = ref(false);
 const wechatNickname = ref("");
+const nicknameInputFocus = ref(false);
 const selectedAvatarPath = ref("");
+const avatarMissing = ref(false);
 const homeAssets = {
   avatarDog: "/static/home-assets/avatar-dog.svg",
   note: "/static/home-assets/note.svg",
@@ -168,6 +184,8 @@ const displayAvatar = computed(() => {
   }
   return homeAssets.avatarDog;
 });
+const hasSelectedAvatar = computed(() => Boolean(selectedAvatarPath.value));
+const hasNickname = computed(() => Boolean(wechatNickname.value.trim()));
 
 onShow(() => {
   void restoreSession();
@@ -186,6 +204,7 @@ async function restoreSession() {
     user.value = result.user;
     wechatNickname.value = result.user.nickname;
     selectedAvatarPath.value = "";
+    avatarMissing.value = false;
     await refreshProfile();
     showLoginModal.value = false;
   } catch (err) {
@@ -208,8 +227,14 @@ async function refreshProfile() {
 
 async function login() {
   const nickname = wechatNickname.value.trim();
+  if (!selectedAvatarPath.value) {
+    error.value = "请先选择微信头像";
+    avatarMissing.value = true;
+    return;
+  }
   if (!nickname) {
-    error.value = "请先填写微信昵称";
+    error.value = "请先选择或填写微信昵称";
+    nicknameInputFocus.value = true;
     return;
   }
   busy.value = true;
@@ -256,6 +281,7 @@ function chooseAvatar(event: { detail?: { avatarUrl?: string } }) {
     return;
   }
   selectedAvatarPath.value = avatarUrl;
+  avatarMissing.value = false;
 }
 
 function assetUrl(path: string): string {
@@ -764,16 +790,18 @@ function assetUrl(path: string): string {
 }
 
 .avatar-picker {
-  width: 132rpx;
-  height: 132rpx;
+  width: 100%;
+  min-height: 156rpx;
   justify-self: center;
-  overflow: hidden;
   display: grid;
-  place-items: center;
-  padding: 0;
-  border: 6rpx solid #e8f4ee;
-  border-radius: 50%;
+  grid-template-columns: 112rpx 1fr;
+  align-items: center;
+  gap: 20rpx;
+  padding: 22rpx 24rpx;
+  border: 4rpx solid #e8f4ee;
+  border-radius: 24rpx;
   background: #f5fbf7;
+  text-align: left;
   box-shadow: 0 12rpx 28rpx rgba(24, 116, 71, 0.14);
 }
 
@@ -782,8 +810,33 @@ function assetUrl(path: string): string {
 }
 
 .avatar-picker image {
-  width: 100%;
-  height: 100%;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+}
+
+.avatar-picker.is-missing {
+  border-color: #ffb4aa;
+  background: #fff7f6;
+}
+
+.avatar-picker.is-selected {
+  border-color: #61d68d;
+  background: #f4fff8;
+}
+
+.avatar-picker-copy {
+  display: grid;
+  gap: 10rpx;
+  color: #69746f;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.avatar-picker-title {
+  color: #173d29;
+  font-size: 30rpx;
+  font-weight: 900;
 }
 
 .modal-title,
@@ -812,6 +865,31 @@ function assetUrl(path: string): string {
   background: #f7fbf8;
   font-size: 28rpx;
   font-weight: 800;
+}
+
+.profile-status-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14rpx;
+}
+
+.profile-status-row text {
+  min-height: 52rpx;
+  display: grid;
+  place-items: center;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+
+.status-ok {
+  color: #0a7f45;
+  background: #e7f9ee;
+}
+
+.status-missing {
+  color: #b64a37;
+  background: #fff0ed;
 }
 
 .modal-close {

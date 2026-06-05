@@ -957,7 +957,7 @@ function normalizeWechatNickname(nickname) {
 function normalizeAvatarUrl(avatarUrl) {
   const normalized = avatarUrl?.trim();
   if (!normalized) {
-    return void 0;
+    throw new Error("\u5FAE\u4FE1\u5934\u50CF\u4E0D\u80FD\u4E3A\u7A7A");
   }
   if (!normalized.startsWith("/user-avatars/")) {
     throw new Error("\u5934\u50CF\u5730\u5740\u5F02\u5E38");
@@ -2045,6 +2045,9 @@ app.post(
       appSecret: process.env.WECHAT_APP_SECRET
     });
     const avatarUrl = await saveWechatAvatar(req.body?.avatarImage);
+    if (!avatarUrl) {
+      throw new Error("\u5FAE\u4FE1\u5934\u50CF\u4E0D\u80FD\u4E3A\u7A7A");
+    }
     const result = await auth.loginWithWechat({
       openid,
       nickname,

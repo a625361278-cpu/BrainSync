@@ -27,10 +27,13 @@ export interface WechatAvatarImage {
   mimeType: "image/jpeg" | "image/png" | "image/webp";
 }
 
-export async function loginWithWechat(nickname: string, avatarImage?: WechatAvatarImage): Promise<{ token: string; user: PublicUser }> {
+export async function loginWithWechat(nickname: string, avatarImage: WechatAvatarImage): Promise<{ token: string; user: PublicUser }> {
   const normalizedNickname = nickname.trim();
   if (!normalizedNickname) {
     throw new Error("请先填写微信昵称");
+  }
+  if (!avatarImage.data) {
+    throw new Error("请先选择微信头像");
   }
   const loginResult = await new Promise<UniApp.LoginRes>((resolve, reject) => {
     uni.login({ provider: "weixin", success: resolve, fail: reject });
@@ -43,6 +46,12 @@ export async function loginWithWechat(nickname: string, avatarImage?: WechatAvat
     data: { code: loginResult.code, nickname: normalizedNickname, avatarImage },
     token: ""
   });
+  if (result.user.nickname !== normalizedNickname) {
+    throw new Error("服务端未更新微信昵称，请先部署最新后端");
+  }
+  if (!result.user.avatarUrl) {
+    throw new Error("服务端未保存微信头像，请先部署最新后端");
+  }
   writeToken(result.token);
   return result;
 }

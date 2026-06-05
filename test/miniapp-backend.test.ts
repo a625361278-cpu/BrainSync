@@ -26,7 +26,18 @@ describe("微信小程序登录", () => {
     const repo = createMemoryAccountRepository();
     const auth = createAuthService({ repo });
 
-    await expect(auth.loginWithWechat({ openid: "openid-empty", nickname: " " })).rejects.toThrow("微信昵称不能为空");
+    await expect(
+      auth.loginWithWechat({ openid: "openid-empty", nickname: " ", avatarUrl: "/user-avatars/empty.jpg" })
+    ).rejects.toThrow("微信昵称不能为空");
+  });
+
+  it("微信登录不能缺少头像资料", async () => {
+    const repo = createMemoryAccountRepository();
+    const auth = createAuthService({ repo });
+
+    await expect(
+      auth.loginWithWechat({ openid: "openid-no-avatar", nickname: "小林" } as Parameters<typeof auth.loginWithWechat>[0])
+    ).rejects.toThrow("微信头像不能为空");
   });
 
   it("微信code换openid失败时暴露平台错误", async () => {
@@ -49,7 +60,7 @@ describe("小程序广告奖励", () => {
   it("激励视频必须先收到可信回调，领取后只补一次体力", async () => {
     const repo = createMemoryAccountRepository();
     const auth = createAuthService({ repo, now: () => 1000, randomToken: () => "token-ad" });
-    const { user } = await auth.loginWithWechat({ openid: "openid-ad", nickname: "广告玩家" });
+    const { user } = await auth.loginWithWechat({ openid: "openid-ad", nickname: "广告玩家", avatarUrl: "/user-avatars/ad.jpg" });
     await repo.upsertStamina({ userId: user.id, current: 0, max: 5, lastRecoveredAt: 1000, adRestoreCount: 0 });
     const rewards = createAdRewardService({ repo, now: () => 2000, randomId: () => "reward-1" });
     const started = await rewards.start(user.id, "stamina");
@@ -80,7 +91,7 @@ describe("小程序PVP WebSocket协议", () => {
   it("用JSON envelope创建房间并广播roomSnapshot", async () => {
     const repo = createMemoryAccountRepository();
     const auth = createAuthService({ repo, now: () => 1000, randomToken: () => "token-pvp" });
-    const { token } = await auth.loginWithWechat({ openid: "openid-pvp", nickname: "房主" });
+    const { token } = await auth.loginWithWechat({ openid: "openid-pvp", nickname: "房主", avatarUrl: "/user-avatars/host.jpg" });
     const rooms = new Map<string, ReturnType<typeof createGameRoom>>();
     const sent: Array<{ clientId: string; message: unknown }> = [];
     const protocol = createMiniappPvpProtocol({
