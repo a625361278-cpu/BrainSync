@@ -6,6 +6,7 @@ export interface AccountUserRecord {
   passwordHash: string;
   nickname: string;
   title: string;
+  avatarUrl?: string | null;
   openid?: string | null;
   createdAt: number;
 }
@@ -15,6 +16,7 @@ export interface PublicUser {
   username: string;
   nickname: string;
   title: string;
+  avatarUrl?: string;
   createdAt: number;
 }
 
@@ -100,6 +102,7 @@ export interface AccountRepository {
   findUserByOpenid(openid: string): Promise<AccountUserRecord | undefined>;
   findUserById(userId: string): Promise<AccountUserRecord | undefined>;
   createUser(user: AccountUserRecord): Promise<void>;
+  updateUserProfile(userId: string, profile: { nickname: string; avatarUrl?: string }): Promise<void>;
   createSession(session: SessionRecord): Promise<void>;
   findSession(token: string): Promise<SessionRecord | undefined>;
   deleteSession(token: string): Promise<void>;
@@ -122,6 +125,7 @@ export function toPublicUser(user: AccountUserRecord): PublicUser {
     username: user.username,
     nickname: user.nickname,
     title: user.title,
+    avatarUrl: user.avatarUrl ?? undefined,
     createdAt: user.createdAt
   };
 }

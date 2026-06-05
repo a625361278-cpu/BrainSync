@@ -8,6 +8,7 @@ export interface PublicUser {
   username: string;
   nickname: string;
   title: string;
+  avatarUrl?: string;
   createdAt: number;
 }
 

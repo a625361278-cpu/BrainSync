@@ -9,16 +9,24 @@ import { createGameRoom } from "../src/server/game/room";
 import type { CharacterEntry, IdiomEntry, MovieEntry, RoomSnapshot, SongEntry } from "../src/shared/types";
 
 describe("微信小程序登录", () => {
-  it("同一个微信openid重复登录复用同一个真实用户", async () => {
+  it("同一个微信openid重复登录复用同一个真实用户并更新资料", async () => {
     const repo = createMemoryAccountRepository();
     const auth = createAuthService({ repo, now: () => 1000, randomToken: () => "token-wechat" });
 
-    const first = await auth.loginWithWechat({ openid: "openid-1", nickname: "微信玩家" });
-    const second = await auth.loginWithWechat({ openid: "openid-1", nickname: "改名不应新建" });
+    const first = await auth.loginWithWechat({ openid: "openid-1", nickname: "小林", avatarUrl: "/user-avatars/a.jpg" });
+    const second = await auth.loginWithWechat({ openid: "openid-1", nickname: "林同学", avatarUrl: "/user-avatars/b.jpg" });
 
     expect(first.user.id).toBe(second.user.id);
     expect(first.user.username).toBe("wx_openid-1");
-    expect(second.user.nickname).toBe("微信玩家");
+    expect(second.user.nickname).toBe("林同学");
+    expect(second.user.avatarUrl).toBe("/user-avatars/b.jpg");
+  });
+
+  it("微信登录不能用空昵称创建默认玩家", async () => {
+    const repo = createMemoryAccountRepository();
+    const auth = createAuthService({ repo });
+
+    await expect(auth.loginWithWechat({ openid: "openid-empty", nickname: " " })).rejects.toThrow("微信昵称不能为空");
   });
 
   it("微信code换openid失败时暴露平台错误", async () => {

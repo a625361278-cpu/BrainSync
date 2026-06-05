@@ -5,6 +5,14 @@ import type { PublicUser, Stamina } from "./types";
 
 declare const wx: {
   createRewardedVideoAd?: (options: { adUnitId: string }) => RewardedVideoAd;
+  getFileSystemManager?: () => {
+    readFile: (options: {
+      filePath: string;
+      encoding: "base64";
+      success: (result: { data: string }) => void;
+      fail: (error: unknown) => void;
+    }) => void;
+  };
 };
 
 interface RewardedVideoAd {
@@ -14,7 +22,16 @@ interface RewardedVideoAd {
   offClose?: (handler: (result: { isEnded?: boolean }) => void) => void;
 }
 
-export async function loginWithWechat(nickname = "微信玩家"): Promise<{ token: string; user: PublicUser }> {
+export interface WechatAvatarImage {
+  data: string;
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
+}
+
+export async function loginWithWechat(nickname: string, avatarImage?: WechatAvatarImage): Promise<{ token: string; user: PublicUser }> {
+  const normalizedNickname = nickname.trim();
+  if (!normalizedNickname) {
+    throw new Error("请先填写微信昵称");
+  }
   const loginResult = await new Promise<UniApp.LoginRes>((resolve, reject) => {
     uni.login({ provider: "weixin", success: resolve, fail: reject });
   });
@@ -23,11 +40,38 @@ export async function loginWithWechat(nickname = "微信玩家"): Promise<{ toke
   }
   const result = await apiRequest<{ token: string; user: PublicUser }>("/api/auth/wechat-login", {
     method: "POST",
-    data: { code: loginResult.code, nickname },
+    data: { code: loginResult.code, nickname: normalizedNickname, avatarImage },
     token: ""
   });
   writeToken(result.token);
   return result;
+}
+
+export async function readWechatAvatarImage(filePath: string): Promise<WechatAvatarImage> {
+  const fileSystem = wx.getFileSystemManager?.();
+  if (!fileSystem) {
+    throw new Error("当前平台不支持读取微信头像文件");
+  }
+  const data = await new Promise<string>((resolve, reject) => {
+    fileSystem.readFile({
+      filePath,
+      encoding: "base64",
+      success: (result) => resolve(result.data),
+      fail: reject
+    });
+  });
+  return { data, mimeType: inferAvatarMimeType(filePath) };
+}
+
+function inferAvatarMimeType(filePath: string): WechatAvatarImage["mimeType"] {
+  const lower = filePath.toLowerCase();
+  if (lower.endsWith(".png")) {
+    return "image/png";
+  }
+  if (lower.endsWith(".webp")) {
+    return "image/webp";
+  }
+  return "image/jpeg";
 }
 
 export async function showRewardedVideoAd(): Promise<void> {

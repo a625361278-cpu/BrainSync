@@ -1,5 +1,7 @@
 // src/server/index.ts
 import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
@@ -61,14 +63,19 @@ var InMemoryGameRoom = class {
     this.songRounds = options.songRounds ?? 5;
     this.imageRounds = options.imageRounds ?? 5;
   }
-  join(name, playerId) {
+  join(name, playerId, avatar) {
     const normalizedName = name.trim();
     if (!normalizedName) {
       throw new Error("\u6635\u79F0\u4E0D\u80FD\u4E3A\u7A7A");
     }
+    const normalizedAvatar = normalizeAvatar(avatar);
     const existingById = playerId ? this.players.get(playerId) : void 0;
     if (existingById) {
       existingById.connected = true;
+      existingById.name = normalizedName;
+      if (normalizedAvatar) {
+        existingById.avatar = normalizedAvatar;
+      }
       return clonePlayer(existingById);
     }
     for (const player2 of this.players.values()) {
@@ -77,8 +84,8 @@ var InMemoryGameRoom = class {
       }
     }
     const id = playerId ?? `p_${++this.playerSeq}_${randomToken(4)}`;
-    const avatar = PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
-    const player = { id, name: normalizedName, avatar, score: 0, connected: true };
+    const playerAvatar = normalizedAvatar ?? PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
+    const player = { id, name: normalizedName, avatar: playerAvatar, score: 0, connected: true };
     this.players.set(id, player);
     if (!this.hostId) {
       this.hostId = id;
@@ -715,6 +722,16 @@ function createRoomCode() {
 function randomToken(length) {
   return Math.random().toString(36).slice(2, 2 + length);
 }
+function normalizeAvatar(avatar) {
+  const normalized = avatar?.trim();
+  if (!normalized) {
+    return void 0;
+  }
+  if (normalized.startsWith("/avatars/") || normalized.startsWith("/user-avatars/") || normalized.startsWith("https://")) {
+    return normalized;
+  }
+  throw new Error("\u5934\u50CF\u5730\u5740\u5F02\u5E38");
+}
 
 // src/server/data/loadData.ts
 import { existsSync, readFileSync } from "node:fs";
@@ -783,6 +800,7 @@ function toPublicUser(user) {
     username: user.username,
     nickname: user.nickname,
     title: user.title,
+    avatarUrl: user.avatarUrl ?? void 0,
     createdAt: user.createdAt
   };
 }
@@ -841,8 +859,13 @@ var DefaultAuthService = class {
   }
   async loginWithWechat(payload) {
     const openid = normalizeOpenid(payload.openid);
+    const nickname = normalizeWechatNickname(payload.nickname);
+    const avatarUrl = normalizeAvatarUrl(payload.avatarUrl);
     const existing = await this.repo.findUserByOpenid(openid);
     if (existing) {
+      if (existing.nickname !== nickname || avatarUrl && existing.avatarUrl !== avatarUrl) {
+        await this.repo.updateUserProfile(existing.id, { nickname, avatarUrl });
+      }
       return this.createLoginResult(existing.id);
     }
     const createdAt = this.now();
@@ -850,8 +873,9 @@ var DefaultAuthService = class {
       id: `u_${this.randomToken().slice(0, 18)}`,
       username: `wx_${openid}`,
       passwordHash: "wechat:openid",
-      nickname: normalizeWechatNickname(payload.nickname),
+      nickname,
       title: "\u65B0\u58F0\u6311\u6218\u8005",
+      avatarUrl,
       openid,
       createdAt
     };
@@ -921,9 +945,25 @@ function normalizeOpenid(openid) {
   return normalized;
 }
 function normalizeWechatNickname(nickname) {
-  const normalized = nickname?.trim() || "\u5FAE\u4FE1\u73A9\u5BB6";
+  const normalized = nickname.trim();
+  if (!normalized) {
+    throw new Error("\u5FAE\u4FE1\u6635\u79F0\u4E0D\u80FD\u4E3A\u7A7A");
+  }
   if (normalized.length > 16) {
     throw new Error("\u6635\u79F0\u4E0D\u80FD\u8D85\u8FC716\u4E2A\u5B57");
+  }
+  return normalized;
+}
+function normalizeAvatarUrl(avatarUrl) {
+  const normalized = avatarUrl?.trim();
+  if (!normalized) {
+    return void 0;
+  }
+  if (!normalized.startsWith("/user-avatars/")) {
+    throw new Error("\u5934\u50CF\u5730\u5740\u5F02\u5E38");
+  }
+  if (normalized.length > 255) {
+    throw new Error("\u5934\u50CF\u5730\u5740\u4E0D\u80FD\u8D85\u8FC7255\u4E2A\u5B57\u7B26");
   }
   return normalized;
 }
@@ -1008,11 +1048,13 @@ var MysqlAccountRepository = class {
         password_hash VARCHAR(255) NOT NULL,
         nickname VARCHAR(64) NOT NULL,
         title VARCHAR(64) NOT NULL,
+        avatar_url VARCHAR(255) NULL,
         openid VARCHAR(128) NULL,
         created_at_ms BIGINT NOT NULL,
         UNIQUE KEY uk_users_openid (openid)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    await this.ensureColumn("users", "avatar_url", "ALTER TABLE users ADD COLUMN avatar_url VARCHAR(255) NULL AFTER title");
     await this.ensureUniqueIndex("users", "uk_users_openid", "openid");
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
@@ -1088,10 +1130,19 @@ var MysqlAccountRepository = class {
   }
   async createUser(user) {
     await this.pool.execute(
-      `INSERT INTO users (id, username, password_hash, nickname, title, openid, created_at_ms)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [user.id, user.username, user.passwordHash, user.nickname, user.title, user.openid ?? null, user.createdAt]
+      `INSERT INTO users (id, username, password_hash, nickname, title, avatar_url, openid, created_at_ms)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [user.id, user.username, user.passwordHash, user.nickname, user.title, user.avatarUrl ?? null, user.openid ?? null, user.createdAt]
     );
+  }
+  async updateUserProfile(userId, profile) {
+    const [result] = await this.pool.execute(
+      "UPDATE users SET nickname = ?, avatar_url = COALESCE(?, avatar_url) WHERE id = ?",
+      [profile.nickname, profile.avatarUrl ?? null, userId]
+    );
+    if ("affectedRows" in result && result.affectedRows === 0) {
+      throw new Error(`\u8D26\u53F7\u72B6\u6001\u5F02\u5E38\uFF1A\u627E\u4E0D\u5230\u7528\u6237 ${userId}`);
+    }
   }
   async createSession(session) {
     await this.pool.execute(
@@ -1207,6 +1258,16 @@ var MysqlAccountRepository = class {
     }
     await this.pool.query(`ALTER TABLE ${table} ADD UNIQUE KEY ${indexName} (${columnName})`);
   }
+  async ensureColumn(table, columnName, alterSql) {
+    const rows = await this.select(
+      "SELECT COUNT(*) AS count FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?",
+      [table, columnName]
+    );
+    if (Number(rows[0]?.count ?? 0) > 0) {
+      return;
+    }
+    await this.pool.query(alterSql);
+  }
 };
 function toUserRecord(row) {
   return {
@@ -1215,6 +1276,7 @@ function toUserRecord(row) {
     passwordHash: row.password_hash,
     nickname: row.nickname,
     title: row.title,
+    avatarUrl: row.avatar_url,
     openid: row.openid,
     createdAt: Number(row.created_at_ms)
   };
@@ -1792,7 +1854,7 @@ function createMiniappPvpProtocol(options) {
         const code = createUniqueRoomCode(options.createRoomCode, options.rooms);
         const room = options.createRoom(code);
         options.rooms.set(code, room);
-        const player = room.join(user.nickname);
+        const player = room.join(user.nickname, void 0, user.avatarUrl);
         clientStates.set(clientId, { roomCode: code, playerId: player.id });
         options.bindClientToRoom?.(clientId, code);
         const snapshot = room.snapshot();
@@ -1804,7 +1866,7 @@ function createMiniappPvpProtocol(options) {
         const user = await requireUser(payload.token);
         const roomCode = requireString(payload.roomCode, "\u623F\u95F4\u53F7\u4E0D\u80FD\u4E3A\u7A7A");
         const room = requireRoom2(roomCode);
-        const player = room.join(user.nickname, optionalString(payload.playerId));
+        const player = room.join(user.nickname, optionalString(payload.playerId), user.avatarUrl);
         clientStates.set(clientId, { roomCode, playerId: player.id });
         options.bindClientToRoom?.(clientId, roomCode);
         const snapshot = room.snapshot();
@@ -1940,8 +2002,9 @@ var miniappClients = /* @__PURE__ */ new Map();
 var miniappRoomClients = /* @__PURE__ */ new Map();
 var miniappClientSeq = 0;
 var timers = /* @__PURE__ */ new Map();
+var USER_AVATAR_DIR = path.resolve(process.cwd(), "user-avatars");
 var accountContext = await initializeAccountContext();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, rooms: rooms.size, account: accountContext.ready ? "ready" : "unavailable" });
 });
@@ -1972,14 +2035,20 @@ app.post(
   "/api/auth/wechat-login",
   asyncRoute(async (req, res) => {
     const { auth } = requireAccountContext();
+    const nickname = String(req.body?.nickname ?? "");
+    if (!nickname.trim()) {
+      throw new Error("\u5FAE\u4FE1\u6635\u79F0\u4E0D\u80FD\u4E3A\u7A7A");
+    }
     const openid = await exchangeWechatLoginCode({
       code: String(req.body?.code ?? ""),
       appId: process.env.WECHAT_APP_ID,
       appSecret: process.env.WECHAT_APP_SECRET
     });
+    const avatarUrl = await saveWechatAvatar(req.body?.avatarImage);
     const result = await auth.loginWithWechat({
       openid,
-      nickname: typeof req.body?.nickname === "string" ? req.body.nickname : void 0
+      nickname,
+      avatarUrl
     });
     res.json({ ok: true, ...result });
   })
@@ -2123,6 +2192,7 @@ var distPath = [
   path.resolve(serverDir, "../dist"),
   path.resolve(serverDir, "../../dist")
 ].find((candidate) => existsSync2(candidate));
+app.use("/user-avatars", express.static(USER_AVATAR_DIR, { maxAge: "30d" }));
 if (distPath) {
   app.use(express.static(distPath));
   app.get("*", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
@@ -2141,7 +2211,7 @@ io.on("connection", (socket) => {
         roundSeconds: ROUND_SECONDS
       });
       rooms.set(code, room);
-      const player = room.join(user.nickname);
+      const player = room.join(user.nickname, void 0, user.avatarUrl);
       socket.join(socketRoom(code));
       socket.data.roomCode = code;
       socket.data.playerId = player.id;
@@ -2154,7 +2224,7 @@ io.on("connection", (socket) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
       const room = requireRoom(payload.roomCode);
-      const player = room.join(user.nickname, payload.playerId);
+      const player = room.join(user.nickname, payload.playerId, user.avatarUrl);
       socket.join(socketRoom(payload.roomCode));
       socket.data.roomCode = payload.roomCode;
       socket.data.playerId = player.id;
@@ -2462,6 +2532,68 @@ function requireAdCallbackSecret(req) {
   if (actual !== expected) {
     throw new HttpError(401, "\u5E7F\u544A\u56DE\u8C03\u7B7E\u540D\u5F02\u5E38");
   }
+}
+async function saveWechatAvatar(rawAvatarImage) {
+  if (rawAvatarImage === void 0 || rawAvatarImage === null || rawAvatarImage === "") {
+    return void 0;
+  }
+  if (typeof rawAvatarImage !== "object") {
+    throw new Error("\u5FAE\u4FE1\u5934\u50CF\u6570\u636E\u683C\u5F0F\u5F02\u5E38");
+  }
+  const payload = rawAvatarImage;
+  const rawData = typeof payload.data === "string" ? payload.data.trim() : "";
+  if (!rawData) {
+    throw new Error("\u5FAE\u4FE1\u5934\u50CF\u6570\u636E\u4E0D\u80FD\u4E3A\u7A7A");
+  }
+  const parsed = parseBase64Image(rawData, typeof payload.mimeType === "string" ? payload.mimeType : void 0);
+  if (parsed.buffer.length > 512 * 1024) {
+    throw new Error("\u5FAE\u4FE1\u5934\u50CF\u4E0D\u80FD\u8D85\u8FC7512KB");
+  }
+  const hash = createHash("sha256").update(parsed.buffer).digest("hex").slice(0, 32);
+  await mkdir(USER_AVATAR_DIR, { recursive: true });
+  const filename = `${hash}.${parsed.extension}`;
+  await writeFile(path.join(USER_AVATAR_DIR, filename), parsed.buffer, { flag: "wx" }).catch((error) => {
+    if (error && typeof error === "object" && "code" in error && error.code === "EEXIST") {
+      return;
+    }
+    throw error;
+  });
+  return `/user-avatars/${filename}`;
+}
+function parseBase64Image(data2, explicitMimeType) {
+  const dataUrlMatch = /^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/i.exec(data2);
+  const mimeType = (dataUrlMatch?.[1] ?? explicitMimeType ?? "").toLowerCase();
+  const base64 = dataUrlMatch?.[2] ?? data2;
+  const buffer = Buffer.from(base64, "base64");
+  if (buffer.length === 0) {
+    throw new Error("\u5FAE\u4FE1\u5934\u50CF\u6570\u636E\u4E3A\u7A7A");
+  }
+  const extension = sniffImageExtension(buffer, mimeType);
+  if (!extension) {
+    throw new Error("\u5FAE\u4FE1\u5934\u50CF\u53EA\u652F\u6301 JPG\u3001PNG \u6216 WebP");
+  }
+  return { buffer, extension };
+}
+function sniffImageExtension(buffer, mimeType) {
+  if (buffer.length >= 3 && buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255) {
+    return "jpg";
+  }
+  if (buffer.length >= 8 && buffer[0] === 137 && buffer[1] === 80 && buffer[2] === 78 && buffer[3] === 71 && buffer[4] === 13 && buffer[5] === 10 && buffer[6] === 26 && buffer[7] === 10) {
+    return "png";
+  }
+  if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+    return "webp";
+  }
+  if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
+    return "jpg";
+  }
+  if (mimeType === "image/png") {
+    return "png";
+  }
+  if (mimeType === "image/webp") {
+    return "webp";
+  }
+  return void 0;
 }
 var HttpError = class extends Error {
   constructor(statusCode, message) {

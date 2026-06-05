@@ -3,7 +3,7 @@
     <view class="mini-home-page">
       <view class="home-topbar">
         <view class="home-player">
-          <image class="player-avatar" :src="homeAssets.avatarDog" mode="aspectFit" />
+          <image class="player-avatar" :src="displayAvatar" mode="aspectFill" />
           <view>
             <text class="player-name">{{ user?.nickname ?? "欢迎来到 BrainSync" }}</text>
             <text class="player-title">{{ user?.title ?? "未登录" }}</text>
@@ -98,9 +98,18 @@
     <view v-if="showLoginModal" class="home-auth-modal">
       <view class="auth-modal-card">
         <button class="modal-close" @tap="showLoginModal = false">×</button>
-        <image :src="homeAssets.avatarDog" mode="aspectFit" />
+        <button class="avatar-picker" open-type="chooseAvatar" @chooseavatar="chooseAvatar">
+          <image :src="displayAvatar" mode="aspectFill" />
+        </button>
         <text class="modal-title">欢迎来到 BrainSync</text>
-        <text class="modal-copy">登录后保存体力、星级和闯关进度；开房对战也会使用你的微信账号昵称。</text>
+        <text class="modal-copy">登录后保存体力、星级和闯关进度；开房对战会使用你确认的微信昵称。</text>
+        <input
+          v-model="wechatNickname"
+          class="nickname-input"
+          type="nickname"
+          maxlength="16"
+          placeholder="请选择或填写微信昵称"
+        />
         <button class="green-button" :loading="busy" @tap="login">{{ user ? "刷新微信登录" : "微信一键登录" }}</button>
       </view>
     </view>
@@ -113,7 +122,8 @@
 import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import BsToast from "../../components/BsToast.vue";
-import { loginWithWechat } from "../../services/platform";
+import { API_BASE_URL } from "../../services/config";
+import { loginWithWechat, readWechatAvatarImage } from "../../services/platform";
 import { loadPveHome } from "../../services/pve";
 import { apiRequest } from "../../services/request";
 import { readToken } from "../../services/storage";
@@ -124,6 +134,8 @@ const profile = ref<PveProfile>();
 const busy = ref(false);
 const error = ref("");
 const showLoginModal = ref(false);
+const wechatNickname = ref("");
+const selectedAvatarPath = ref("");
 const homeAssets = {
   avatarDog: "/static/home-assets/avatar-dog.svg",
   note: "/static/home-assets/note.svg",
@@ -147,6 +159,15 @@ const staminaText = computed(() => {
   }
   return `体力 ${profile.value.stamina.current}/${profile.value.stamina.max}`;
 });
+const displayAvatar = computed(() => {
+  if (selectedAvatarPath.value) {
+    return selectedAvatarPath.value;
+  }
+  if (user.value?.avatarUrl) {
+    return assetUrl(user.value.avatarUrl);
+  }
+  return homeAssets.avatarDog;
+});
 
 onShow(() => {
   void restoreSession();
@@ -163,6 +184,8 @@ async function restoreSession() {
   try {
     const result = await apiRequest<{ user: PublicUser }>("/api/me");
     user.value = result.user;
+    wechatNickname.value = result.user.nickname;
+    selectedAvatarPath.value = "";
     await refreshProfile();
     showLoginModal.value = false;
   } catch (err) {
@@ -184,11 +207,19 @@ async function refreshProfile() {
 }
 
 async function login() {
+  const nickname = wechatNickname.value.trim();
+  if (!nickname) {
+    error.value = "请先填写微信昵称";
+    return;
+  }
   busy.value = true;
   error.value = "";
   try {
-    const result = await loginWithWechat();
+    const avatarImage = selectedAvatarPath.value ? await readWechatAvatarImage(selectedAvatarPath.value) : undefined;
+    const result = await loginWithWechat(nickname, avatarImage);
     user.value = result.user;
+    wechatNickname.value = result.user.nickname;
+    selectedAvatarPath.value = "";
     await refreshProfile();
     showLoginModal.value = false;
   } catch (err) {
@@ -216,6 +247,22 @@ function openPvp() {
 
 function showPending(message: string) {
   error.value = message;
+}
+
+function chooseAvatar(event: { detail?: { avatarUrl?: string } }) {
+  const avatarUrl = event.detail?.avatarUrl?.trim();
+  if (!avatarUrl) {
+    error.value = "微信头像选择失败";
+    return;
+  }
+  selectedAvatarPath.value = avatarUrl;
+}
+
+function assetUrl(path: string): string {
+  if (path.startsWith("http") || path.startsWith("/static/")) {
+    return path;
+  }
+  return `${API_BASE_URL}${path}`;
 }
 </script>
 
@@ -716,6 +763,29 @@ function showPending(message: string) {
   justify-self: center;
 }
 
+.avatar-picker {
+  width: 132rpx;
+  height: 132rpx;
+  justify-self: center;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 6rpx solid #e8f4ee;
+  border-radius: 50%;
+  background: #f5fbf7;
+  box-shadow: 0 12rpx 28rpx rgba(24, 116, 71, 0.14);
+}
+
+.avatar-picker::after {
+  border: 0;
+}
+
+.avatar-picker image {
+  width: 100%;
+  height: 100%;
+}
+
 .modal-title,
 .modal-copy {
   text-align: center;
@@ -731,6 +801,17 @@ function showPending(message: string) {
   color: #69746f;
   font-size: 24rpx;
   line-height: 1.55;
+}
+
+.nickname-input {
+  height: 88rpx;
+  padding: 0 26rpx;
+  border: 2rpx solid #dcebe2;
+  border-radius: 22rpx;
+  color: #1b3326;
+  background: #f7fbf8;
+  font-size: 28rpx;
+  font-weight: 800;
 }
 
 .modal-close {

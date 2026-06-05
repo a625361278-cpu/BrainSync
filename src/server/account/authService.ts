@@ -26,7 +26,8 @@ export interface LoginPayload {
 
 export interface WechatLoginPayload {
   openid: string;
-  nickname?: string;
+  nickname: string;
+  avatarUrl?: string;
 }
 
 export interface AuthResult {
@@ -100,8 +101,13 @@ class DefaultAuthService implements AuthService {
 
   async loginWithWechat(payload: WechatLoginPayload): Promise<AuthResult> {
     const openid = normalizeOpenid(payload.openid);
+    const nickname = normalizeWechatNickname(payload.nickname);
+    const avatarUrl = normalizeAvatarUrl(payload.avatarUrl);
     const existing = await this.repo.findUserByOpenid(openid);
     if (existing) {
+      if (existing.nickname !== nickname || (avatarUrl && existing.avatarUrl !== avatarUrl)) {
+        await this.repo.updateUserProfile(existing.id, { nickname, avatarUrl });
+      }
       return this.createLoginResult(existing.id);
     }
 
@@ -110,8 +116,9 @@ class DefaultAuthService implements AuthService {
       id: `u_${this.randomToken().slice(0, 18)}`,
       username: `wx_${openid}`,
       passwordHash: "wechat:openid",
-      nickname: normalizeWechatNickname(payload.nickname),
+      nickname,
       title: "新声挑战者",
+      avatarUrl,
       openid,
       createdAt
     };
@@ -188,10 +195,27 @@ function normalizeOpenid(openid: string): string {
   return normalized;
 }
 
-function normalizeWechatNickname(nickname: string | undefined): string {
-  const normalized = nickname?.trim() || "微信玩家";
+function normalizeWechatNickname(nickname: string): string {
+  const normalized = nickname.trim();
+  if (!normalized) {
+    throw new Error("微信昵称不能为空");
+  }
   if (normalized.length > 16) {
     throw new Error("昵称不能超过16个字");
+  }
+  return normalized;
+}
+
+function normalizeAvatarUrl(avatarUrl: string | undefined): string | undefined {
+  const normalized = avatarUrl?.trim();
+  if (!normalized) {
+    return undefined;
+  }
+  if (!normalized.startsWith("/user-avatars/")) {
+    throw new Error("头像地址异常");
+  }
+  if (normalized.length > 255) {
+    throw new Error("头像地址不能超过255个字符");
   }
   return normalized;
 }

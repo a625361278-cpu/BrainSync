@@ -59,6 +59,8 @@ UNI_AD_CALLBACK_SECRET=真实广告回调密钥
 
 如果 MySQL 没有配置好，账号、微信登录、PVE 和广告奖励接口会明确返回不可用；不要用假配置绕过。
 
+小程序用户头像会在登录时保存到项目根目录的 `user-avatars/`，并通过 `/user-avatars/...` 对外访问。这个目录是运行时数据，不提交 Git；部署和清理时不要删除，否则已保存的玩家头像会丢失。
+
 ## 4. 配置 Nginx HTTPS/WSS
 
 BrainSync 只需要新增一个独立站点配置，不要覆盖现有站点。模板里的 `server_name your-domain.com` 必须替换成 BrainSync 小程序使用的备案域名；如果这个域名已经被其他 server 块占用，需要合并到那个 server 块，不能保留两个相同 `server_name` 的 443 配置。

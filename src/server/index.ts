@@ -1,4 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -76,9 +78,10 @@ interface RoomTimers {
 }
 
 const timers = new Map<string, RoomTimers>();
+const USER_AVATAR_DIR = path.resolve(process.cwd(), "user-avatars");
 const accountContext = await initializeAccountContext();
 
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, rooms: rooms.size, account: accountContext.ready ? "ready" : "unavailable" });
@@ -113,14 +116,20 @@ app.post(
   "/api/auth/wechat-login",
   asyncRoute(async (req, res) => {
     const { auth } = requireAccountContext();
+    const nickname = String(req.body?.nickname ?? "");
+    if (!nickname.trim()) {
+      throw new Error("微信昵称不能为空");
+    }
     const openid = await exchangeWechatLoginCode({
       code: String(req.body?.code ?? ""),
       appId: process.env.WECHAT_APP_ID,
       appSecret: process.env.WECHAT_APP_SECRET
     });
+    const avatarUrl = await saveWechatAvatar(req.body?.avatarImage);
     const result = await auth.loginWithWechat({
       openid,
-      nickname: typeof req.body?.nickname === "string" ? req.body.nickname : undefined
+      nickname,
+      avatarUrl
     });
     res.json({ ok: true, ...result });
   })
@@ -278,6 +287,7 @@ const distPath = [
   path.resolve(serverDir, "../dist"),
   path.resolve(serverDir, "../../dist")
 ].find((candidate) => existsSync(candidate));
+app.use("/user-avatars", express.static(USER_AVATAR_DIR, { maxAge: "30d" }));
 if (distPath) {
   app.use(express.static(distPath));
   app.get("*", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
@@ -297,7 +307,7 @@ io.on("connection", (socket) => {
         roundSeconds: ROUND_SECONDS
       });
       rooms.set(code, room);
-      const player = room.join(user.nickname);
+      const player = room.join(user.nickname, undefined, user.avatarUrl);
       socket.join(socketRoom(code));
       socket.data.roomCode = code;
       socket.data.playerId = player.id;
@@ -311,7 +321,7 @@ io.on("connection", (socket) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
       const room = requireRoom(payload.roomCode);
-      const player = room.join(user.nickname, payload.playerId);
+      const player = room.join(user.nickname, payload.playerId, user.avatarUrl);
       socket.join(socketRoom(payload.roomCode));
       socket.data.roomCode = payload.roomCode;
       socket.data.playerId = player.id;
@@ -667,6 +677,81 @@ function requireAdCallbackSecret(req: Request): void {
   if (actual !== expected) {
     throw new HttpError(401, "广告回调签名异常");
   }
+}
+
+async function saveWechatAvatar(rawAvatarImage: unknown): Promise<string | undefined> {
+  if (rawAvatarImage === undefined || rawAvatarImage === null || rawAvatarImage === "") {
+    return undefined;
+  }
+  if (typeof rawAvatarImage !== "object") {
+    throw new Error("微信头像数据格式异常");
+  }
+  const payload = rawAvatarImage as { data?: unknown; mimeType?: unknown };
+  const rawData = typeof payload.data === "string" ? payload.data.trim() : "";
+  if (!rawData) {
+    throw new Error("微信头像数据不能为空");
+  }
+  const parsed = parseBase64Image(rawData, typeof payload.mimeType === "string" ? payload.mimeType : undefined);
+  if (parsed.buffer.length > 512 * 1024) {
+    throw new Error("微信头像不能超过512KB");
+  }
+  const hash = createHash("sha256").update(parsed.buffer).digest("hex").slice(0, 32);
+  await mkdir(USER_AVATAR_DIR, { recursive: true });
+  const filename = `${hash}.${parsed.extension}`;
+  await writeFile(path.join(USER_AVATAR_DIR, filename), parsed.buffer, { flag: "wx" }).catch((error: unknown) => {
+    if (error && typeof error === "object" && "code" in error && error.code === "EEXIST") {
+      return;
+    }
+    throw error;
+  });
+  return `/user-avatars/${filename}`;
+}
+
+function parseBase64Image(data: string, explicitMimeType: string | undefined): { buffer: Buffer; extension: "jpg" | "png" | "webp" } {
+  const dataUrlMatch = /^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/i.exec(data);
+  const mimeType = (dataUrlMatch?.[1] ?? explicitMimeType ?? "").toLowerCase();
+  const base64 = dataUrlMatch?.[2] ?? data;
+  const buffer = Buffer.from(base64, "base64");
+  if (buffer.length === 0) {
+    throw new Error("微信头像数据为空");
+  }
+  const extension = sniffImageExtension(buffer, mimeType);
+  if (!extension) {
+    throw new Error("微信头像只支持 JPG、PNG 或 WebP");
+  }
+  return { buffer, extension };
+}
+
+function sniffImageExtension(buffer: Buffer, mimeType: string): "jpg" | "png" | "webp" | undefined {
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return "jpg";
+  }
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return "png";
+  }
+  if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+    return "webp";
+  }
+  if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
+    return "jpg";
+  }
+  if (mimeType === "image/png") {
+    return "png";
+  }
+  if (mimeType === "image/webp") {
+    return "webp";
+  }
+  return undefined;
 }
 
 class HttpError extends Error {

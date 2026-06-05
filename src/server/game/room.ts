@@ -63,7 +63,7 @@ interface ActiveQuestion {
 }
 
 export interface GameRoom {
-  join(name: string, playerId?: string): Player;
+  join(name: string, playerId?: string, avatar?: string): Player;
   leave(playerId: string): void;
   start(gameType: GameType, requesterId?: string): ChatMessage[];
   submitMessage(playerId: string, text: string): SubmitResult;
@@ -119,15 +119,20 @@ class InMemoryGameRoom implements GameRoom {
     this.imageRounds = options.imageRounds ?? 5;
   }
 
-  join(name: string, playerId?: string): Player {
+  join(name: string, playerId?: string, avatar?: string): Player {
     const normalizedName = name.trim();
     if (!normalizedName) {
       throw new Error("昵称不能为空");
     }
+    const normalizedAvatar = normalizeAvatar(avatar);
 
     const existingById = playerId ? this.players.get(playerId) : undefined;
     if (existingById) {
       existingById.connected = true;
+      existingById.name = normalizedName;
+      if (normalizedAvatar) {
+        existingById.avatar = normalizedAvatar;
+      }
       return clonePlayer(existingById);
     }
 
@@ -138,8 +143,8 @@ class InMemoryGameRoom implements GameRoom {
     }
 
     const id = playerId ?? `p_${++this.playerSeq}_${randomToken(4)}`;
-    const avatar = PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
-    const player: Player = { id, name: normalizedName, avatar, score: 0, connected: true };
+    const playerAvatar = normalizedAvatar ?? PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
+    const player: Player = { id, name: normalizedName, avatar: playerAvatar, score: 0, connected: true };
     this.players.set(id, player);
     if (!this.hostId) {
       this.hostId = id;
@@ -872,4 +877,15 @@ function createRoomCode(): string {
 
 function randomToken(length: number): string {
   return Math.random().toString(36).slice(2, 2 + length);
+}
+
+function normalizeAvatar(avatar: string | undefined): string | undefined {
+  const normalized = avatar?.trim();
+  if (!normalized) {
+    return undefined;
+  }
+  if (normalized.startsWith("/avatars/") || normalized.startsWith("/user-avatars/") || normalized.startsWith("https://")) {
+    return normalized;
+  }
+  throw new Error("头像地址异常");
 }

@@ -50,6 +50,14 @@ class MemoryAccountRepository implements AccountRepository {
     this.usernameToId.set(user.username, user.id);
   }
 
+  async updateUserProfile(userId: string, profile: { nickname: string; avatarUrl?: string }): Promise<void> {
+    const user = this.users.get(userId);
+    if (!user) {
+      throw new Error(`账号状态异常：找不到用户 ${userId}`);
+    }
+    this.users.set(userId, { ...user, nickname: profile.nickname, avatarUrl: profile.avatarUrl ?? user.avatarUrl });
+  }
+
   async createSession(session: SessionRecord): Promise<void> {
     this.sessions.set(session.token, cloneValue(session));
   }

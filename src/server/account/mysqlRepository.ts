@@ -63,11 +63,13 @@ class MysqlAccountRepository implements AccountRepository {
         password_hash VARCHAR(255) NOT NULL,
         nickname VARCHAR(64) NOT NULL,
         title VARCHAR(64) NOT NULL,
+        avatar_url VARCHAR(255) NULL,
         openid VARCHAR(128) NULL,
         created_at_ms BIGINT NOT NULL,
         UNIQUE KEY uk_users_openid (openid)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    await this.ensureColumn("users", "avatar_url", "ALTER TABLE users ADD COLUMN avatar_url VARCHAR(255) NULL AFTER title");
     await this.ensureUniqueIndex("users", "uk_users_openid", "openid");
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
@@ -147,10 +149,20 @@ class MysqlAccountRepository implements AccountRepository {
 
   async createUser(user: AccountUserRecord): Promise<void> {
     await this.pool.execute(
-      `INSERT INTO users (id, username, password_hash, nickname, title, openid, created_at_ms)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [user.id, user.username, user.passwordHash, user.nickname, user.title, user.openid ?? null, user.createdAt]
+      `INSERT INTO users (id, username, password_hash, nickname, title, avatar_url, openid, created_at_ms)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [user.id, user.username, user.passwordHash, user.nickname, user.title, user.avatarUrl ?? null, user.openid ?? null, user.createdAt]
     );
+  }
+
+  async updateUserProfile(userId: string, profile: { nickname: string; avatarUrl?: string }): Promise<void> {
+    const [result] = await this.pool.execute(
+      "UPDATE users SET nickname = ?, avatar_url = COALESCE(?, avatar_url) WHERE id = ?",
+      [profile.nickname, profile.avatarUrl ?? null, userId]
+    );
+    if ("affectedRows" in result && result.affectedRows === 0) {
+      throw new Error(`账号状态异常：找不到用户 ${userId}`);
+    }
   }
 
   async createSession(session: SessionRecord): Promise<void> {
@@ -282,6 +294,17 @@ class MysqlAccountRepository implements AccountRepository {
     }
     await this.pool.query(`ALTER TABLE ${table} ADD UNIQUE KEY ${indexName} (${columnName})`);
   }
+
+  private async ensureColumn(table: string, columnName: string, alterSql: string): Promise<void> {
+    const rows = await this.select<RowDataPacket>(
+      "SELECT COUNT(*) AS count FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?",
+      [table, columnName]
+    );
+    if (Number(rows[0]?.count ?? 0) > 0) {
+      return;
+    }
+    await this.pool.query(alterSql);
+  }
 }
 
 interface UserRow extends RowDataPacket {
@@ -290,6 +313,7 @@ interface UserRow extends RowDataPacket {
   password_hash: string;
   nickname: string;
   title: string;
+  avatar_url: string | null;
   openid: string | null;
   created_at_ms: number;
 }
@@ -340,6 +364,7 @@ function toUserRecord(row: UserRow): AccountUserRecord {
     passwordHash: row.password_hash,
     nickname: row.nickname,
     title: row.title,
+    avatarUrl: row.avatar_url,
     openid: row.openid,
     createdAt: Number(row.created_at_ms)
   };

@@ -57,7 +57,7 @@ VITE_REWARD_AD_UNIT_ID=微信激励视频广告位ID
 ## 功能概览
 
 - 首页大厅：展示账号区域、PVE 关卡入口和 PVP 开房间入口。
-- 账号系统：支持注册、登录、登出、登录态恢复；token 存在 `localStorage`。
+- 账号系统：H5 支持注册、登录、登出、登录态恢复；小程序使用微信登录，并要求用户确认昵称，可选择微信头像保存到服务端。
 - PVE 猜歌挑战：登录后进入，每关 5 首歌，消耗体力开始挑战，按服务端时间和连击计算分数。
 - PVP 房间：游客可创建或加入 6 位房间号，房主选择玩法并开始游戏。
 - 微信聊天风格房间：自己消息在右侧，机器人和其他玩家在左侧，题目、提示、结果都通过聊天消息展示。
@@ -95,7 +95,7 @@ VITE_REWARD_AD_UNIT_ID=微信激励视频广告位ID
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `POST /api/auth/wechat-login`
+- `POST /api/auth/wechat-login`：小程序登录，接收微信 `code`、用户确认的昵称和可选头像图片；昵称不能为空，不用默认玩家名代替。
 - `POST /api/auth/logout`
 - `GET /api/me`
 - `GET /api/audio/preview/:songId`
@@ -147,7 +147,7 @@ npm run miniapp:build:mp-weixin
 apps/miniapp/dist/build/mp-weixin
 ```
 
-小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、PVE、PVP四种玩法、原生 WebSocket、音频代理和体力广告入口。
+小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、用户确认昵称、微信头像持久化、PVE、PVP四种玩法、原生 WebSocket、音频代理和体力广告入口。
 
 ## 数据文件
 
@@ -158,6 +158,7 @@ apps/miniapp/dist/build/mp-weixin
 - 头像资源：`public/avatars/`
 - 剪影图片：`public/pvp-assets/silhouettes/`
 - 剧照图片：`public/pvp-assets/movie-stills/`
+- 小程序用户头像：运行时保存到服务端 `user-avatars/`，通过 `/user-avatars/...` 对外访问。
 
 服务端启动时会校验题库和图片资源。字段缺失、拼音异常、URL 不合法、图片文件不存在都会直接报错。
 
