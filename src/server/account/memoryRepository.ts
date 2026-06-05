@@ -4,7 +4,8 @@ import type {
   PveProgressRecord,
   PveRunRecord,
   SessionRecord,
-  StaminaRecord
+  StaminaRecord,
+  AdRewardEventRecord
 } from "./repository";
 
 export function createMemoryAccountRepository(): AccountRepository {
@@ -14,13 +15,20 @@ export function createMemoryAccountRepository(): AccountRepository {
 class MemoryAccountRepository implements AccountRepository {
   private readonly users = new Map<string, AccountUserRecord>();
   private readonly usernameToId = new Map<string, string>();
+  private readonly openidToId = new Map<string, string>();
   private readonly sessions = new Map<string, SessionRecord>();
   private readonly stamina = new Map<string, StaminaRecord>();
   private readonly progress = new Map<string, PveProgressRecord>();
   private readonly runs = new Map<string, PveRunRecord>();
+  private readonly adRewardEvents = new Map<string, AdRewardEventRecord>();
 
   async findUserByUsername(username: string): Promise<AccountUserRecord | undefined> {
     const id = this.usernameToId.get(username);
+    return id ? cloneOptional(this.users.get(id)) : undefined;
+  }
+
+  async findUserByOpenid(openid: string): Promise<AccountUserRecord | undefined> {
+    const id = this.openidToId.get(openid);
     return id ? cloneOptional(this.users.get(id)) : undefined;
   }
 
@@ -31,6 +39,12 @@ class MemoryAccountRepository implements AccountRepository {
   async createUser(user: AccountUserRecord): Promise<void> {
     if (this.usernameToId.has(user.username)) {
       throw new Error(`账号已存在：${user.username}`);
+    }
+    if (user.openid) {
+      if (this.openidToId.has(user.openid)) {
+        throw new Error(`微信openid已存在：${user.openid}`);
+      }
+      this.openidToId.set(user.openid, user.id);
     }
     this.users.set(user.id, cloneValue(user));
     this.usernameToId.set(user.username, user.id);
@@ -84,6 +98,24 @@ class MemoryAccountRepository implements AccountRepository {
       throw new Error(`PVE挑战记录不存在：${run.id}`);
     }
     this.runs.set(run.id, cloneValue(run));
+  }
+
+  async createAdRewardEvent(event: AdRewardEventRecord): Promise<void> {
+    if (this.adRewardEvents.has(event.id)) {
+      throw new Error(`广告奖励事件已存在：${event.id}`);
+    }
+    this.adRewardEvents.set(event.id, cloneValue(event));
+  }
+
+  async getAdRewardEvent(eventId: string): Promise<AdRewardEventRecord | undefined> {
+    return cloneOptional(this.adRewardEvents.get(eventId));
+  }
+
+  async updateAdRewardEvent(event: AdRewardEventRecord): Promise<void> {
+    if (!this.adRewardEvents.has(event.id)) {
+      throw new Error(`广告奖励事件不存在：${event.id}`);
+    }
+    this.adRewardEvents.set(event.id, cloneValue(event));
   }
 }
 

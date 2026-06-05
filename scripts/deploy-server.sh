@@ -2,36 +2,56 @@
 set -euo pipefail
 
 APP_NAME="${APP_NAME:-brainsync}"
-BRANCH="${BRANCH:-feature/home-and-pve}"
+BRANCH="${BRANCH:-}"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/api/health}"
 
-echo "==> Updating ${APP_NAME} from origin/${BRANCH}"
+require_command() {
+  local name="$1"
+  if ! command -v "${name}" >/dev/null 2>&1; then
+    echo "${name} command not found" >&2
+    exit 1
+  fi
+}
 
-if ! command -v git >/dev/null 2>&1; then
-  echo "git command not found" >&2
+require_command git
+require_command npm
+require_command pm2
+require_command curl
+
+if [ ! -f package.json ] || [ ! -f ecosystem.config.cjs ]; then
+  echo "Please run this script from the BrainSync project root." >&2
   exit 1
 fi
 
-if ! command -v npm >/dev/null 2>&1; then
-  echo "npm command not found" >&2
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Working tree is not clean. Commit, stash, or remove local changes before deploying." >&2
+  git status --short >&2
   exit 1
 fi
 
-if ! command -v pm2 >/dev/null 2>&1; then
-  echo "pm2 command not found" >&2
-  exit 1
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+target_branch="${BRANCH:-${current_branch}}"
+
+echo "==> Updating ${APP_NAME} from origin/${target_branch}"
+git fetch origin "${target_branch}"
+
+if [ "${current_branch}" != "${target_branch}" ]; then
+  git checkout "${target_branch}"
 fi
 
-git fetch origin
-git reset --hard "origin/${BRANCH}"
+git pull --ff-only origin "${target_branch}"
 
-echo "==> Installing production dependencies"
-rm -rf node_modules
-npm ci --omit=dev --no-audit --no-fund
+echo "==> Installing dependencies"
+npm ci --no-audit --no-fund
 
-echo "==> Restarting PM2 app: ${APP_NAME}"
-pm2 delete "${APP_NAME}" >/dev/null 2>&1 || true
-pm2 start "npm start" --name "${APP_NAME}"
+echo "==> Building BrainSync"
+npm run build
+
+echo "==> Removing development-only dependencies"
+npm prune --omit=dev --no-audit --no-fund
+
+echo "==> Starting or reloading PM2 app: ${APP_NAME}"
+pm2 startOrReload ecosystem.config.cjs --only "${APP_NAME}" --update-env
 pm2 save
 
 echo "==> Health check: ${HEALTH_URL}"

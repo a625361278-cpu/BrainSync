@@ -1,0 +1,17 @@
+{
+  "name": "BrainSync",
+  "appid": "__UNI__BRAINSYNC",
+  "description": "微信聊天风格的群聊小游戏",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "mp-weixin": {
+    "appid": "请在微信开发者工具中填写真实AppID",
+    "setting": {
+      "urlCheck": true,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true
+  }
+}

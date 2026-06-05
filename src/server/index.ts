@@ -4,12 +4,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express, { type Request, type Response } from "express";
 import { Server } from "socket.io";
+import { WebSocket, WebSocketServer } from "ws";
 import { createGameRoom, type GameRoom } from "./game/room";
 import { loadGameData } from "./data/loadData";
 import { createAuthService, type AuthService } from "./account/authService";
+import { exchangeWechatLoginCode } from "./account/wechatLogin";
 import { createMysqlAccountRepository, readMysqlConfig } from "./account/mysqlRepository";
 import { DEFAULT_PVE_LEVELS } from "./pve/levels";
 import { createPveService, type PveService } from "./pve/pveService";
+import { createAdRewardService, type AdRewardService } from "./ad/adRewardService";
+import { resolveSongPreviewUrl } from "./audio/audioProxy";
+import { createMiniappPvpProtocol, type MiniappPvpClientMessage, type MiniappPvpServerMessage } from "./pvp/miniappPvpProtocol";
 import type { GameType, RoomSnapshot } from "../shared/types";
 
 interface ClientJoinPayload {
@@ -62,6 +67,9 @@ const io = new Server(httpServer, {
 });
 
 const rooms = new Map<string, GameRoom>();
+const miniappClients = new Map<string, WebSocket>();
+const miniappRoomClients = new Map<string, Set<string>>();
+let miniappClientSeq = 0;
 interface RoomTimers {
   hint?: NodeJS.Timeout;
   timeout?: NodeJS.Timeout;
@@ -96,6 +104,23 @@ app.post(
     const result = await auth.login({
       username: String(req.body?.username ?? ""),
       password: String(req.body?.password ?? "")
+    });
+    res.json({ ok: true, ...result });
+  })
+);
+
+app.post(
+  "/api/auth/wechat-login",
+  asyncRoute(async (req, res) => {
+    const { auth } = requireAccountContext();
+    const openid = await exchangeWechatLoginCode({
+      code: String(req.body?.code ?? ""),
+      appId: process.env.WECHAT_APP_ID,
+      appSecret: process.env.WECHAT_APP_SECRET
+    });
+    const result = await auth.loginWithWechat({
+      openid,
+      nickname: typeof req.body?.nickname === "string" ? req.body.nickname : undefined
     });
     res.json({ ok: true, ...result });
   })
@@ -195,6 +220,55 @@ app.post(
     const { pve } = requireAccountContext();
     const user = await requireHttpUser(req);
     res.json({ ok: true, summary: await pve.finish(user.id, String(req.body?.runId ?? "")) });
+  })
+);
+
+app.get(
+  "/api/audio/preview/:songId",
+  asyncRoute(async (req, res) => {
+    const previewUrl = resolveSongPreviewUrl(String(req.params.songId ?? ""), data.songs);
+    const upstream = await fetch(previewUrl);
+    if (!upstream.ok) {
+      throw new Error(`歌曲试听源请求失败：HTTP ${upstream.status}`);
+    }
+    const contentType = upstream.headers.get("content-type") ?? "audio/mp4";
+    const arrayBuffer = await upstream.arrayBuffer();
+    res.setHeader("content-type", contentType);
+    res.setHeader("cache-control", "public, max-age=3600");
+    res.send(Buffer.from(arrayBuffer));
+  })
+);
+
+app.post(
+  "/api/ad/reward/start",
+  asyncRoute(async (req, res) => {
+    const { adRewards } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    const rewardType = String(req.body?.rewardType ?? "");
+    res.json({ ok: true, reward: await adRewards.start(user.id, rewardType as never) });
+  })
+);
+
+app.post(
+  "/api/ad/reward/callback",
+  asyncRoute(async (req, res) => {
+    requireAdCallbackSecret(req);
+    const { adRewards } = requireAccountContext();
+    const event = await adRewards.verifyCallback({
+      eventId: String(req.body?.eventId ?? ""),
+      rewardType: String(req.body?.rewardType ?? "") as never,
+      platformTraceId: String(req.body?.platformTraceId ?? "")
+    });
+    res.json({ ok: true, eventId: event.id, status: event.status });
+  })
+);
+
+app.post(
+  "/api/ad/reward/claim",
+  asyncRoute(async (req, res) => {
+    const { adRewards } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({ ok: true, reward: await adRewards.claim(user.id, String(req.body?.eventId ?? "")) });
   })
 );
 
@@ -306,6 +380,62 @@ io.on("connection", (socket) => {
   });
 });
 
+const miniappProtocol = accountContext.ready
+  ? createMiniappPvpProtocol({
+      auth: accountContext.auth,
+      rooms,
+      createRoomCode: createUniqueRoomCode,
+      createRoom: (code) =>
+        createGameRoom({
+          code,
+          idioms: data.idioms,
+          songs: data.songs,
+          characters: data.characters,
+          movies: data.movies,
+          roundSeconds: ROUND_SECONDS
+        }),
+      send: sendMiniappMessage,
+      broadcast: emitRoom,
+      bindClientToRoom,
+      unbindClientFromRoom,
+      scheduleRoundTimers,
+      clearRoomTimersIfEmpty
+    })
+  : undefined;
+const miniappUnavailableMessage = accountContext.ready ? undefined : accountContext.error.message;
+const miniappWss = new WebSocketServer({ noServer: true });
+httpServer.on("upgrade", (req, socket, head) => {
+  const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
+  if (pathname !== "/pvp-ws") {
+    return;
+  }
+  miniappWss.handleUpgrade(req, socket, head, (ws) => {
+    miniappWss.emit("connection", ws, req);
+  });
+});
+
+miniappWss.on("connection", (ws) => {
+  const clientId = `miniapp_${++miniappClientSeq}`;
+  miniappClients.set(clientId, ws);
+  ws.on("message", (raw) => {
+    if (!miniappProtocol) {
+      sendMiniappMessage(clientId, { type: "ack", ok: false, error: miniappUnavailableMessage ?? "小程序PVP服务不可用" });
+      return;
+    }
+    try {
+      const message = JSON.parse(raw.toString()) as MiniappPvpClientMessage;
+      void miniappProtocol.handle(clientId, message);
+    } catch (error) {
+      sendMiniappMessage(clientId, { type: "ack", ok: false, error: error instanceof Error ? error.message : "未知错误" });
+    }
+  });
+  ws.on("close", () => {
+    miniappClients.delete(clientId);
+    miniappProtocol?.disconnect(clientId);
+    removeClientFromAllMiniappRooms(clientId);
+  });
+});
+
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`BrainSync party games listening on http://localhost:${PORT}`);
 });
@@ -346,6 +476,50 @@ function socketRoom(code: string): string {
 
 function emitRoom(code: string, snapshot: RoomSnapshot): void {
   io.to(socketRoom(code)).emit("roomSnapshot", snapshot);
+  emitMiniappRoom(code, snapshot);
+}
+
+function emitMiniappRoom(code: string, snapshot: RoomSnapshot): void {
+  const clientIds = miniappRoomClients.get(code.trim());
+  if (!clientIds) {
+    return;
+  }
+  for (const clientId of clientIds) {
+    sendMiniappMessage(clientId, { type: "roomSnapshot", payload: snapshot });
+  }
+}
+
+function sendMiniappMessage(clientId: string, message: MiniappPvpServerMessage): void {
+  const client = miniappClients.get(clientId);
+  if (!client || client.readyState !== WebSocket.OPEN) {
+    return;
+  }
+  client.send(JSON.stringify(message));
+}
+
+function bindClientToRoom(clientId: string, roomCode: string): void {
+  const normalized = roomCode.trim();
+  const existing = miniappRoomClients.get(normalized) ?? new Set<string>();
+  existing.add(clientId);
+  miniappRoomClients.set(normalized, existing);
+}
+
+function unbindClientFromRoom(clientId: string, roomCode: string): void {
+  const normalized = roomCode.trim();
+  const existing = miniappRoomClients.get(normalized);
+  if (!existing) {
+    return;
+  }
+  existing.delete(clientId);
+  if (existing.size === 0) {
+    miniappRoomClients.delete(normalized);
+  }
+}
+
+function removeClientFromAllMiniappRooms(clientId: string): void {
+  for (const roomCode of [...miniappRoomClients.keys()]) {
+    unbindClientFromRoom(clientId, roomCode);
+  }
 }
 
 function scheduleRoundTimers(code: string): void {
@@ -414,6 +588,7 @@ interface AccountContextReady {
   ready: true;
   auth: AuthService;
   pve: PveService;
+  adRewards: AdRewardService;
 }
 
 interface AccountContextUnavailable {
@@ -440,7 +615,8 @@ async function initializeAccountContext(): Promise<AccountContext> {
     return {
       ready: true,
       auth: createAuthService({ repo }),
-      pve: createPveService({ repo, songs: data.songs, levels: DEFAULT_PVE_LEVELS })
+      pve: createPveService({ repo, songs: data.songs, levels: DEFAULT_PVE_LEVELS }),
+      adRewards: createAdRewardService({ repo })
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "未知MySQL初始化错误";
@@ -480,6 +656,17 @@ function readBearerToken(req: Request): string | undefined {
   const authorization = req.header("authorization") ?? "";
   const match = /^Bearer\s+(.+)$/i.exec(authorization);
   return match?.[1]?.trim();
+}
+
+function requireAdCallbackSecret(req: Request): void {
+  const expected = process.env.UNI_AD_CALLBACK_SECRET;
+  if (!expected) {
+    throw new ServiceUnavailableError("广告回调密钥未配置：UNI_AD_CALLBACK_SECRET");
+  }
+  const actual = req.header("x-ad-callback-secret") ?? "";
+  if (actual !== expected) {
+    throw new HttpError(401, "广告回调签名异常");
+  }
 }
 
 class HttpError extends Error {

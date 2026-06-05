@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import express from "express";
 import { Server } from "socket.io";
+import { WebSocket, WebSocketServer } from "ws";
 
 // src/server/game/room.ts
 var BOT_AVATAR = "/avatars/bot.svg";
@@ -838,6 +839,25 @@ var DefaultAuthService = class {
     }
     return this.createLoginResult(user.id);
   }
+  async loginWithWechat(payload) {
+    const openid = normalizeOpenid(payload.openid);
+    const existing = await this.repo.findUserByOpenid(openid);
+    if (existing) {
+      return this.createLoginResult(existing.id);
+    }
+    const createdAt = this.now();
+    const user = {
+      id: `u_${this.randomToken().slice(0, 18)}`,
+      username: `wx_${openid}`,
+      passwordHash: "wechat:openid",
+      nickname: normalizeWechatNickname(payload.nickname),
+      title: "\u65B0\u58F0\u6311\u6218\u8005",
+      openid,
+      createdAt
+    };
+    await this.repo.createUser(user);
+    return this.createLoginResult(user.id);
+  }
   async requireUserByToken(token) {
     const cleanToken = token.trim();
     if (!cleanToken) {
@@ -893,10 +913,55 @@ function normalizeUsername(username) {
   }
   return normalized;
 }
+function normalizeOpenid(openid) {
+  const normalized = openid.trim();
+  if (!/^[A-Za-z0-9_-]{3,128}$/.test(normalized)) {
+    throw new Error("\u5FAE\u4FE1openid\u683C\u5F0F\u5F02\u5E38");
+  }
+  return normalized;
+}
+function normalizeWechatNickname(nickname) {
+  const normalized = nickname?.trim() || "\u5FAE\u4FE1\u73A9\u5BB6";
+  if (normalized.length > 16) {
+    throw new Error("\u6635\u79F0\u4E0D\u80FD\u8D85\u8FC716\u4E2A\u5B57");
+  }
+  return normalized;
+}
 function validatePassword(password) {
   if (password.length < 6 || password.length > 64) {
     throw new Error("\u5BC6\u7801\u957F\u5EA6\u5FC5\u987B\u662F6-64\u4F4D");
   }
+}
+
+// src/server/account/wechatLogin.ts
+async function exchangeWechatLoginCode(options) {
+  const code = options.code.trim();
+  if (!code) {
+    throw new Error("\u5FAE\u4FE1\u767B\u5F55code\u4E0D\u80FD\u4E3A\u7A7A");
+  }
+  if (!options.appId) {
+    throw new Error("\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F\u914D\u7F6E\u7F3A\u5931\uFF1AWECHAT_APP_ID");
+  }
+  if (!options.appSecret) {
+    throw new Error("\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F\u914D\u7F6E\u7F3A\u5931\uFF1AWECHAT_APP_SECRET");
+  }
+  const url = new URL("https://api.weixin.qq.com/sns/jscode2session");
+  url.searchParams.set("appid", options.appId);
+  url.searchParams.set("secret", options.appSecret);
+  url.searchParams.set("js_code", code);
+  url.searchParams.set("grant_type", "authorization_code");
+  const response = await (options.fetchImpl ?? fetch)(url);
+  if (!response.ok) {
+    throw new Error(`\u5FAE\u4FE1\u767B\u5F55\u8BF7\u6C42\u5931\u8D25\uFF1AHTTP ${response.status}`);
+  }
+  const body = await response.json();
+  if (body.errcode) {
+    throw new Error(`\u5FAE\u4FE1\u767B\u5F55\u5931\u8D25\uFF1A${body.errmsg || body.errcode}`);
+  }
+  if (!body.openid) {
+    throw new Error("\u5FAE\u4FE1\u767B\u5F55\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11openid");
+  }
+  return body.openid;
 }
 
 // src/server/account/mysqlRepository.ts
@@ -944,9 +1009,11 @@ var MysqlAccountRepository = class {
         nickname VARCHAR(64) NOT NULL,
         title VARCHAR(64) NOT NULL,
         openid VARCHAR(128) NULL,
-        created_at_ms BIGINT NOT NULL
+        created_at_ms BIGINT NOT NULL,
+        UNIQUE KEY uk_users_openid (openid)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    await this.ensureUniqueIndex("users", "uk_users_openid", "openid");
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         token VARCHAR(128) PRIMARY KEY,
@@ -992,9 +1059,27 @@ var MysqlAccountRepository = class {
         CONSTRAINT fk_runs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS ad_reward_events (
+        id VARCHAR(64) PRIMARY KEY,
+        user_id VARCHAR(64) NOT NULL,
+        reward_type VARCHAR(32) NOT NULL,
+        status VARCHAR(24) NOT NULL,
+        platform_trace_id VARCHAR(128) NULL,
+        created_at_ms BIGINT NOT NULL,
+        verified_at_ms BIGINT NULL,
+        claimed_at_ms BIGINT NULL,
+        INDEX idx_ad_reward_events_user_id (user_id),
+        CONSTRAINT fk_ad_reward_events_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
   }
   async findUserByUsername(username) {
     const rows = await this.select("SELECT * FROM users WHERE username = ? LIMIT 1", [username]);
+    return rows[0] ? toUserRecord(rows[0]) : void 0;
+  }
+  async findUserByOpenid(openid) {
+    const rows = await this.select("SELECT * FROM users WHERE openid = ? LIMIT 1", [openid]);
     return rows[0] ? toUserRecord(rows[0]) : void 0;
   }
   async findUserById(userId) {
@@ -1079,9 +1164,48 @@ var MysqlAccountRepository = class {
       [run.status, JSON.stringify(run), run.finishedAt ?? null, run.id]
     );
   }
+  async createAdRewardEvent(event) {
+    await this.pool.execute(
+      `INSERT INTO ad_reward_events
+        (id, user_id, reward_type, status, platform_trace_id, created_at_ms, verified_at_ms, claimed_at_ms)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        event.id,
+        event.userId,
+        event.rewardType,
+        event.status,
+        event.platformTraceId ?? null,
+        event.createdAt,
+        event.verifiedAt ?? null,
+        event.claimedAt ?? null
+      ]
+    );
+  }
+  async getAdRewardEvent(eventId) {
+    const rows = await this.select("SELECT * FROM ad_reward_events WHERE id = ? LIMIT 1", [eventId]);
+    return rows[0] ? toAdRewardEventRecord(rows[0]) : void 0;
+  }
+  async updateAdRewardEvent(event) {
+    await this.pool.execute(
+      `UPDATE ad_reward_events
+       SET status = ?, platform_trace_id = ?, verified_at_ms = ?, claimed_at_ms = ?
+       WHERE id = ?`,
+      [event.status, event.platformTraceId ?? null, event.verifiedAt ?? null, event.claimedAt ?? null, event.id]
+    );
+  }
   async select(sql, values) {
     const [rows] = await this.pool.execute(sql, values);
     return rows;
+  }
+  async ensureUniqueIndex(table, indexName, columnName) {
+    const rows = await this.select(
+      "SELECT COUNT(*) AS count FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?",
+      [table, indexName]
+    );
+    if (Number(rows[0]?.count ?? 0) > 0) {
+      return;
+    }
+    await this.pool.query(`ALTER TABLE ${table} ADD UNIQUE KEY ${indexName} (${columnName})`);
   }
 };
 function toUserRecord(row) {
@@ -1127,6 +1251,18 @@ function parseRun(row) {
     return JSON.parse(row.state_json);
   }
   return row.state_json;
+}
+function toAdRewardEventRecord(row) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    rewardType: row.reward_type,
+    status: row.status,
+    platformTraceId: row.platform_trace_id ?? void 0,
+    createdAt: Number(row.created_at_ms),
+    verifiedAt: row.verified_at_ms === null ? void 0 : Number(row.verified_at_ms),
+    claimedAt: row.claimed_at_ms === null ? void 0 : Number(row.claimed_at_ms)
+  };
 }
 function requireConfig(value, key) {
   if (!value) {
@@ -1525,6 +1661,266 @@ function resolveHighestUnlockedLevel(progress) {
   return passedLevels.length === 0 ? 1 : Math.max(...passedLevels) + 1;
 }
 
+// src/server/ad/adRewardService.ts
+function createAdRewardService(options) {
+  return new DefaultAdRewardService(options);
+}
+var DefaultAdRewardService = class {
+  repo;
+  now;
+  randomId;
+  constructor(options) {
+    this.repo = options.repo;
+    this.now = options.now ?? Date.now;
+    this.randomId = options.randomId ?? (() => Math.random().toString(36).slice(2, 12));
+  }
+  async start(userId, rewardType) {
+    validateRewardType(rewardType);
+    await this.requireUser(userId);
+    const event = {
+      id: `ad_${this.randomId()}`,
+      userId,
+      rewardType,
+      status: "started",
+      createdAt: this.now()
+    };
+    await this.repo.createAdRewardEvent(event);
+    return { eventId: event.id, rewardType };
+  }
+  async verifyCallback(payload) {
+    validateRewardType(payload.rewardType);
+    const event = await this.requireEvent(payload.eventId);
+    if (event.rewardType !== payload.rewardType) {
+      throw new Error("\u5E7F\u544A\u5956\u52B1\u7C7B\u578B\u5F02\u5E38");
+    }
+    if (!payload.platformTraceId.trim()) {
+      throw new Error("\u5E7F\u544A\u56DE\u8C03\u7F3A\u5C11\u5E73\u53F0\u6D41\u6C34\u53F7");
+    }
+    if (event.status === "claimed") {
+      return event;
+    }
+    const next = {
+      ...event,
+      status: "verified",
+      platformTraceId: payload.platformTraceId.trim(),
+      verifiedAt: event.verifiedAt ?? this.now()
+    };
+    await this.repo.updateAdRewardEvent(next);
+    return next;
+  }
+  async claim(userId, eventId) {
+    const event = await this.requireEvent(eventId);
+    if (event.userId !== userId) {
+      throw new Error("\u4E0D\u80FD\u9886\u53D6\u5176\u4ED6\u73A9\u5BB6\u7684\u5E7F\u544A\u5956\u52B1");
+    }
+    if (event.status === "started") {
+      throw new Error("\u5E7F\u544A\u5956\u52B1\u5C1A\u672A\u9A8C\u8BC1");
+    }
+    if (event.status === "claimed") {
+      throw new Error("\u5E7F\u544A\u5956\u52B1\u5DF2\u7ECF\u9886\u53D6");
+    }
+    if (event.rewardType !== "stamina") {
+      throw new Error(`\u5E7F\u544A\u5956\u52B1\u7C7B\u578B\u6682\u4E0D\u652F\u6301\u9886\u53D6\uFF1A${event.rewardType}`);
+    }
+    const stamina = await this.restoreOneStamina(userId);
+    const next = {
+      ...event,
+      status: "claimed",
+      claimedAt: this.now()
+    };
+    await this.repo.updateAdRewardEvent(next);
+    return { rewardType: event.rewardType, stamina };
+  }
+  async restoreOneStamina(userId) {
+    const existing = await this.repo.getStamina(userId);
+    const now = this.now();
+    const stamina = existing ?? { userId, current: 0, max: 5, lastRecoveredAt: now, adRestoreCount: 0 };
+    stamina.current = Math.min(stamina.max, stamina.current + 1);
+    stamina.adRestoreCount += 1;
+    stamina.lastRecoveredAt = now;
+    await this.repo.upsertStamina(stamina);
+    return stamina;
+  }
+  async requireEvent(eventId) {
+    const cleanId = eventId.trim();
+    if (!cleanId) {
+      throw new Error("\u5E7F\u544A\u5956\u52B1\u4E8B\u4EF6\u4E0D\u80FD\u4E3A\u7A7A");
+    }
+    const event = await this.repo.getAdRewardEvent(cleanId);
+    if (!event) {
+      throw new Error(`\u5E7F\u544A\u5956\u52B1\u4E8B\u4EF6\u4E0D\u5B58\u5728\uFF1A${cleanId}`);
+    }
+    return event;
+  }
+  async requireUser(userId) {
+    const user = await this.repo.findUserById(userId);
+    if (!user) {
+      throw new Error(`\u8D26\u53F7\u72B6\u6001\u5F02\u5E38\uFF1A\u627E\u4E0D\u5230\u7528\u6237 ${userId}`);
+    }
+  }
+};
+function validateRewardType(rewardType) {
+  if (!["stamina", "settlement"].includes(rewardType)) {
+    throw new Error(`\u5E7F\u544A\u5956\u52B1\u7C7B\u578B\u5F02\u5E38\uFF1A${rewardType}`);
+  }
+}
+
+// src/server/audio/audioProxy.ts
+function resolveSongPreviewUrl(songId, songs) {
+  const cleanId = songId.trim();
+  if (!cleanId) {
+    throw new Error("\u6B4C\u66F2ID\u4E0D\u80FD\u4E3A\u7A7A");
+  }
+  const song = songs.find((entry) => entry.id === cleanId);
+  if (!song) {
+    throw new Error(`\u6B4C\u66F2\u4E0D\u5B58\u5728\uFF1A${cleanId}`);
+  }
+  if (!/^https?:\/\//i.test(song.previewUrl)) {
+    throw new Error(`\u6B4C\u66F2\u8BD5\u542C\u5730\u5740\u5F02\u5E38\uFF1A${song.id}`);
+  }
+  return song.previewUrl;
+}
+
+// src/server/pvp/miniappPvpProtocol.ts
+function createMiniappPvpProtocol(options) {
+  const clientStates = /* @__PURE__ */ new Map();
+  async function handle(clientId, message) {
+    try {
+      const payload = message.payload ?? {};
+      if (message.type === "createRoom") {
+        const user = await requireUser(payload.token);
+        const code = createUniqueRoomCode(options.createRoomCode, options.rooms);
+        const room = options.createRoom(code);
+        options.rooms.set(code, room);
+        const player = room.join(user.nickname);
+        clientStates.set(clientId, { roomCode: code, playerId: player.id });
+        options.bindClientToRoom?.(clientId, code);
+        const snapshot = room.snapshot();
+        options.broadcast(code, snapshot);
+        ack(clientId, message.requestId, { room: snapshot, playerId: player.id });
+        return;
+      }
+      if (message.type === "joinRoom") {
+        const user = await requireUser(payload.token);
+        const roomCode = requireString(payload.roomCode, "\u623F\u95F4\u53F7\u4E0D\u80FD\u4E3A\u7A7A");
+        const room = requireRoom2(roomCode);
+        const player = room.join(user.nickname, optionalString(payload.playerId));
+        clientStates.set(clientId, { roomCode, playerId: player.id });
+        options.bindClientToRoom?.(clientId, roomCode);
+        const snapshot = room.snapshot();
+        options.broadcast(roomCode, snapshot);
+        ack(clientId, message.requestId, { room: snapshot, playerId: player.id });
+        return;
+      }
+      if (message.type === "startGame") {
+        const roomCode = requireString(payload.roomCode, "\u623F\u95F4\u53F7\u4E0D\u80FD\u4E3A\u7A7A");
+        const room = requireRoom2(roomCode);
+        room.start(requireGameType(payload.gameType), requireString(payload.playerId, "\u73A9\u5BB6ID\u4E0D\u80FD\u4E3A\u7A7A"));
+        options.scheduleRoundTimers?.(roomCode);
+        const snapshot = room.snapshot();
+        options.broadcast(roomCode, snapshot);
+        ack(clientId, message.requestId, { room: snapshot });
+        return;
+      }
+      if (message.type === "sendMessage") {
+        const roomCode = requireString(payload.roomCode, "\u623F\u95F4\u53F7\u4E0D\u80FD\u4E3A\u7A7A");
+        const room = requireRoom2(roomCode);
+        const result = room.submitMessage(requireString(payload.playerId, "\u73A9\u5BB6ID\u4E0D\u80FD\u4E3A\u7A7A"), requireString(payload.text, "\u6D88\u606F\u4E0D\u80FD\u4E3A\u7A7A"));
+        if (result.hit) {
+          options.scheduleRoundTimers?.(roomCode);
+        }
+        const snapshot = room.snapshot();
+        options.broadcast(roomCode, snapshot);
+        ack(clientId, message.requestId, { room: snapshot });
+        return;
+      }
+      if (message.type === "leaveRoom") {
+        const roomCode = requireString(payload.roomCode, "\u623F\u95F4\u53F7\u4E0D\u80FD\u4E3A\u7A7A");
+        const playerId = requireString(payload.playerId, "\u73A9\u5BB6ID\u4E0D\u80FD\u4E3A\u7A7A");
+        const state = clientStates.get(clientId);
+        if (state?.roomCode !== roomCode || state.playerId !== playerId) {
+          throw new Error("\u79BB\u5F00\u623F\u95F4\u72B6\u6001\u5F02\u5E38\uFF1A\u5F53\u524D\u8FDE\u63A5\u4E0D\u5728\u8BE5\u623F\u95F4");
+        }
+        const room = requireRoom2(roomCode);
+        room.leave(playerId);
+        const snapshot = room.snapshot();
+        options.clearRoomTimersIfEmpty?.(roomCode, snapshot);
+        options.broadcast(roomCode, snapshot);
+        options.unbindClientFromRoom?.(clientId, roomCode);
+        clientStates.delete(clientId);
+        ack(clientId, message.requestId);
+        return;
+      }
+      throw new Error(`\u672A\u77E5PVP\u6D88\u606F\u7C7B\u578B\uFF1A${message.type ?? ""}`);
+    } catch (error) {
+      options.send(clientId, {
+        type: "ack",
+        requestId: message.requestId,
+        ok: false,
+        error: error instanceof Error ? error.message : "\u672A\u77E5\u9519\u8BEF"
+      });
+    }
+  }
+  function disconnect(clientId) {
+    const state = clientStates.get(clientId);
+    clientStates.delete(clientId);
+    if (!state?.roomCode || !state.playerId) {
+      return;
+    }
+    const room = options.rooms.get(state.roomCode);
+    if (!room) {
+      return;
+    }
+    room.leave(state.playerId);
+    const snapshot = room.snapshot();
+    options.clearRoomTimersIfEmpty?.(state.roomCode, snapshot);
+    options.broadcast(state.roomCode, snapshot);
+    options.unbindClientFromRoom?.(clientId, state.roomCode);
+  }
+  function ack(clientId, requestId, payload) {
+    options.send(clientId, { type: "ack", requestId, ok: true, payload });
+  }
+  function requireRoom2(roomCode) {
+    const normalized = roomCode.trim();
+    const room = options.rooms.get(normalized);
+    if (!room) {
+      throw new Error(`\u623F\u95F4\u4E0D\u5B58\u5728\uFF1A${normalized}`);
+    }
+    return room;
+  }
+  async function requireUser(token) {
+    const cleanToken = requireString(token, "\u672A\u767B\u5F55");
+    return options.auth.requireUserByToken(cleanToken);
+  }
+  return { handle, disconnect };
+}
+function createUniqueRoomCode(createRoomCode2, rooms2) {
+  for (let i = 0; i < 20; i += 1) {
+    const code = createRoomCode2().trim();
+    if (code && !rooms2.has(code)) {
+      return code;
+    }
+  }
+  throw new Error("\u623F\u95F4\u53F7\u751F\u6210\u5931\u8D25");
+}
+function requireString(value, errorMessage) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) {
+    throw new Error(errorMessage);
+  }
+  return text;
+}
+function optionalString(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text || void 0;
+}
+function requireGameType(value) {
+  if (value === "idiom" || value === "song" || value === "silhouette" || value === "movie") {
+    return value;
+  }
+  throw new Error(`\u6E38\u620F\u7C7B\u578B\u5F02\u5E38\uFF1A${String(value)}`);
+}
+
 // src/server/index.ts
 loadDotEnv();
 var PORT = Number(process.env.PORT ?? 3e3);
@@ -1540,6 +1936,9 @@ var io = new Server(httpServer, {
   }
 });
 var rooms = /* @__PURE__ */ new Map();
+var miniappClients = /* @__PURE__ */ new Map();
+var miniappRoomClients = /* @__PURE__ */ new Map();
+var miniappClientSeq = 0;
 var timers = /* @__PURE__ */ new Map();
 var accountContext = await initializeAccountContext();
 app.use(express.json({ limit: "1mb" }));
@@ -1565,6 +1964,22 @@ app.post(
     const result = await auth.login({
       username: String(req.body?.username ?? ""),
       password: String(req.body?.password ?? "")
+    });
+    res.json({ ok: true, ...result });
+  })
+);
+app.post(
+  "/api/auth/wechat-login",
+  asyncRoute(async (req, res) => {
+    const { auth } = requireAccountContext();
+    const openid = await exchangeWechatLoginCode({
+      code: String(req.body?.code ?? ""),
+      appId: process.env.WECHAT_APP_ID,
+      appSecret: process.env.WECHAT_APP_SECRET
+    });
+    const result = await auth.loginWithWechat({
+      openid,
+      nickname: typeof req.body?.nickname === "string" ? req.body.nickname : void 0
     });
     res.json({ ok: true, ...result });
   })
@@ -1657,6 +2072,51 @@ app.post(
     res.json({ ok: true, summary: await pve.finish(user.id, String(req.body?.runId ?? "")) });
   })
 );
+app.get(
+  "/api/audio/preview/:songId",
+  asyncRoute(async (req, res) => {
+    const previewUrl = resolveSongPreviewUrl(String(req.params.songId ?? ""), data.songs);
+    const upstream = await fetch(previewUrl);
+    if (!upstream.ok) {
+      throw new Error(`\u6B4C\u66F2\u8BD5\u542C\u6E90\u8BF7\u6C42\u5931\u8D25\uFF1AHTTP ${upstream.status}`);
+    }
+    const contentType = upstream.headers.get("content-type") ?? "audio/mp4";
+    const arrayBuffer = await upstream.arrayBuffer();
+    res.setHeader("content-type", contentType);
+    res.setHeader("cache-control", "public, max-age=3600");
+    res.send(Buffer.from(arrayBuffer));
+  })
+);
+app.post(
+  "/api/ad/reward/start",
+  asyncRoute(async (req, res) => {
+    const { adRewards } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    const rewardType = String(req.body?.rewardType ?? "");
+    res.json({ ok: true, reward: await adRewards.start(user.id, rewardType) });
+  })
+);
+app.post(
+  "/api/ad/reward/callback",
+  asyncRoute(async (req, res) => {
+    requireAdCallbackSecret(req);
+    const { adRewards } = requireAccountContext();
+    const event = await adRewards.verifyCallback({
+      eventId: String(req.body?.eventId ?? ""),
+      rewardType: String(req.body?.rewardType ?? ""),
+      platformTraceId: String(req.body?.platformTraceId ?? "")
+    });
+    res.json({ ok: true, eventId: event.id, status: event.status });
+  })
+);
+app.post(
+  "/api/ad/reward/claim",
+  asyncRoute(async (req, res) => {
+    const { adRewards } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    res.json({ ok: true, reward: await adRewards.claim(user.id, String(req.body?.eventId ?? "")) });
+  })
+);
 var serverDir = path.dirname(fileURLToPath2(import.meta.url));
 var distPath = [
   path.resolve(process.cwd(), "dist"),
@@ -1671,7 +2131,7 @@ io.on("connection", (socket) => {
   socket.on("createRoom", (payload, ack) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
-      const code = createUniqueRoomCode();
+      const code = createUniqueRoomCode2();
       const room = createGameRoom({
         code,
         idioms: data.idioms,
@@ -1758,6 +2218,57 @@ io.on("connection", (socket) => {
     emitRoom(roomCode, snapshot);
   });
 });
+var miniappProtocol = accountContext.ready ? createMiniappPvpProtocol({
+  auth: accountContext.auth,
+  rooms,
+  createRoomCode: createUniqueRoomCode2,
+  createRoom: (code) => createGameRoom({
+    code,
+    idioms: data.idioms,
+    songs: data.songs,
+    characters: data.characters,
+    movies: data.movies,
+    roundSeconds: ROUND_SECONDS
+  }),
+  send: sendMiniappMessage,
+  broadcast: emitRoom,
+  bindClientToRoom,
+  unbindClientFromRoom,
+  scheduleRoundTimers,
+  clearRoomTimersIfEmpty
+}) : void 0;
+var miniappUnavailableMessage = accountContext.ready ? void 0 : accountContext.error.message;
+var miniappWss = new WebSocketServer({ noServer: true });
+httpServer.on("upgrade", (req, socket, head) => {
+  const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
+  if (pathname !== "/pvp-ws") {
+    return;
+  }
+  miniappWss.handleUpgrade(req, socket, head, (ws) => {
+    miniappWss.emit("connection", ws, req);
+  });
+});
+miniappWss.on("connection", (ws) => {
+  const clientId = `miniapp_${++miniappClientSeq}`;
+  miniappClients.set(clientId, ws);
+  ws.on("message", (raw) => {
+    if (!miniappProtocol) {
+      sendMiniappMessage(clientId, { type: "ack", ok: false, error: miniappUnavailableMessage ?? "\u5C0F\u7A0B\u5E8FPVP\u670D\u52A1\u4E0D\u53EF\u7528" });
+      return;
+    }
+    try {
+      const message = JSON.parse(raw.toString());
+      void miniappProtocol.handle(clientId, message);
+    } catch (error) {
+      sendMiniappMessage(clientId, { type: "ack", ok: false, error: error instanceof Error ? error.message : "\u672A\u77E5\u9519\u8BEF" });
+    }
+  });
+  ws.on("close", () => {
+    miniappClients.delete(clientId);
+    miniappProtocol?.disconnect(clientId);
+    removeClientFromAllMiniappRooms(clientId);
+  });
+});
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`BrainSync party games listening on http://localhost:${PORT}`);
 });
@@ -1777,7 +2288,7 @@ function requireRoom(code) {
   }
   return room;
 }
-function createUniqueRoomCode() {
+function createUniqueRoomCode2() {
   for (let i = 0; i < 20; i += 1) {
     const code = Math.floor(Math.random() * 1e6).toString().padStart(6, "0");
     if (!rooms.has(code)) {
@@ -1791,6 +2302,45 @@ function socketRoom(code) {
 }
 function emitRoom(code, snapshot) {
   io.to(socketRoom(code)).emit("roomSnapshot", snapshot);
+  emitMiniappRoom(code, snapshot);
+}
+function emitMiniappRoom(code, snapshot) {
+  const clientIds = miniappRoomClients.get(code.trim());
+  if (!clientIds) {
+    return;
+  }
+  for (const clientId of clientIds) {
+    sendMiniappMessage(clientId, { type: "roomSnapshot", payload: snapshot });
+  }
+}
+function sendMiniappMessage(clientId, message) {
+  const client = miniappClients.get(clientId);
+  if (!client || client.readyState !== WebSocket.OPEN) {
+    return;
+  }
+  client.send(JSON.stringify(message));
+}
+function bindClientToRoom(clientId, roomCode) {
+  const normalized = roomCode.trim();
+  const existing = miniappRoomClients.get(normalized) ?? /* @__PURE__ */ new Set();
+  existing.add(clientId);
+  miniappRoomClients.set(normalized, existing);
+}
+function unbindClientFromRoom(clientId, roomCode) {
+  const normalized = roomCode.trim();
+  const existing = miniappRoomClients.get(normalized);
+  if (!existing) {
+    return;
+  }
+  existing.delete(clientId);
+  if (existing.size === 0) {
+    miniappRoomClients.delete(normalized);
+  }
+}
+function removeClientFromAllMiniappRooms(clientId) {
+  for (const roomCode of [...miniappRoomClients.keys()]) {
+    unbindClientFromRoom(clientId, roomCode);
+  }
 }
 function scheduleRoundTimers(code) {
   const room = requireRoom(code);
@@ -1865,7 +2415,8 @@ async function initializeAccountContext() {
     return {
       ready: true,
       auth: createAuthService({ repo }),
-      pve: createPveService({ repo, songs: data.songs, levels: DEFAULT_PVE_LEVELS })
+      pve: createPveService({ repo, songs: data.songs, levels: DEFAULT_PVE_LEVELS }),
+      adRewards: createAdRewardService({ repo })
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "\u672A\u77E5MySQL\u521D\u59CB\u5316\u9519\u8BEF";
@@ -1901,6 +2452,16 @@ function readBearerToken(req) {
   const authorization = req.header("authorization") ?? "";
   const match = /^Bearer\s+(.+)$/i.exec(authorization);
   return match?.[1]?.trim();
+}
+function requireAdCallbackSecret(req) {
+  const expected = process.env.UNI_AD_CALLBACK_SECRET;
+  if (!expected) {
+    throw new ServiceUnavailableError("\u5E7F\u544A\u56DE\u8C03\u5BC6\u94A5\u672A\u914D\u7F6E\uFF1AUNI_AD_CALLBACK_SECRET");
+  }
+  const actual = req.header("x-ad-callback-secret") ?? "";
+  if (actual !== expected) {
+    throw new HttpError(401, "\u5E7F\u544A\u56DE\u8C03\u7B7E\u540D\u5F02\u5E38");
+  }
 }
 var HttpError = class extends Error {
   constructor(statusCode, message) {

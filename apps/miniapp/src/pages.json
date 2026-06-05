@@ -1,0 +1,40 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "BrainSync"
+      }
+    },
+    {
+      "path": "pages/pve/index",
+      "style": {
+        "navigationBarTitleText": "猜歌挑战"
+      }
+    },
+    {
+      "path": "pages/pve/play",
+      "style": {
+        "navigationBarTitleText": "听歌抢答"
+      }
+    },
+    {
+      "path": "pages/pvp/index",
+      "style": {
+        "navigationBarTitleText": "开房间对战"
+      }
+    },
+    {
+      "path": "pages/pvp/room",
+      "style": {
+        "navigationBarTitleText": "群聊抢答"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "BrainSync",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f4f7fb"
+  }
+}

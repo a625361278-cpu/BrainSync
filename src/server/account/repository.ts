@@ -81,8 +81,23 @@ export interface PveRunRecord {
   summary?: PveRunSummaryRecord;
 }
 
+export type AdRewardType = "stamina" | "settlement";
+export type AdRewardStatus = "started" | "verified" | "claimed";
+
+export interface AdRewardEventRecord {
+  id: string;
+  userId: string;
+  rewardType: AdRewardType;
+  status: AdRewardStatus;
+  platformTraceId?: string;
+  createdAt: number;
+  verifiedAt?: number;
+  claimedAt?: number;
+}
+
 export interface AccountRepository {
   findUserByUsername(username: string): Promise<AccountUserRecord | undefined>;
+  findUserByOpenid(openid: string): Promise<AccountUserRecord | undefined>;
   findUserById(userId: string): Promise<AccountUserRecord | undefined>;
   createUser(user: AccountUserRecord): Promise<void>;
   createSession(session: SessionRecord): Promise<void>;
@@ -96,6 +111,9 @@ export interface AccountRepository {
   createRun(run: PveRunRecord): Promise<void>;
   getRun(runId: string): Promise<PveRunRecord | undefined>;
   updateRun(run: PveRunRecord): Promise<void>;
+  createAdRewardEvent(event: AdRewardEventRecord): Promise<void>;
+  getAdRewardEvent(eventId: string): Promise<AdRewardEventRecord | undefined>;
+  updateAdRewardEvent(event: AdRewardEventRecord): Promise<void>;
 }
 
 export function toPublicUser(user: AccountUserRecord): PublicUser {

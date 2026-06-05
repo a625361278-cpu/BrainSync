@@ -11,21 +11,27 @@
     "build": "tsc --noEmit && npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "node scripts/build-server.mjs",
+    "miniapp:install": "npm install --prefix apps/miniapp",
+    "miniapp:dev:mp-weixin": "npm run dev:mp-weixin --prefix apps/miniapp",
+    "miniapp:build:mp-weixin": "npm run build:mp-weixin --prefix apps/miniapp",
     "start": "node dist-server/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run test && npm run build"
+    "check": "npm run test && npm run build",
+    "check:release": "npm run test && npm run build && npm run miniapp:build:mp-weixin"
   },
   "dependencies": {
     "express": "^4.21.2",
     "mysql2": "^3.22.4",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.3.4",
     "chinese-idiom-chengyu": "^1.1.0",
     "concurrently": "^9.1.0",

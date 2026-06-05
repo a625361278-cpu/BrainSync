@@ -2,6 +2,7 @@ import mysql, { type Pool, type RowDataPacket } from "mysql2/promise";
 import type {
   AccountRepository,
   AccountUserRecord,
+  AdRewardEventRecord,
   PveProgressRecord,
   PveRunRecord,
   SessionRecord,
@@ -63,9 +64,11 @@ class MysqlAccountRepository implements AccountRepository {
         nickname VARCHAR(64) NOT NULL,
         title VARCHAR(64) NOT NULL,
         openid VARCHAR(128) NULL,
-        created_at_ms BIGINT NOT NULL
+        created_at_ms BIGINT NOT NULL,
+        UNIQUE KEY uk_users_openid (openid)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    await this.ensureUniqueIndex("users", "uk_users_openid", "openid");
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         token VARCHAR(128) PRIMARY KEY,
@@ -111,10 +114,29 @@ class MysqlAccountRepository implements AccountRepository {
         CONSTRAINT fk_runs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS ad_reward_events (
+        id VARCHAR(64) PRIMARY KEY,
+        user_id VARCHAR(64) NOT NULL,
+        reward_type VARCHAR(32) NOT NULL,
+        status VARCHAR(24) NOT NULL,
+        platform_trace_id VARCHAR(128) NULL,
+        created_at_ms BIGINT NOT NULL,
+        verified_at_ms BIGINT NULL,
+        claimed_at_ms BIGINT NULL,
+        INDEX idx_ad_reward_events_user_id (user_id),
+        CONSTRAINT fk_ad_reward_events_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
   }
 
   async findUserByUsername(username: string): Promise<AccountUserRecord | undefined> {
     const rows = await this.select<UserRow>("SELECT * FROM users WHERE username = ? LIMIT 1", [username]);
+    return rows[0] ? toUserRecord(rows[0]) : undefined;
+  }
+
+  async findUserByOpenid(openid: string): Promise<AccountUserRecord | undefined> {
+    const rows = await this.select<UserRow>("SELECT * FROM users WHERE openid = ? LIMIT 1", [openid]);
     return rows[0] ? toUserRecord(rows[0]) : undefined;
   }
 
@@ -213,9 +235,52 @@ class MysqlAccountRepository implements AccountRepository {
     );
   }
 
+  async createAdRewardEvent(event: AdRewardEventRecord): Promise<void> {
+    await this.pool.execute(
+      `INSERT INTO ad_reward_events
+        (id, user_id, reward_type, status, platform_trace_id, created_at_ms, verified_at_ms, claimed_at_ms)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        event.id,
+        event.userId,
+        event.rewardType,
+        event.status,
+        event.platformTraceId ?? null,
+        event.createdAt,
+        event.verifiedAt ?? null,
+        event.claimedAt ?? null
+      ]
+    );
+  }
+
+  async getAdRewardEvent(eventId: string): Promise<AdRewardEventRecord | undefined> {
+    const rows = await this.select<AdRewardEventRow>("SELECT * FROM ad_reward_events WHERE id = ? LIMIT 1", [eventId]);
+    return rows[0] ? toAdRewardEventRecord(rows[0]) : undefined;
+  }
+
+  async updateAdRewardEvent(event: AdRewardEventRecord): Promise<void> {
+    await this.pool.execute(
+      `UPDATE ad_reward_events
+       SET status = ?, platform_trace_id = ?, verified_at_ms = ?, claimed_at_ms = ?
+       WHERE id = ?`,
+      [event.status, event.platformTraceId ?? null, event.verifiedAt ?? null, event.claimedAt ?? null, event.id]
+    );
+  }
+
   private async select<T extends RowDataPacket>(sql: string, values: (string | number | null)[]): Promise<T[]> {
     const [rows] = await this.pool.execute<T[]>(sql, values);
     return rows;
+  }
+
+  private async ensureUniqueIndex(table: string, indexName: string, columnName: string): Promise<void> {
+    const rows = await this.select<RowDataPacket>(
+      "SELECT COUNT(*) AS count FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?",
+      [table, indexName]
+    );
+    if (Number(rows[0]?.count ?? 0) > 0) {
+      return;
+    }
+    await this.pool.query(`ALTER TABLE ${table} ADD UNIQUE KEY ${indexName} (${columnName})`);
   }
 }
 
@@ -255,6 +320,17 @@ interface ProgressRow extends RowDataPacket {
 
 interface RunRow extends RowDataPacket {
   state_json: string | object;
+}
+
+interface AdRewardEventRow extends RowDataPacket {
+  id: string;
+  user_id: string;
+  reward_type: "stamina" | "settlement";
+  status: "started" | "verified" | "claimed";
+  platform_trace_id: string | null;
+  created_at_ms: number;
+  verified_at_ms: number | null;
+  claimed_at_ms: number | null;
 }
 
 function toUserRecord(row: UserRow): AccountUserRecord {
@@ -304,6 +380,19 @@ function parseRun(row: RunRow): PveRunRecord {
     return JSON.parse(row.state_json) as PveRunRecord;
   }
   return row.state_json as PveRunRecord;
+}
+
+function toAdRewardEventRecord(row: AdRewardEventRow): AdRewardEventRecord {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    rewardType: row.reward_type,
+    status: row.status,
+    platformTraceId: row.platform_trace_id ?? undefined,
+    createdAt: Number(row.created_at_ms),
+    verifiedAt: row.verified_at_ms === null ? undefined : Number(row.verified_at_ms),
+    claimedAt: row.claimed_at_ms === null ? undefined : Number(row.claimed_at_ms)
+  };
 }
 
 function requireConfig(value: string | undefined, key: string): string {

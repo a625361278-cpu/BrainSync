@@ -24,6 +24,11 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface WechatLoginPayload {
+  openid: string;
+  nickname?: string;
+}
+
 export interface AuthResult {
   user: PublicUser;
   token: string;
@@ -33,6 +38,7 @@ export interface AuthResult {
 export interface AuthService {
   register(payload: RegisterPayload): Promise<AuthResult>;
   login(payload: LoginPayload): Promise<AuthResult>;
+  loginWithWechat(payload: WechatLoginPayload): Promise<AuthResult>;
   requireUserByToken(token: string): Promise<PublicUser>;
   logout(token: string): Promise<void>;
 }
@@ -89,6 +95,27 @@ class DefaultAuthService implements AuthService {
     if (!user || !(await verifyPassword(payload.password, user.passwordHash))) {
       throw new Error("账号或密码错误");
     }
+    return this.createLoginResult(user.id);
+  }
+
+  async loginWithWechat(payload: WechatLoginPayload): Promise<AuthResult> {
+    const openid = normalizeOpenid(payload.openid);
+    const existing = await this.repo.findUserByOpenid(openid);
+    if (existing) {
+      return this.createLoginResult(existing.id);
+    }
+
+    const createdAt = this.now();
+    const user = {
+      id: `u_${this.randomToken().slice(0, 18)}`,
+      username: `wx_${openid}`,
+      passwordHash: "wechat:openid",
+      nickname: normalizeWechatNickname(payload.nickname),
+      title: "新声挑战者",
+      openid,
+      createdAt
+    };
+    await this.repo.createUser(user);
     return this.createLoginResult(user.id);
   }
 
@@ -149,6 +176,22 @@ function normalizeUsername(username: string): string {
   const normalized = username.trim().toLowerCase();
   if (!/^[a-z0-9_]{3,24}$/.test(normalized)) {
     throw new Error("账号只能使用3-24位英文、数字或下划线");
+  }
+  return normalized;
+}
+
+function normalizeOpenid(openid: string): string {
+  const normalized = openid.trim();
+  if (!/^[A-Za-z0-9_-]{3,128}$/.test(normalized)) {
+    throw new Error("微信openid格式异常");
+  }
+  return normalized;
+}
+
+function normalizeWechatNickname(nickname: string | undefined): string {
+  const normalized = nickname?.trim() || "微信玩家";
+  if (normalized.length > 16) {
+    throw new Error("昵称不能超过16个字");
   }
   return normalized;
 }
