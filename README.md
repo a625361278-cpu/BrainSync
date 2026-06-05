@@ -49,8 +49,8 @@ UNI_AD_CALLBACK_SECRET=广告回调密钥
 小程序前端构建时还需要配置：
 
 ```bash
-VITE_API_BASE_URL=https://你的HTTPS域名
-VITE_WS_URL=wss://你的WSS域名/pvp-ws
+VITE_API_BASE_URL=https://like2022.online
+VITE_WS_URL=wss://like2022.online/pvp-ws
 VITE_REWARD_AD_UNIT_ID=微信激励视频广告位ID
 ```
 
@@ -205,8 +205,8 @@ npm run check:release
 3. Node 服务监听 `127.0.0.1:3000`，公网只开放 `80/443`。
 4. Nginx 反代 `/`、`/socket.io/` 和 `/pvp-ws` 到 `http://127.0.0.1:3000`。
 5. 微信公众平台配置合法域名：
-   - request 合法域名：`https://你的备案域名`
-   - socket 合法域名：`wss://你的备案域名`
+   - request 合法域名：`https://like2022.online`
+   - socket 合法域名：`wss://like2022.online`
 
 完整步骤见：
 

@@ -61,4 +61,15 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain("message-row");
     expect(pvpRoom).toContain("settlement-panel");
   });
+
+  it("小程序生产构建使用like2022正式域名且不保留example占位域名", () => {
+    const config = readFileSync(resolve("apps/miniapp/src/services/config.ts"), "utf8");
+    const productionEnv = readFileSync(resolve("apps/miniapp/.env.production"), "utf8");
+
+    expect(config).toContain("https://like2022.online");
+    expect(config).toContain("wss://like2022.online/pvp-ws");
+    expect(config).not.toContain("example.com");
+    expect(productionEnv).toContain("VITE_API_BASE_URL=https://like2022.online");
+    expect(productionEnv).toContain("VITE_WS_URL=wss://like2022.online/pvp-ws");
+  });
 });
