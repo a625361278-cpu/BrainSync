@@ -23,12 +23,12 @@
           <text v-if="message.sender === 'player' && message.playerId !== playerId" class="sender-name">{{ message.playerName }}</text>
           <view :class="bubbleClass(message)">
             <view v-if="message.kind === 'image' && message.imageUrl" class="image-question">
-              <image :src="assetUrl(message.imageUrl)" :alt="message.imageAlt ?? message.text" mode="aspectFill" />
+              <image :src="assetUrl(message.imageUrl)" :alt="message.imageAlt ?? message.text" mode="aspectFit" />
               <text>{{ message.text }}</text>
             </view>
             <button v-else-if="message.kind === 'audio' && message.audioUrl" class="audio-message" @tap="playAudio(message.audioUrl)">
               <text>{{ message.text }}</text>
-              <text class="audio-wave">▶ 语音 15''</text>
+              <text class="audio-wave">{{ audioStatusText(message.audioUrl) }}</text>
             </button>
             <text v-else>{{ message.text }}</text>
           </view>
@@ -77,6 +77,8 @@ const playerId = ref(readPlayerId());
 const text = ref("");
 const error = ref("");
 const busy = ref(false);
+const currentAudioUrl = ref("");
+const audioPlaying = ref(false);
 let audio: UniApp.InnerAudioContext | undefined;
 
 const isHost = computed(() => Boolean(room.value && room.value.hostId === playerId.value));
@@ -177,14 +179,67 @@ async function leave() {
     await socket.leaveRoom(room.value.code, playerId.value).catch(() => undefined);
   }
   socket.close();
+  destroyAudio();
   uni.navigateBack();
 }
 
 function playAudio(url: string) {
-  audio?.destroy();
+  const normalizedUrl = assetUrl(url);
+  error.value = "";
+  if (audio && currentAudioUrl.value === normalizedUrl) {
+    if (audioPlaying.value) {
+      audio.pause();
+      return;
+    }
+    audio.play();
+    return;
+  }
+  destroyAudio();
+  currentAudioUrl.value = normalizedUrl;
   audio = uni.createInnerAudioContext();
-  audio.src = assetUrl(url);
+  audio.src = normalizedUrl;
+  bindAudioEvents(audio, normalizedUrl);
   audio.play();
+}
+
+function audioStatusText(url: string): string {
+  return currentAudioUrl.value === assetUrl(url) && audioPlaying.value ? "暂停 15''" : "▶ 语音 15''";
+}
+
+function bindAudioEvents(context: UniApp.InnerAudioContext, url: string): void {
+  context.onPlay(() => {
+    if (currentAudioUrl.value === url) {
+      audioPlaying.value = true;
+    }
+  });
+  context.onPause(() => {
+    if (currentAudioUrl.value === url) {
+      audioPlaying.value = false;
+    }
+  });
+  context.onStop(() => {
+    if (currentAudioUrl.value === url) {
+      audioPlaying.value = false;
+    }
+  });
+  context.onEnded(() => {
+    if (currentAudioUrl.value === url) {
+      audioPlaying.value = false;
+    }
+  });
+  context.onError((event) => {
+    if (currentAudioUrl.value === url) {
+      audioPlaying.value = false;
+      error.value = event.errMsg || "语音播放失败";
+    }
+  });
+}
+
+function destroyAudio(): void {
+  audio?.destroy();
+  audio = undefined;
+  currentAudioUrl.value = "";
+  audioPlaying.value = false;
 }
 
 function messageClass(message: ChatMessage): string {
@@ -227,7 +282,7 @@ function gameTypeLabel(gameType: GameType): string {
 
 onBeforeUnmount(() => {
   socket.close();
-  audio?.destroy();
+  destroyAudio();
 });
 </script>
 
@@ -383,13 +438,16 @@ onBeforeUnmount(() => {
 }
 
 .image-bubble {
-  max-width: 520rpx;
+  width: 520rpx;
+  max-width: calc(68vw - 24rpx);
+  box-sizing: border-box;
   padding: 12rpx;
 }
 
 .image-question {
   display: grid;
   gap: 12rpx;
+  width: 100%;
 }
 
 .image-question image {

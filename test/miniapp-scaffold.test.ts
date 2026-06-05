@@ -67,6 +67,17 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain("settlement-panel");
   });
 
+  it("小程序PVP图片题完整适配显示且语音点击支持暂停和继续播放", () => {
+    const pvpRoom = readFileSync(resolve("apps/miniapp/src/pages/pvp/room.vue"), "utf8");
+
+    expect(pvpRoom).toContain('mode="aspectFit"');
+    expect(pvpRoom).toContain("width: 520rpx");
+    expect(pvpRoom).toContain("currentAudioUrl");
+    expect(pvpRoom).toContain("audioPlaying");
+    expect(pvpRoom).toContain("audio.pause()");
+    expect(pvpRoom).toContain("audio.play()");
+  });
+
   it("小程序生产构建使用like2022正式域名且不保留example占位域名", () => {
     const config = readFileSync(resolve("apps/miniapp/src/services/config.ts"), "utf8");
     const productionEnv = readFileSync(resolve("apps/miniapp/.env.production"), "utf8");

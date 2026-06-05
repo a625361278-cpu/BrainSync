@@ -149,6 +149,8 @@ apps/miniapp/dist/build/mp-weixin
 
 小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、用户确认昵称、微信头像持久化、PVE、PVP四种玩法、原生 WebSocket、音频代理和体力广告入口。
 
+小程序 PVP 房间内的图片题使用完整适配显示，剪影和剧照都不裁剪题目主体。PVP 猜歌名语音复用当前音频实例，同一条语音再次点击会暂停，暂停后再点继续播放；切换到另一条语音时停止旧语音并播放新语音。
+
 ## 数据文件
 
 - 成语题库：`src/server/data/idioms.json`
