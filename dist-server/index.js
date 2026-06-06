@@ -35,6 +35,7 @@ var InMemoryGameRoom = class {
   songRounds;
   imageRounds;
   players = /* @__PURE__ */ new Map();
+  playerOwners = /* @__PURE__ */ new Map();
   usedIdioms = /* @__PURE__ */ new Set();
   messages = [];
   status = "waiting";
@@ -63,20 +64,31 @@ var InMemoryGameRoom = class {
     this.songRounds = options.songRounds ?? 5;
     this.imageRounds = options.imageRounds ?? 5;
   }
-  join(name, playerId, avatar) {
+  join(name, playerId, avatar, userId) {
     const normalizedName = name.trim();
     if (!normalizedName) {
       throw new Error("\u6635\u79F0\u4E0D\u80FD\u4E3A\u7A7A");
     }
     const normalizedAvatar = normalizeAvatar(avatar);
+    const normalizedUserId = normalizeUserId(userId);
     const existingById = playerId ? this.players.get(playerId) : void 0;
     if (existingById) {
+      this.requireSamePlayerOwner(existingById.id, normalizedUserId);
       existingById.connected = true;
       existingById.name = normalizedName;
       if (normalizedAvatar) {
         existingById.avatar = normalizedAvatar;
       }
       return clonePlayer(existingById);
+    }
+    const existingByUser = normalizedUserId ? this.findPlayerByOwner(normalizedUserId) : void 0;
+    if (existingByUser) {
+      existingByUser.connected = true;
+      existingByUser.name = normalizedName;
+      if (normalizedAvatar) {
+        existingByUser.avatar = normalizedAvatar;
+      }
+      return clonePlayer(existingByUser);
     }
     for (const player2 of this.players.values()) {
       if (player2.name === normalizedName) {
@@ -87,6 +99,9 @@ var InMemoryGameRoom = class {
     const playerAvatar = normalizedAvatar ?? PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
     const player = { id, name: normalizedName, avatar: playerAvatar, score: 0, connected: true };
     this.players.set(id, player);
+    if (normalizedUserId) {
+      this.playerOwners.set(id, normalizedUserId);
+    }
     if (!this.hostId) {
       this.hostId = id;
     }
@@ -547,6 +562,24 @@ var InMemoryGameRoom = class {
     }
     return player;
   }
+  requireSamePlayerOwner(playerId, userId) {
+    const owner = this.playerOwners.get(playerId);
+    if (owner && userId && owner !== userId) {
+      throw new Error("\u73A9\u5BB6\u8EAB\u4EFD\u5F02\u5E38\uFF1AplayerId \u4E0D\u5C5E\u4E8E\u5F53\u524D\u8D26\u53F7");
+    }
+    if (userId && !owner) {
+      this.playerOwners.set(playerId, userId);
+    }
+  }
+  findPlayerByOwner(userId) {
+    for (const [playerId, owner] of this.playerOwners.entries()) {
+      if (owner !== userId) {
+        continue;
+      }
+      return this.players.get(playerId);
+    }
+    return void 0;
+  }
   requireSettlement() {
     if (!this.settlement) {
       throw new Error("\u7ED3\u7B97\u72B6\u6001\u5F02\u5E38");
@@ -731,6 +764,10 @@ function normalizeAvatar(avatar) {
     return normalized;
   }
   throw new Error("\u5934\u50CF\u5730\u5740\u5F02\u5E38");
+}
+function normalizeUserId(userId) {
+  const normalized = userId?.trim();
+  return normalized || void 0;
 }
 
 // src/server/data/loadData.ts
@@ -1854,7 +1891,7 @@ function createMiniappPvpProtocol(options) {
         const code = createUniqueRoomCode(options.createRoomCode, options.rooms);
         const room = options.createRoom(code);
         options.rooms.set(code, room);
-        const player = room.join(user.nickname, void 0, user.avatarUrl);
+        const player = room.join(user.nickname, void 0, user.avatarUrl, user.id);
         clientStates.set(clientId, { roomCode: code, playerId: player.id });
         options.bindClientToRoom?.(clientId, code);
         const snapshot = room.snapshot();
@@ -1866,7 +1903,7 @@ function createMiniappPvpProtocol(options) {
         const user = await requireUser(payload.token);
         const roomCode = requireString(payload.roomCode, "\u623F\u95F4\u53F7\u4E0D\u80FD\u4E3A\u7A7A");
         const room = requireRoom2(roomCode);
-        const player = room.join(user.nickname, optionalString(payload.playerId), user.avatarUrl);
+        const player = room.join(user.nickname, optionalString(payload.playerId), user.avatarUrl, user.id);
         clientStates.set(clientId, { roomCode, playerId: player.id });
         options.bindClientToRoom?.(clientId, roomCode);
         const snapshot = room.snapshot();
@@ -2214,7 +2251,7 @@ io.on("connection", (socket) => {
         roundSeconds: ROUND_SECONDS
       });
       rooms.set(code, room);
-      const player = room.join(user.nickname, void 0, user.avatarUrl);
+      const player = room.join(user.nickname, void 0, user.avatarUrl, user.id);
       socket.join(socketRoom(code));
       socket.data.roomCode = code;
       socket.data.playerId = player.id;
@@ -2227,7 +2264,7 @@ io.on("connection", (socket) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
       const room = requireRoom(payload.roomCode);
-      const player = room.join(user.nickname, payload.playerId, user.avatarUrl);
+      const player = room.join(user.nickname, payload.playerId, user.avatarUrl, user.id);
       socket.join(socketRoom(payload.roomCode));
       socket.data.roomCode = payload.roomCode;
       socket.data.playerId = player.id;

@@ -47,7 +47,7 @@ export function createMiniappPvpProtocol(options: MiniappPvpProtocolOptions): Mi
         const code = createUniqueRoomCode(options.createRoomCode, options.rooms);
         const room = options.createRoom(code);
         options.rooms.set(code, room);
-        const player = room.join(user.nickname, undefined, user.avatarUrl);
+        const player = room.join(user.nickname, undefined, user.avatarUrl, user.id);
         clientStates.set(clientId, { roomCode: code, playerId: player.id });
         options.bindClientToRoom?.(clientId, code);
         const snapshot = room.snapshot();
@@ -59,7 +59,7 @@ export function createMiniappPvpProtocol(options: MiniappPvpProtocolOptions): Mi
         const user = await requireUser(payload.token);
         const roomCode = requireString(payload.roomCode, "房间号不能为空");
         const room = requireRoom(roomCode);
-        const player = room.join(user.nickname, optionalString(payload.playerId), user.avatarUrl);
+        const player = room.join(user.nickname, optionalString(payload.playerId), user.avatarUrl, user.id);
         clientStates.set(clientId, { roomCode, playerId: player.id });
         options.bindClientToRoom?.(clientId, roomCode);
         const snapshot = room.snapshot();

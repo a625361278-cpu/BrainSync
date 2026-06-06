@@ -94,7 +94,8 @@ type View = "home" | "pvp" | "pve";
 type PvpIntent = GameType | undefined;
 type ChallengePhase = "levels" | "countdown" | "playing" | "feedback";
 
-const PLAYER_ID_KEY = "brainsync.playerId";
+const LEGACY_PLAYER_ID_KEY = "brainsync.playerId";
+const PLAYER_ID_PREFIX = "brainsync.playerId.";
 const AUTH_TOKEN_KEY = "brainsync.authToken";
 
 export function App() {
@@ -103,12 +104,14 @@ export function App() {
   const [room, setRoom] = useState<RoomSnapshot | undefined>();
   const [activeRoomCode, setActiveRoomCodeState] = useState<string | undefined>();
   const activeRoomCodeRef = useRef<string | undefined>(undefined);
-  const [playerId, setPlayerId] = useState<string>(() => localStorage.getItem(PLAYER_ID_KEY) ?? "");
+  const [playerId, setPlayerId] = useState("");
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [token, setToken] = useState<string>(() => localStorage.getItem(AUTH_TOKEN_KEY) ?? "");
+  const tokenRef = useRef(token);
+  const playerIdRef = useRef(playerId);
   const [user, setUser] = useState<PublicUser | undefined>();
   const [profile, setProfile] = useState<PveProfile | undefined>();
   const [levels, setLevels] = useState<PveLevel[]>([]);
@@ -116,15 +119,27 @@ export function App() {
   const [pvpIntent, setPvpIntent] = useState<PvpIntent>();
 
   useEffect(() => {
+    localStorage.removeItem(LEGACY_PLAYER_ID_KEY);
     socket.on("roomSnapshot", (snapshot: RoomSnapshot) => {
       if (activeRoomCodeRef.current === snapshot.code) {
         setRoom(snapshot);
       }
     });
+    socket.on("connect", () => {
+      void rejoinActiveRoom();
+    });
     return () => {
       socket.disconnect();
     };
   }, [socket]);
+
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
+
+  useEffect(() => {
+    playerIdRef.current = playerId;
+  }, [playerId]);
 
   useEffect(() => {
     void loadLevels();
@@ -212,11 +227,13 @@ export function App() {
       return;
     }
     if (payload.playerId) {
-      localStorage.setItem(PLAYER_ID_KEY, payload.playerId);
       setPlayerId(payload.playerId);
     }
     if (payload.room) {
       setActiveRoomCode(payload.room.code);
+      if (payload.playerId) {
+        writeRoomPlayerId(payload.room.code, payload.playerId);
+      }
       setRoom(payload.room);
       setRoomCode(payload.room.code);
     }
@@ -240,6 +257,25 @@ export function App() {
     }
   }
 
+  async function rejoinActiveRoom() {
+    const roomCodeToRejoin = activeRoomCodeRef.current;
+    const authToken = tokenRef.current;
+    if (!roomCodeToRejoin || !authToken) {
+      return;
+    }
+    const storedPlayerId = (readRoomPlayerId(roomCodeToRejoin) ?? playerIdRef.current) || undefined;
+    try {
+      const ack = (await socket.timeout(8000).emitWithAck("joinRoom", {
+        token: authToken,
+        roomCode: roomCodeToRejoin,
+        playerId: storedPlayerId
+      })) as AckPayload;
+      applyAck(ack);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "房间重连失败");
+    }
+  }
+
   async function leaveRoom(roomCodeToLeave: string, playerIdToLeave: string) {
     setActiveRoomCode(undefined);
     setRoom(undefined);
@@ -255,6 +291,8 @@ export function App() {
       if (!ack.ok) {
         setError(ack.error ?? "离开房间失败");
       }
+      clearRoomPlayerId(roomCodeToLeave);
+      setPlayerId("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "离开房间失败");
     } finally {
@@ -305,7 +343,7 @@ export function App() {
         roomCode={roomCode}
         onRoomCodeChange={setRoomCode}
         onCreate={() => emitWithAck("createRoom", { token })}
-        onJoin={() => emitWithAck("joinRoom", { token, roomCode, playerId })}
+        onJoin={() => emitWithAck("joinRoom", { token, roomCode, playerId: readRoomPlayerId(roomCode) })}
         intent={pvpIntent}
         onHome={() => {
           setView("home");
@@ -1124,6 +1162,31 @@ async function apiRequest<T = unknown>(
     throw new Error(payload.error ?? `请求失败：${response.status}`);
   }
   return payload;
+}
+
+function readRoomPlayerId(roomCode: string): string | undefined {
+  const normalized = roomCode.trim();
+  if (!normalized) {
+    return undefined;
+  }
+  return localStorage.getItem(`${PLAYER_ID_PREFIX}${normalized}`) ?? undefined;
+}
+
+function writeRoomPlayerId(roomCode: string, playerId: string): void {
+  const normalized = roomCode.trim();
+  const normalizedPlayerId = playerId.trim();
+  if (!normalized || !normalizedPlayerId) {
+    return;
+  }
+  localStorage.setItem(`${PLAYER_ID_PREFIX}${normalized}`, normalizedPlayerId);
+}
+
+function clearRoomPlayerId(roomCode: string): void {
+  const normalized = roomCode.trim();
+  if (!normalized) {
+    return;
+  }
+  localStorage.removeItem(`${PLAYER_ID_PREFIX}${normalized}`);
 }
 
 function renderStars(stars: number): string {

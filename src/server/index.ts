@@ -310,7 +310,7 @@ io.on("connection", (socket) => {
         roundSeconds: ROUND_SECONDS
       });
       rooms.set(code, room);
-      const player = room.join(user.nickname, undefined, user.avatarUrl);
+      const player = room.join(user.nickname, undefined, user.avatarUrl, user.id);
       socket.join(socketRoom(code));
       socket.data.roomCode = code;
       socket.data.playerId = player.id;
@@ -324,7 +324,7 @@ io.on("connection", (socket) => {
     handleAck(ack, async () => {
       const user = await requireSocketUser(payload.token);
       const room = requireRoom(payload.roomCode);
-      const player = room.join(user.nickname, payload.playerId, user.avatarUrl);
+      const player = room.join(user.nickname, payload.playerId, user.avatarUrl, user.id);
       socket.join(socketRoom(payload.roomCode));
       socket.data.roomCode = payload.roomCode;
       socket.data.playerId = player.id;

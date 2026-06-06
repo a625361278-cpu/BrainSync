@@ -63,7 +63,7 @@ interface ActiveQuestion {
 }
 
 export interface GameRoom {
-  join(name: string, playerId?: string, avatar?: string): Player;
+  join(name: string, playerId?: string, avatar?: string, userId?: string): Player;
   leave(playerId: string): void;
   start(gameType: GameType, requesterId?: string): ChatMessage[];
   submitMessage(playerId: string, text: string): SubmitResult;
@@ -89,6 +89,7 @@ class InMemoryGameRoom implements GameRoom {
   private readonly songRounds: number;
   private readonly imageRounds: number;
   private readonly players = new Map<string, Player>();
+  private readonly playerOwners = new Map<string, string>();
   private readonly usedIdioms = new Set<string>();
   private readonly messages: ChatMessage[] = [];
   private status: RoomStatus = "waiting";
@@ -119,21 +120,33 @@ class InMemoryGameRoom implements GameRoom {
     this.imageRounds = options.imageRounds ?? 5;
   }
 
-  join(name: string, playerId?: string, avatar?: string): Player {
+  join(name: string, playerId?: string, avatar?: string, userId?: string): Player {
     const normalizedName = name.trim();
     if (!normalizedName) {
       throw new Error("昵称不能为空");
     }
     const normalizedAvatar = normalizeAvatar(avatar);
+    const normalizedUserId = normalizeUserId(userId);
 
     const existingById = playerId ? this.players.get(playerId) : undefined;
     if (existingById) {
+      this.requireSamePlayerOwner(existingById.id, normalizedUserId);
       existingById.connected = true;
       existingById.name = normalizedName;
       if (normalizedAvatar) {
         existingById.avatar = normalizedAvatar;
       }
       return clonePlayer(existingById);
+    }
+
+    const existingByUser = normalizedUserId ? this.findPlayerByOwner(normalizedUserId) : undefined;
+    if (existingByUser) {
+      existingByUser.connected = true;
+      existingByUser.name = normalizedName;
+      if (normalizedAvatar) {
+        existingByUser.avatar = normalizedAvatar;
+      }
+      return clonePlayer(existingByUser);
     }
 
     for (const player of this.players.values()) {
@@ -146,6 +159,9 @@ class InMemoryGameRoom implements GameRoom {
     const playerAvatar = normalizedAvatar ?? PLAYER_AVATARS[this.players.size % PLAYER_AVATARS.length];
     const player: Player = { id, name: normalizedName, avatar: playerAvatar, score: 0, connected: true };
     this.players.set(id, player);
+    if (normalizedUserId) {
+      this.playerOwners.set(id, normalizedUserId);
+    }
     if (!this.hostId) {
       this.hostId = id;
     }
@@ -650,6 +666,26 @@ class InMemoryGameRoom implements GameRoom {
     return player;
   }
 
+  private requireSamePlayerOwner(playerId: string, userId: string | undefined): void {
+    const owner = this.playerOwners.get(playerId);
+    if (owner && userId && owner !== userId) {
+      throw new Error("玩家身份异常：playerId 不属于当前账号");
+    }
+    if (userId && !owner) {
+      this.playerOwners.set(playerId, userId);
+    }
+  }
+
+  private findPlayerByOwner(userId: string): Player | undefined {
+    for (const [playerId, owner] of this.playerOwners.entries()) {
+      if (owner !== userId) {
+        continue;
+      }
+      return this.players.get(playerId);
+    }
+    return undefined;
+  }
+
   private requireSettlement(): SettlementRow[] {
     if (!this.settlement) {
       throw new Error("结算状态异常");
@@ -888,4 +924,9 @@ function normalizeAvatar(avatar: string | undefined): string | undefined {
     return normalized;
   }
   throw new Error("头像地址异常");
+}
+
+function normalizeUserId(userId: string | undefined): string | undefined {
+  const normalized = userId?.trim();
+  return normalized || undefined;
 }

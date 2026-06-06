@@ -61,7 +61,7 @@ import { computed, onBeforeUnmount, ref } from "vue";
 import { API_BASE_URL } from "../../services/config";
 import BsToast from "../../components/BsToast.vue";
 import { PvpSocket } from "../../services/pvpSocket";
-import { readPlayerId, readToken, writePlayerId } from "../../services/storage";
+import { clearLegacyPlayerId, clearPlayerId, readPlayerId, readToken, writePlayerId } from "../../services/storage";
 import type { ChatMessage, GameType, RoomSnapshot } from "../../services/types";
 
 const gameTypes: Array<{ value: GameType; label: string }> = [
@@ -73,7 +73,7 @@ const gameTypes: Array<{ value: GameType; label: string }> = [
 
 const socket = new PvpSocket();
 const room = ref<RoomSnapshot>();
-const playerId = ref(readPlayerId());
+const playerId = ref("");
 const text = ref("");
 const error = ref("");
 const busy = ref(false);
@@ -119,20 +119,25 @@ async function initialize() {
     const pages = getCurrentPages();
     const current = pages[pages.length - 1] as { options?: { mode?: string; roomCode?: string } };
     const mode = current.options?.mode ?? "create";
+    const targetRoomCode = current.options?.roomCode ?? "";
+    clearLegacyPlayerId();
     const token = readToken();
     await socket.connect((snapshot) => {
       room.value = snapshot;
     });
-    const ack = mode === "join" ? await socket.joinRoom(token, current.options?.roomCode ?? "", playerId.value) : await socket.createRoom(token);
+    const storedPlayerId = mode === "join" ? readPlayerId(targetRoomCode) : "";
+    const ack = mode === "join" ? await socket.joinRoom(token, targetRoomCode, storedPlayerId) : await socket.createRoom(token);
     if (!ack.ok) {
       throw new Error(ack.error || "房间连接失败");
     }
     if (ack.playerId) {
       playerId.value = ack.playerId;
-      writePlayerId(ack.playerId);
     }
     if (ack.room) {
       room.value = ack.room;
+      if (ack.playerId) {
+        writePlayerId(ack.room.code, ack.playerId);
+      }
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : "房间连接失败";
@@ -177,6 +182,7 @@ async function send() {
 async function leave() {
   if (room.value && playerId.value) {
     await socket.leaveRoom(room.value.code, playerId.value).catch(() => undefined);
+    clearPlayerId(room.value.code);
   }
   socket.close();
   destroyAudio();

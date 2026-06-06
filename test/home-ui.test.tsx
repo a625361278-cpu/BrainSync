@@ -325,6 +325,110 @@ describe("首页登录入口", () => {
     expect(document.body.textContent).toContain("BrainSync 欢乐房间");
     expect(document.body.textContent).not.toContain("房间 123456");
   });
+
+  it("加入新房间不会复用其他房间残留的playerId", async () => {
+    localStorage.setItem("brainsync.authToken", "token-1");
+    localStorage.setItem("brainsync.playerId", "p_old");
+    socketMock.emitWithAck.mockResolvedValue({ ok: false, error: "停止在发送参数检查" });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/pve/levels") {
+          return jsonResponse({ ok: true, levels: [] });
+        }
+        if (url === "/api/me") {
+          return jsonResponse({ ok: true, user: { id: "u1", username: "jim", nickname: "jim", title: "新声挑战者", createdAt: 1 } });
+        }
+        if (url === "/api/pve/profile") {
+          return jsonResponse({
+            ok: true,
+            profile: {
+              stamina: { current: 4, max: 5, lastRecoveredAt: 1, adRestoreCount: 0 },
+              highestUnlockedLevel: 1,
+              progress: []
+            }
+          });
+        }
+        return jsonResponse({ ok: false, error: "未知接口" }, 404);
+      })
+    );
+
+    await act(async () => {
+      createRoot(document.getElementById("root")!).render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".room-mode button")?.click();
+    });
+    await act(async () => {
+      setNativeInputValue(document.querySelector<HTMLInputElement>('input[placeholder="6位数字房间号"]')!, "654321");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".pvp-join-card button")?.click();
+    });
+
+    expect(socketMock.emitWithAck).toHaveBeenCalledWith("joinRoom", { token: "token-1", roomCode: "654321", playerId: undefined });
+  });
+
+  it("Socket.IO重连后会重新加入当前房间以恢复广播订阅", async () => {
+    localStorage.setItem("brainsync.authToken", "token-1");
+    const room = roomSnapshot("123456");
+    socketMock.emitWithAck.mockImplementation(async (event: string) => {
+      if (event === "createRoom") {
+        return { ok: true, room, playerId: "p1" };
+      }
+      if (event === "joinRoom") {
+        return { ok: true, room, playerId: "p1" };
+      }
+      return { ok: false, error: `未预期事件：${event}` };
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/pve/levels") {
+          return jsonResponse({ ok: true, levels: [] });
+        }
+        if (url === "/api/me") {
+          return jsonResponse({ ok: true, user: { id: "u1", username: "jim", nickname: "jim", title: "新声挑战者", createdAt: 1 } });
+        }
+        if (url === "/api/pve/profile") {
+          return jsonResponse({
+            ok: true,
+            profile: {
+              stamina: { current: 4, max: 5, lastRecoveredAt: 1, adRestoreCount: 0 },
+              highestUnlockedLevel: 1,
+              progress: []
+            }
+          });
+        }
+        return jsonResponse({ ok: false, error: "未知接口" }, 404);
+      })
+    );
+
+    await act(async () => {
+      createRoot(document.getElementById("root")!).render(<App />);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".room-mode button")?.click();
+    });
+    await act(async () => {
+      document.querySelector<HTMLButtonElement>(".pvp-create-card")?.click();
+    });
+    socketMock.emitWithAck.mockClear();
+
+    await act(async () => {
+      socketMock.handlers.connect?.(undefined);
+      await Promise.resolve();
+    });
+
+    expect(socketMock.emitWithAck).toHaveBeenCalledWith("joinRoom", { token: "token-1", roomCode: "123456", playerId: "p1" });
+  });
 });
 
 function jsonResponse(body: unknown, status = 200): Response {

@@ -90,7 +90,8 @@ describe("小程序音频代理", () => {
 describe("小程序PVP WebSocket协议", () => {
   it("用JSON envelope创建房间并广播roomSnapshot", async () => {
     const repo = createMemoryAccountRepository();
-    const auth = createAuthService({ repo, now: () => 1000, randomToken: () => "token-pvp" });
+    let tokenSeq = 0;
+    const auth = createAuthService({ repo, now: () => 1000, randomToken: () => `token-pvp-${++tokenSeq}` });
     const { token } = await auth.loginWithWechat({ openid: "openid-pvp", nickname: "房主", avatarUrl: "/user-avatars/host.jpg" });
     const rooms = new Map<string, ReturnType<typeof createGameRoom>>();
     const sent: Array<{ clientId: string; message: unknown }> = [];
@@ -124,6 +125,50 @@ describe("小程序PVP WebSocket协议", () => {
     expect((sent.find((item) => item.clientId === "room:123456")?.message as { payload: RoomSnapshot }).payload.players[0].name).toBe(
       "房主"
     );
+  });
+
+  it("不同微信账号不能复用同一个playerId覆盖房间玩家", async () => {
+    const repo = createMemoryAccountRepository();
+    let tokenSeq = 0;
+    const auth = createAuthService({ repo, now: () => 1000, randomToken: () => `token-pvp-reuse-${++tokenSeq}` });
+    const host = await auth.loginWithWechat({ openid: "openid-host", nickname: "房主", avatarUrl: "/user-avatars/host.jpg" });
+    const guest = await auth.loginWithWechat({ openid: "openid-guest", nickname: "客人", avatarUrl: "/user-avatars/guest.jpg" });
+    const rooms = new Map<string, ReturnType<typeof createGameRoom>>();
+    const sent: Array<{ clientId: string; message: unknown }> = [];
+    const protocol = createMiniappPvpProtocol({
+      auth,
+      createRoomCode: () => "123456",
+      createRoom: (code) =>
+        createGameRoom({
+          code,
+          idioms,
+          songs,
+          characters,
+          movies,
+          roundSeconds: 30,
+          random: () => 0
+        }),
+      rooms,
+      send: (clientId, message) => sent.push({ clientId, message }),
+      broadcast: (roomCode, snapshot) => sent.push({ clientId: `room:${roomCode}`, message: { type: "roomSnapshot", payload: snapshot } })
+    });
+
+    await protocol.handle("client-host", { type: "createRoom", requestId: "r1", payload: { token: host.token } });
+    const hostAck = sent.find((item) => item.clientId === "client-host" && (item.message as { requestId?: string }).requestId === "r1")
+      ?.message as { payload: { playerId: string } };
+    await protocol.handle("client-guest", {
+      type: "joinRoom",
+      requestId: "r2",
+      payload: { token: guest.token, roomCode: "123456", playerId: hostAck.payload.playerId }
+    });
+
+    expect(sent.find((item) => item.clientId === "client-guest")?.message).toMatchObject({
+      type: "ack",
+      requestId: "r2",
+      ok: false,
+      error: expect.stringContaining("玩家身份异常")
+    });
+    expect(rooms.get("123456")?.snapshot().players).toMatchObject([{ name: "房主" }]);
   });
 });
 
