@@ -414,11 +414,12 @@ onBeforeUnmount(() => {
   position: relative;
   width: fit-content;
   max-width: 100%;
-  min-height: 68rpx;
-  padding: 16rpx 20rpx;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 14rpx 20rpx;
   border-radius: 8rpx;
   color: #1f2329;
-  line-height: 1.45;
+  line-height: 36rpx;
   white-space: pre-wrap;
   word-break: break-word;
   background: #fff;
@@ -426,21 +427,61 @@ onBeforeUnmount(() => {
   font-size: 28rpx;
 }
 
+.bubble > text {
+  display: block;
+  line-height: 36rpx;
+}
+
+.other .bubble::before {
+  content: "";
+  position: absolute;
+  left: -10rpx;
+  top: 24rpx;
+  width: 0;
+  height: 0;
+  border-width: 10rpx 12rpx 10rpx 0;
+  border-style: solid;
+  border-color: transparent #fff transparent transparent;
+}
+
 .mine .bubble {
   background: #95ec69;
 }
 
+.mine .bubble::after {
+  content: "";
+  position: absolute;
+  right: -10rpx;
+  top: 24rpx;
+  width: 0;
+  height: 0;
+  border-width: 10rpx 0 10rpx 12rpx;
+  border-style: solid;
+  border-color: transparent transparent transparent #95ec69;
+}
+
 .system-row .bubble {
   min-height: 0;
+  padding: 8rpx 14rpx;
   color: #fff;
   border-radius: 8rpx;
   background: rgba(0, 0, 0, 0.22);
   font-size: 22rpx;
+  line-height: 30rpx;
+}
+
+.system-row .bubble::before,
+.system-row .bubble::after {
+  display: none;
 }
 
 .hint-bubble {
   color: #7a4b00;
   background: #fff7d6;
+}
+
+.hint-bubble::before {
+  border-color: transparent #fff7d6 transparent transparent;
 }
 
 .image-bubble {
@@ -472,16 +513,25 @@ onBeforeUnmount(() => {
   min-width: 320rpx;
   display: grid;
   gap: 12rpx;
+  margin: 0;
   padding: 0;
   color: #1f2329;
+  border: 0;
+  border-radius: 0;
+  line-height: 36rpx;
   background: transparent;
   text-align: left;
+}
+
+.audio-message::after {
+  border: 0;
 }
 
 .audio-wave {
   color: #087443;
   font-size: 24rpx;
   font-weight: 800;
+  line-height: 32rpx;
 }
 
 .settlement-panel {

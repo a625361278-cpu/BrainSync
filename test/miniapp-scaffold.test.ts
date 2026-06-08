@@ -67,6 +67,16 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain("settlement-panel");
   });
 
+  it("小程序PVP聊天气泡保持微信聊天壳的紧凑排版", () => {
+    const pvpRoom = readFileSync(resolve("apps/miniapp/src/pages/pvp/room.vue"), "utf8");
+
+    expect(pvpRoom).toContain(".other .bubble::before");
+    expect(pvpRoom).toContain(".mine .bubble::after");
+    expect(pvpRoom).toContain("line-height: 36rpx");
+    expect(pvpRoom).toContain("min-height: 0");
+    expect(pvpRoom).toContain(".audio-message::after");
+  });
+
   it("小程序PVP图片题完整适配显示且语音点击支持暂停和继续播放", () => {
     const pvpRoom = readFileSync(resolve("apps/miniapp/src/pages/pvp/room.vue"), "utf8");
 
