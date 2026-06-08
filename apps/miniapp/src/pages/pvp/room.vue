@@ -339,21 +339,32 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12rpx;
-  padding: 16rpx 24rpx;
+  gap: 10rpx;
+  padding: 14rpx 16rpx;
   border-bottom: 2rpx solid #d8d8d8;
   background: #eeeeee;
 }
 
 .game-toolbar button {
   flex: 0 0 auto;
-  min-height: 56rpx;
-  padding: 0 20rpx;
-  border-radius: 12rpx;
+  height: 52rpx;
+  min-height: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 16rpx;
+  border: 0;
+  border-radius: 10rpx;
   color: #fff;
   background: #07c160;
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 800;
+  line-height: 52rpx;
+}
+
+.game-toolbar button::after {
+  border: 0;
 }
 
 .game-toolbar button[disabled] {
@@ -362,7 +373,10 @@ onBeforeUnmount(() => {
 }
 
 .game-toolbar text {
-  margin-left: auto;
+  flex: 1 1 100%;
+  margin-left: 0;
+  text-align: right;
+  line-height: 28rpx;
 }
 
 .message-list {

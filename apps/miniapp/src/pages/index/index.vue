@@ -46,9 +46,10 @@
           <text class="mode-title">开房间对战</text>
           <text class="mode-desc">邀请好友，实时对战</text>
           <view class="room-game-tags">
-            <text>成语</text>
-            <text>猜歌</text>
-            <text class="more-tag">...</text>
+            <text>成语接龙</text>
+            <text>猜歌名</text>
+            <text>剪影猜人</text>
+            <text>剧照猜电影</text>
           </view>
           <view class="chat-vs">
             <text>•••</text>
@@ -547,14 +548,23 @@ function assetUrl(path: string): string {
 .stamina-badge {
   position: relative;
   z-index: 3;
-  width: fit-content;
+  width: auto;
+  max-width: 172rpx;
+  min-height: 36rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 86rpx;
-  padding: 12rpx 20rpx;
+  padding: 6rpx 12rpx;
   border-radius: 999rpx;
+  overflow: hidden;
   color: #f5fff7;
   background: rgba(0, 95, 64, 0.32);
   font-size: 22rpx;
   font-weight: 900;
+  line-height: 26rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .star-track {
@@ -594,18 +604,23 @@ function assetUrl(path: string): string {
   position: absolute;
   z-index: 3;
   left: 24rpx;
+  right: 24rpx;
   top: 156rpx;
   display: flex;
+  flex-wrap: wrap;
   gap: 8rpx;
 }
 
 .room-game-tags text {
-  padding: 6rpx 12rpx;
+  flex: 0 0 auto;
+  padding: 5rpx 10rpx;
   border-radius: 999rpx;
   color: #07754d;
   background: rgba(255, 255, 255, 0.82);
-  font-size: 22rpx;
+  font-size: 18rpx;
   font-weight: 900;
+  line-height: 24rpx;
+  white-space: nowrap;
 }
 
 .chat-vs {

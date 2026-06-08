@@ -77,6 +77,22 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain(".audio-message::after");
   });
 
+  it("小程序大厅和PVP玩法胶囊使用完整文案且文字居中", () => {
+    const home = readFileSync(resolve("apps/miniapp/src/pages/index/index.vue"), "utf8");
+    const pvpRoom = readFileSync(resolve("apps/miniapp/src/pages/pvp/room.vue"), "utf8");
+
+    expect(home).toContain("<text>成语接龙</text>");
+    expect(home).toContain("<text>猜歌名</text>");
+    expect(home).toContain("<text>剪影猜人</text>");
+    expect(home).toContain("<text>剧照猜电影</text>");
+    expect(home).not.toContain('class="more-tag"');
+    expect(home).toContain("max-width: 172rpx");
+    expect(home).toContain("white-space: nowrap");
+    expect(pvpRoom).toContain("height: 52rpx");
+    expect(pvpRoom).toContain("line-height: 52rpx");
+    expect(pvpRoom).toContain(".game-toolbar button::after");
+  });
+
   it("小程序PVP图片题完整适配显示且语音点击支持暂停和继续播放", () => {
     const pvpRoom = readFileSync(resolve("apps/miniapp/src/pages/pvp/room.vue"), "utf8");
 
