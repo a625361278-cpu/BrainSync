@@ -36,6 +36,7 @@ describe("微信小程序前端工程", () => {
     expect(home).toContain("home-title-stage");
     expect(home).toContain("bot-speech");
     expect(home).toContain("home-main-modes");
+    expect(home).not.toContain("主打玩法");
     expect(home).toContain("每日挑战");
     expect(home).toContain("筹备中");
     expect(home).toContain('type="nickname"');
@@ -81,7 +82,8 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain('class="avatar" :src="avatarUrl(message.avatar, true)" mode="aspectFit"');
     expect(pvpRoom).toContain(".message-list {\n  box-sizing: border-box;");
     expect(pvpRoom).toContain("width: 100%;\n  box-sizing: border-box;\n  display: flex;");
-    expect(pvpRoom).toContain(".message-row.mine {\n  justify-content: flex-end;\n  padding-right: 24rpx;");
+    expect(pvpRoom).toContain(".message-row.mine {\n  justify-content: flex-end;\n}");
+    expect(pvpRoom).not.toContain("padding-right: 24rpx");
     expect(pvpRoom).toContain("min-width: 0");
   });
 

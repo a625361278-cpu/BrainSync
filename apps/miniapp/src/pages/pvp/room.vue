@@ -425,7 +425,6 @@ onBackPress(() => {
 
 .message-row.mine {
   justify-content: flex-end;
-  padding-right: 24rpx;
 }
 
 .message-row.other {

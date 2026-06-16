@@ -33,7 +33,6 @@
 
       <view class="home-main-modes">
         <view class="big-mode guess-mode">
-          <text class="mode-ribbon">主打玩法</text>
           <text class="mode-title">猜歌挑战</text>
           <text class="mode-desc">听歌猜歌名，赢星星！</text>
           <view class="stamina-badge">⚡ {{ staminaText }}</view>
