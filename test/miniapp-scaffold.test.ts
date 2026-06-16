@@ -78,9 +78,10 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain("settlement-panel");
     expect(pvpRoom).not.toContain('@tap="leave">返回</button>');
     expect(pvpRoom).toContain("onBackPress");
-    expect(pvpRoom).toContain('mode="aspectFill"');
+    expect(pvpRoom).toContain('class="avatar" :src="avatarUrl(message.avatar, true)" mode="aspectFit"');
     expect(pvpRoom).toContain(".message-list {\n  box-sizing: border-box;");
     expect(pvpRoom).toContain("width: 100%;\n  box-sizing: border-box;\n  display: flex;");
+    expect(pvpRoom).toContain(".message-row.mine {\n  justify-content: flex-end;\n  padding-right: 24rpx;");
     expect(pvpRoom).toContain("min-width: 0");
   });
 

@@ -17,7 +17,7 @@
 
     <scroll-view class="message-list" scroll-y :scroll-into-view="lastMessageId">
       <view v-for="message in room?.messages ?? []" :id="`msg-${message.id}`" :key="message.id" :class="messageClass(message)">
-        <image v-if="message.sender !== 'system' && message.playerId !== playerId" class="avatar" :src="avatarUrl(message.avatar, false)" mode="aspectFill" />
+        <image v-if="message.sender !== 'system' && message.playerId !== playerId" class="avatar" :src="avatarUrl(message.avatar, false)" mode="aspectFit" />
         <view class="bubble-stack">
           <text v-if="message.sender === 'player' && message.playerId !== playerId" class="sender-name">{{ message.playerName }}</text>
           <view :class="bubbleClass(message)">
@@ -32,7 +32,7 @@
             <text v-else>{{ message.text }}</text>
           </view>
         </view>
-        <image v-if="message.sender !== 'system' && message.playerId === playerId" class="avatar" :src="avatarUrl(message.avatar, true)" mode="aspectFill" />
+        <image v-if="message.sender !== 'system' && message.playerId === playerId" class="avatar" :src="avatarUrl(message.avatar, true)" mode="aspectFit" />
       </view>
 
       <view v-if="room?.status === 'finished' && room.settlement" class="settlement-panel">
@@ -425,6 +425,7 @@ onBackPress(() => {
 
 .message-row.mine {
   justify-content: flex-end;
+  padding-right: 24rpx;
 }
 
 .message-row.other {
