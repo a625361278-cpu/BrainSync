@@ -79,6 +79,9 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).not.toContain('@tap="leave">返回</button>');
     expect(pvpRoom).toContain("onBackPress");
     expect(pvpRoom).toContain('mode="aspectFill"');
+    expect(pvpRoom).toContain(".message-list {\n  box-sizing: border-box;");
+    expect(pvpRoom).toContain("width: 100%;\n  box-sizing: border-box;\n  display: flex;");
+    expect(pvpRoom).toContain("min-width: 0");
   });
 
   it("小程序PVP聊天气泡保持微信聊天壳的紧凑排版", () => {

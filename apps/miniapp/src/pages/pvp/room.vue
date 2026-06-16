@@ -407,12 +407,16 @@ onBackPress(() => {
 }
 
 .message-list {
+  box-sizing: border-box;
+  width: 100%;
   min-height: 0;
   padding: 28rpx 20rpx 36rpx;
   scroll-behavior: smooth;
 }
 
 .message-row {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: flex-start;
   gap: 16rpx;
@@ -441,6 +445,7 @@ onBackPress(() => {
 }
 
 .bubble-stack {
+  min-width: 0;
   max-width: 68vw;
   display: grid;
   gap: 6rpx;
