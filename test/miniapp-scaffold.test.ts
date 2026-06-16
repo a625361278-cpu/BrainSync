@@ -68,10 +68,17 @@ describe("微信小程序前端工程", () => {
     expect(pvpIndex).toContain("pvp-entry-panel");
     expect(pvpIndex).toContain("pvp-create-card");
     expect(pvpIndex).toContain("pvp-join-card");
+    expect(pvpIndex).not.toContain("返回大厅");
+    expect(pvpIndex).not.toContain("像微信群一样抢答");
+    expect(pvpIndex).toContain("成语接龙、猜歌名、剪影猜人、剧照猜电影");
+    expect(pvpIndex).toContain("align-items: start");
     expect(pvpRoom).toContain("wechat-shell");
     expect(pvpRoom).toContain("game-toolbar");
     expect(pvpRoom).toContain("message-row");
     expect(pvpRoom).toContain("settlement-panel");
+    expect(pvpRoom).not.toContain('@tap="leave">返回</button>');
+    expect(pvpRoom).toContain("onBackPress");
+    expect(pvpRoom).toContain('mode="aspectFill"');
   });
 
   it("小程序PVP聊天气泡保持微信聊天壳的紧凑排版", () => {
@@ -107,6 +114,7 @@ describe("微信小程序前端工程", () => {
     expect(pvpRoom).toContain("width: 520rpx");
     expect(pvpRoom).toContain("currentAudioUrl");
     expect(pvpRoom).toContain("audioPlaying");
+    expect(pvpRoom).toContain("syncLatestAudioQuestion");
     expect(pvpRoom).toContain("audio.pause()");
     expect(pvpRoom).toContain("audio.play()");
   });

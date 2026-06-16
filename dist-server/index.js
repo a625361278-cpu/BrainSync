@@ -1402,7 +1402,7 @@ function level(levelNo, name, timeLimitSeconds, passScore, starScores, audioFilt
 // src/server/pve/pveService.ts
 import { randomBytes as randomBytes2 } from "node:crypto";
 var DEFAULT_MAX_STAMINA = 5;
-var DEFAULT_STAMINA_RECOVERY_MS = 30 * 60 * 1e3;
+var DEFAULT_STAMINA_RECOVERY_MS = 5 * 60 * 1e3;
 function createPveService(options) {
   validateOptions2(options);
   return new DefaultPveService(options);

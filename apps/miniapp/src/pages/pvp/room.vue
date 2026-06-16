@@ -1,7 +1,6 @@
 <template>
   <view class="wechat-shell">
     <view class="room-header">
-      <button class="ghost-button" @tap="leave">返回</button>
       <view class="room-title">
         <text class="room-name">房间 {{ room?.code ?? "-" }}</text>
         <text class="room-subtitle">{{ subtitle }}</text>
@@ -18,7 +17,7 @@
 
     <scroll-view class="message-list" scroll-y :scroll-into-view="lastMessageId">
       <view v-for="message in room?.messages ?? []" :id="`msg-${message.id}`" :key="message.id" :class="messageClass(message)">
-        <image v-if="message.sender !== 'system' && message.playerId !== playerId" class="avatar" :src="avatarUrl(message.avatar, false)" mode="aspectFit" />
+        <image v-if="message.sender !== 'system' && message.playerId !== playerId" class="avatar" :src="avatarUrl(message.avatar, false)" mode="aspectFill" />
         <view class="bubble-stack">
           <text v-if="message.sender === 'player' && message.playerId !== playerId" class="sender-name">{{ message.playerName }}</text>
           <view :class="bubbleClass(message)">
@@ -33,7 +32,7 @@
             <text v-else>{{ message.text }}</text>
           </view>
         </view>
-        <image v-if="message.sender !== 'system' && message.playerId === playerId" class="avatar" :src="avatarUrl(message.avatar, true)" mode="aspectFit" />
+        <image v-if="message.sender !== 'system' && message.playerId === playerId" class="avatar" :src="avatarUrl(message.avatar, true)" mode="aspectFill" />
       </view>
 
       <view v-if="room?.status === 'finished' && room.settlement" class="settlement-panel">
@@ -58,6 +57,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from "vue";
+import { onBackPress } from "@dcloudio/uni-app";
 import { API_BASE_URL } from "../../services/config";
 import BsToast from "../../components/BsToast.vue";
 import { PvpSocket } from "../../services/pvpSocket";
@@ -79,7 +79,9 @@ const error = ref("");
 const busy = ref(false);
 const currentAudioUrl = ref("");
 const audioPlaying = ref(false);
+const autoPlayedAudioMessageId = ref("");
 let audio: UniApp.InnerAudioContext | undefined;
+let leavingByNativeBack = false;
 
 const isHost = computed(() => Boolean(room.value && room.value.hostId === playerId.value));
 const onlineCount = computed(() => room.value?.players.filter((player) => player.connected).length ?? 0);
@@ -122,9 +124,7 @@ async function initialize() {
     const targetRoomCode = current.options?.roomCode ?? "";
     clearLegacyPlayerId();
     const token = readToken();
-    await socket.connect((snapshot) => {
-      room.value = snapshot;
-    });
+    await socket.connect(applyRoomSnapshot);
     const storedPlayerId = mode === "join" ? readPlayerId(targetRoomCode) : "";
     const ack = mode === "join" ? await socket.joinRoom(token, targetRoomCode, storedPlayerId) : await socket.createRoom(token);
     if (!ack.ok) {
@@ -134,7 +134,7 @@ async function initialize() {
       playerId.value = ack.playerId;
     }
     if (ack.room) {
-      room.value = ack.room;
+      applyRoomSnapshot(ack.room);
       if (ack.playerId) {
         writePlayerId(ack.room.code, ack.playerId);
       }
@@ -179,14 +179,18 @@ async function send() {
   }
 }
 
-async function leave() {
+async function exitRoom(): Promise<void> {
   if (room.value && playerId.value) {
     await socket.leaveRoom(room.value.code, playerId.value).catch(() => undefined);
     clearPlayerId(room.value.code);
   }
   socket.close();
   destroyAudio();
-  uni.navigateBack();
+}
+
+function applyRoomSnapshot(snapshot: RoomSnapshot): void {
+  room.value = snapshot;
+  syncLatestAudioQuestion(snapshot);
 }
 
 function playAudio(url: string) {
@@ -206,6 +210,18 @@ function playAudio(url: string) {
   audio.src = normalizedUrl;
   bindAudioEvents(audio, normalizedUrl);
   audio.play();
+}
+
+function syncLatestAudioQuestion(snapshot: RoomSnapshot): void {
+  const latestAudio = [...snapshot.messages].reverse().find((message) => message.kind === "audio" && message.audioUrl);
+  if (!latestAudio?.audioUrl) {
+    return;
+  }
+  if (latestAudio.id === autoPlayedAudioMessageId.value) {
+    return;
+  }
+  autoPlayedAudioMessageId.value = latestAudio.id;
+  playAudio(latestAudio.audioUrl);
 }
 
 function audioStatusText(url: string): string {
@@ -290,6 +306,17 @@ onBeforeUnmount(() => {
   socket.close();
   destroyAudio();
 });
+
+onBackPress(() => {
+  if (leavingByNativeBack) {
+    return false;
+  }
+  leavingByNativeBack = true;
+  void exitRoom().finally(() => {
+    uni.navigateBack();
+  });
+  return true;
+});
 </script>
 
 <style scoped>
@@ -303,7 +330,7 @@ onBeforeUnmount(() => {
 .room-header {
   min-height: 104rpx;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 20rpx;
   padding: 16rpx 28rpx;
@@ -408,6 +435,7 @@ onBeforeUnmount(() => {
   width: 72rpx;
   height: 72rpx;
   flex: 0 0 auto;
+  overflow: hidden;
   border-radius: 12rpx;
   background: #fff;
 }

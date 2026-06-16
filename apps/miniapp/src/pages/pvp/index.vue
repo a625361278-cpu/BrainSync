@@ -1,13 +1,11 @@
 <template>
   <view class="landing">
     <view class="login-panel pvp-entry-panel">
-      <button class="ghost-button back-home" @tap="goHome">返回大厅</button>
-
       <view class="brand-row">
         <image class="brand-avatar" :src="botAvatar" mode="aspectFit" />
         <view>
           <text class="brand-title">开房间对战</text>
-          <text class="brand-copy">像微信群一样抢答：成语接龙、猜歌名、剪影猜人、剧照猜电影。</text>
+          <text class="brand-copy">成语接龙、猜歌名、剪影猜人、剧照猜电影。</text>
         </view>
       </view>
 
@@ -75,17 +73,15 @@ function join() {
   uni.navigateTo({ url: `/pages/pvp/room?mode=join&roomCode=${encodeURIComponent(roomCode.value)}` });
 }
 
-function goHome() {
-  uni.navigateBack();
-}
 </script>
 
 <style scoped>
 .landing {
   min-height: 100vh;
   display: grid;
-  place-items: center;
-  padding: 32rpx;
+  align-items: start;
+  justify-items: center;
+  padding: 28rpx 22rpx 40rpx;
   background: #ededed;
 }
 
@@ -100,16 +96,11 @@ function goHome() {
   box-shadow: 0 16rpx 60rpx rgba(0, 0, 0, 0.08);
 }
 
-.back-home {
-  justify-self: start;
-  margin: -16rpx 0 4rpx;
-  font-size: 26rpx;
-}
-
 .brand-row {
   display: flex;
   gap: 26rpx;
   align-items: center;
+  min-width: 0;
 }
 
 .brand-avatar {
@@ -121,6 +112,7 @@ function goHome() {
 .brand-row view {
   display: grid;
   gap: 12rpx;
+  min-width: 0;
 }
 
 .brand-title {

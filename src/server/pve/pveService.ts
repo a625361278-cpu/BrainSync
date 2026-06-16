@@ -11,7 +11,7 @@ import type { PveLevelConfig } from "./levels";
 import type { SongEntry } from "../../shared/types";
 
 const DEFAULT_MAX_STAMINA = 5;
-const DEFAULT_STAMINA_RECOVERY_MS = 30 * 60 * 1000;
+const DEFAULT_STAMINA_RECOVERY_MS = 5 * 60 * 1000;
 
 export interface CreatePveServiceOptions {
   repo: AccountRepository;

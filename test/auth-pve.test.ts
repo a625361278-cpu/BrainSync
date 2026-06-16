@@ -138,6 +138,37 @@ describe("PVE猜歌挑战服务端规则", () => {
     await expect(pve.start(user.id, 1)).rejects.toThrow("体力不足");
   });
 
+  it("体力每5分钟恢复1点，直到恢复到上限", async () => {
+    let now = 1000;
+    const repo = createMemoryAccountRepository();
+    const auth = createAuthService({
+      repo,
+      now: () => now,
+      tokenTtlMs: 60_000,
+      randomToken: () => "token-stamina"
+    });
+    const pve = createPveService({
+      repo,
+      songs,
+      levels,
+      now: () => now,
+      random: () => 0
+    });
+    const { user } = await auth.register({ username: "stamina", password: "secret123", nickname: "体力玩家" });
+    await repo.upsertStamina({ userId: user.id, current: 1, max: 5, lastRecoveredAt: now, adRestoreCount: 0 });
+
+    now += 4 * 60 * 1000;
+    expect((await pve.profile(user.id)).stamina.current).toBe(1);
+
+    now += 60 * 1000;
+    expect((await pve.profile(user.id)).stamina.current).toBe(2);
+
+    now += 20 * 60 * 1000;
+    const recovered = await pve.profile(user.id);
+    expect(recovered.stamina.current).toBe(5);
+    expect(recovered.stamina.lastRecoveredAt).toBe(now);
+  });
+
   it("答案只认歌名和别名，不认歌手，分数由服务端时间计算", async () => {
     let now = 1000;
     const { auth, pve } = createServices({ now: () => now });
