@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import { errorMessage } from "./errors";
 import { readToken } from "./storage";
 
 export interface ApiResponse<T> {
@@ -16,7 +17,7 @@ export async function apiRequest<T>(path: string, options: { method?: "GET" | "P
       data: options.data,
       header: token ? { Authorization: `Bearer ${token}` } : undefined,
       success: resolve,
-      fail: reject
+      fail: (error) => reject(new Error(`网络请求失败：${errorMessage(error, "uni.request失败")}`))
     });
   });
   const body = response.data as ApiResponse<T>;

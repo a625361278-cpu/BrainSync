@@ -138,6 +138,7 @@ import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import BsToast from "../../components/BsToast.vue";
 import { API_BASE_URL } from "../../services/config";
+import { errorMessage } from "../../services/errors";
 import { loginWithWechat, readWechatAvatarImage } from "../../services/platform";
 import { loadPveHome } from "../../services/pve";
 import { apiRequest } from "../../services/request";
@@ -212,7 +213,7 @@ async function restoreSession() {
     user.value = undefined;
     profile.value = undefined;
     showLoginModal.value = true;
-    error.value = err instanceof Error ? err.message : "登录状态失效";
+    error.value = errorMessage(err, "登录状态失效");
   }
 }
 
@@ -222,7 +223,7 @@ async function refreshProfile() {
     profile.value = result.profile;
   } catch (err) {
     profile.value = undefined;
-    error.value = err instanceof Error ? err.message : "体力和进度加载失败";
+    error.value = errorMessage(err, "体力和进度加载失败");
   }
 }
 
@@ -249,7 +250,7 @@ async function login() {
     await refreshProfile();
     showLoginModal.value = false;
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "微信登录失败";
+    error.value = errorMessage(err, "微信登录失败");
   } finally {
     busy.value = false;
   }

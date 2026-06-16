@@ -1,4 +1,5 @@
 import { REWARD_AD_UNIT_ID } from "./config";
+import { errorMessage } from "./errors";
 import { apiRequest } from "./request";
 import { writeToken } from "./storage";
 import type { PublicUser, Stamina } from "./types";
@@ -36,7 +37,11 @@ export async function loginWithWechat(nickname: string, avatarImage: WechatAvata
     throw new Error("请先选择微信头像");
   }
   const loginResult = await new Promise<UniApp.LoginRes>((resolve, reject) => {
-    uni.login({ provider: "weixin", success: resolve, fail: reject });
+    uni.login({
+      provider: "weixin",
+      success: resolve,
+      fail: (error) => reject(new Error(`微信登录失败：${errorMessage(error, "uni.login失败")}`))
+    });
   });
   if (!loginResult.code) {
     throw new Error("微信登录失败：缺少code");
@@ -66,7 +71,7 @@ export async function readWechatAvatarImage(filePath: string): Promise<WechatAva
       filePath,
       encoding: "base64",
       success: (result) => resolve(result.data),
-      fail: reject
+      fail: (error) => reject(new Error(`微信头像读取失败：${errorMessage(error, "readFile失败")}`))
     });
   });
   return { data, mimeType: inferAvatarMimeType(filePath) };

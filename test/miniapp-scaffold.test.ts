@@ -14,11 +14,17 @@ describe("微信小程序前端工程", () => {
     const platform = readFileSync(resolve("apps/miniapp/src/services/platform.ts"), "utf8");
     const pvp = readFileSync(resolve("apps/miniapp/src/services/pvpSocket.ts"), "utf8");
     const pve = readFileSync(resolve("apps/miniapp/src/services/pve.ts"), "utf8");
+    const request = readFileSync(resolve("apps/miniapp/src/services/request.ts"), "utf8");
+    const errors = readFileSync(resolve("apps/miniapp/src/services/errors.ts"), "utf8");
 
     expect(platform).toContain("uni.login");
+    expect(platform).toContain("微信登录失败：");
+    expect(platform).toContain("微信头像读取失败：");
     expect(platform).toContain("createRewardedVideoAd");
     expect(pvp).toContain("uni.connectSocket");
     expect(pve).toContain("/api/audio/preview/");
+    expect(request).toContain("网络请求失败：");
+    expect(errors).toContain("errMsg");
   });
 
   it("小程序首页复刻网页版正式大厅结构并使用本地视觉资产", () => {
@@ -38,6 +44,7 @@ describe("微信小程序前端工程", () => {
     expect(home).toContain("头像已选择");
     expect(home).toContain("请先选择微信头像");
     expect(home).toContain("确认资料并登录");
+    expect(home).toContain('errorMessage(err, "微信登录失败")');
   });
 
   it("小程序PVE页面复刻网页版关卡和答题正式结构", () => {
