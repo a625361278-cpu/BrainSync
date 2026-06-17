@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import riddles from "../src/server/data/riddles.json";
 
 describe("PVP猜谜语题库质量", () => {
-  it("第一版通用谜语库不少于100条，且字段完整", () => {
-    expect(riddles.length).toBeGreaterThanOrEqual(100);
+  it("第一版通用谜语库不少于300条，且字段完整", () => {
+    expect(riddles.length).toBeGreaterThanOrEqual(300);
 
     const ids = new Set<string>();
     for (const riddle of riddles) {

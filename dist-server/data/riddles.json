@@ -3,7 +3,9 @@
     "id": "riddle-001",
     "question": "背着房子慢慢走，遇到危险缩里头。",
     "answer": "蜗牛",
-    "aliases": ["小蜗牛"],
+    "aliases": [
+      "小蜗牛"
+    ],
     "category": "动物",
     "difficulty": 1,
     "source": "project-curated"
@@ -21,7 +23,9 @@
     "id": "riddle-003",
     "question": "身穿黄黑小条衣，花间采蜜嗡嗡飞。",
     "answer": "蜜蜂",
-    "aliases": ["蜂"],
+    "aliases": [
+      "蜂"
+    ],
     "category": "动物",
     "difficulty": 1,
     "source": "project-curated"
@@ -48,7 +52,9 @@
     "id": "riddle-006",
     "question": "扁扁嘴巴嘎嘎叫，水里游泳岸上摇。",
     "answer": "鸭子",
-    "aliases": ["鸭"],
+    "aliases": [
+      "鸭"
+    ],
     "category": "动物",
     "difficulty": 1,
     "source": "project-curated"
@@ -75,7 +81,9 @@
     "id": "riddle-009",
     "question": "一节一节往上长，空心直立四季青。",
     "answer": "竹子",
-    "aliases": ["竹"],
+    "aliases": [
+      "竹"
+    ],
     "category": "植物",
     "difficulty": 1,
     "source": "project-curated"
@@ -84,7 +92,9 @@
     "id": "riddle-010",
     "question": "圆圆绿盘水中立，粉红花儿夏天开。",
     "answer": "荷花",
-    "aliases": ["莲花"],
+    "aliases": [
+      "莲花"
+    ],
     "category": "植物",
     "difficulty": 1,
     "source": "project-curated"
@@ -102,7 +112,9 @@
     "id": "riddle-012",
     "question": "四季常青针叶密，山坡庭院都能站。",
     "answer": "松树",
-    "aliases": ["松"],
+    "aliases": [
+      "松"
+    ],
     "category": "植物",
     "difficulty": 1,
     "source": "project-curated"
@@ -111,7 +123,9 @@
     "id": "riddle-013",
     "question": "天上开出白小花，落到手心马上化。",
     "answer": "雪花",
-    "aliases": ["雪"],
+    "aliases": [
+      "雪"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -129,7 +143,9 @@
     "id": "riddle-015",
     "question": "白天躲着不露脸，晚上圆缺挂天边。",
     "answer": "月亮",
-    "aliases": ["月"],
+    "aliases": [
+      "月"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -138,7 +154,9 @@
     "id": "riddle-016",
     "question": "小小眼睛满天撒，夜晚出来眨呀眨。",
     "answer": "星星",
-    "aliases": ["星"],
+    "aliases": [
+      "星"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -147,7 +165,9 @@
     "id": "riddle-017",
     "question": "没有脚却天上跑，变成雨水往下掉。",
     "answer": "云",
-    "aliases": ["云朵"],
+    "aliases": [
+      "云朵"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -156,7 +176,9 @@
     "id": "riddle-018",
     "question": "晴天睡在角落里，雨天开花护你行。",
     "answer": "雨伞",
-    "aliases": ["伞"],
+    "aliases": [
+      "伞"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -165,7 +187,9 @@
     "id": "riddle-019",
     "question": "成双成对跟脚走，出门回家都相守。",
     "answer": "鞋子",
-    "aliases": ["鞋"],
+    "aliases": [
+      "鞋"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -201,7 +225,9 @@
     "id": "riddle-023",
     "question": "三个兄弟绕圈跑，天天提醒几点到。",
     "answer": "时钟",
-    "aliases": ["钟"],
+    "aliases": [
+      "钟"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -210,7 +236,9 @@
     "id": "riddle-024",
     "question": "你笑它也笑，你哭它也哭，伸手却抓不住。",
     "answer": "镜子",
-    "aliases": ["镜"],
+    "aliases": [
+      "镜"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -255,7 +283,9 @@
     "id": "riddle-029",
     "question": "写错字时请它来，轻轻一擦错字没。",
     "answer": "橡皮",
-    "aliases": ["橡皮擦"],
+    "aliases": [
+      "橡皮擦"
+    ],
     "category": "学习用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -264,7 +294,9 @@
     "id": "riddle-030",
     "question": "身体直直有刻度，量长量短最清楚。",
     "answer": "尺子",
-    "aliases": ["尺"],
+    "aliases": [
+      "尺"
+    ],
     "category": "学习用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -291,7 +323,9 @@
     "id": "riddle-033",
     "question": "有屏有键会计算，学习办公都能帮。",
     "answer": "电脑",
-    "aliases": ["计算机"],
+    "aliases": [
+      "计算机"
+    ],
     "category": "电器",
     "difficulty": 1,
     "source": "project-curated"
@@ -309,7 +343,9 @@
     "id": "riddle-035",
     "question": "天黑按它亮堂堂，不烧蜡烛也发光。",
     "answer": "电灯",
-    "aliases": ["灯"],
+    "aliases": [
+      "灯"
+    ],
     "category": "电器",
     "difficulty": 1,
     "source": "project-curated"
@@ -336,7 +372,9 @@
     "id": "riddle-038",
     "question": "三片叶子不会绿，一转起来送凉风。",
     "answer": "风扇",
-    "aliases": ["电风扇"],
+    "aliases": [
+      "电风扇"
+    ],
     "category": "电器",
     "difficulty": 1,
     "source": "project-curated"
@@ -345,7 +383,9 @@
     "id": "riddle-039",
     "question": "方方盒子会说话，人在里面演天下。",
     "answer": "电视",
-    "aliases": ["电视机"],
+    "aliases": [
+      "电视机"
+    ],
     "category": "电器",
     "difficulty": 1,
     "source": "project-curated"
@@ -381,7 +421,9 @@
     "id": "riddle-043",
     "question": "没有脚来水上走，肚子能装人和货。",
     "answer": "船",
-    "aliases": ["轮船"],
+    "aliases": [
+      "轮船"
+    ],
     "category": "交通",
     "difficulty": 1,
     "source": "project-curated"
@@ -390,7 +432,9 @@
     "id": "riddle-044",
     "question": "两个轮子一条梁，脚一蹬就向前跑。",
     "answer": "自行车",
-    "aliases": ["单车"],
+    "aliases": [
+      "单车"
+    ],
     "category": "交通",
     "difficulty": 1,
     "source": "project-curated"
@@ -399,7 +443,9 @@
     "id": "riddle-045",
     "question": "四个轮子路上跑，载人载物都能到。",
     "answer": "汽车",
-    "aliases": ["车"],
+    "aliases": [
+      "车"
+    ],
     "category": "交通",
     "difficulty": 1,
     "source": "project-curated"
@@ -408,7 +454,9 @@
     "id": "riddle-046",
     "question": "三只眼睛路口站，红停绿行黄灯等。",
     "answer": "红绿灯",
-    "aliases": ["交通灯"],
+    "aliases": [
+      "交通灯"
+    ],
     "category": "交通",
     "difficulty": 1,
     "source": "project-curated"
@@ -417,7 +465,9 @@
     "id": "riddle-047",
     "question": "黑白条纹铺路上，行人过街走它身。",
     "answer": "斑马线",
-    "aliases": ["人行横道"],
+    "aliases": [
+      "人行横道"
+    ],
     "category": "交通",
     "difficulty": 1,
     "source": "project-curated"
@@ -426,7 +476,9 @@
     "id": "riddle-048",
     "question": "横跨河面一条路，车人从上过水流。",
     "answer": "桥",
-    "aliases": ["桥梁"],
+    "aliases": [
+      "桥梁"
+    ],
     "category": "建筑",
     "difficulty": 1,
     "source": "project-curated"
@@ -453,7 +505,9 @@
     "id": "riddle-051",
     "question": "细细长长碗里躺，筷子一夹往嘴忙。",
     "answer": "面条",
-    "aliases": ["面"],
+    "aliases": [
+      "面"
+    ],
     "category": "食物",
     "difficulty": 1,
     "source": "project-curated"
@@ -471,7 +525,9 @@
     "id": "riddle-053",
     "question": "绿衣包着糯米香，端午时节最常见。",
     "answer": "粽子",
-    "aliases": ["粽"],
+    "aliases": [
+      "粽"
+    ],
     "category": "食物",
     "difficulty": 1,
     "source": "project-curated"
@@ -480,7 +536,9 @@
     "id": "riddle-054",
     "question": "白白房子黄心藏，轻轻一敲壳就开。",
     "answer": "鸡蛋",
-    "aliases": ["蛋"],
+    "aliases": [
+      "蛋"
+    ],
     "category": "食物",
     "difficulty": 1,
     "source": "project-curated"
@@ -507,7 +565,9 @@
     "id": "riddle-057",
     "question": "土里住着小兄弟，脱了红衣见白肉。",
     "answer": "花生",
-    "aliases": ["花生米"],
+    "aliases": [
+      "花生米"
+    ],
     "category": "食物",
     "difficulty": 1,
     "source": "project-curated"
@@ -516,7 +576,9 @@
     "id": "riddle-058",
     "question": "一排金牙穿绿衣，煮熟烤熟都香甜。",
     "answer": "玉米",
-    "aliases": ["苞米"],
+    "aliases": [
+      "苞米"
+    ],
     "category": "食物",
     "difficulty": 1,
     "source": "project-curated"
@@ -534,7 +596,9 @@
     "id": "riddle-060",
     "question": "肚子圆圆嘴巴尖，倒出热水泡清香。",
     "answer": "茶壶",
-    "aliases": ["壶"],
+    "aliases": [
+      "壶"
+    ],
     "category": "餐具",
     "difficulty": 1,
     "source": "project-curated"
@@ -543,7 +607,9 @@
     "id": "riddle-061",
     "question": "圆圆小口大肚皮，饭菜汤水装肚里。",
     "answer": "碗",
-    "aliases": ["饭碗"],
+    "aliases": [
+      "饭碗"
+    ],
     "category": "餐具",
     "difficulty": 1,
     "source": "project-curated"
@@ -552,7 +618,9 @@
     "id": "riddle-062",
     "question": "两根兄弟一样长，夹菜吃饭最帮忙。",
     "answer": "筷子",
-    "aliases": ["筷"],
+    "aliases": [
+      "筷"
+    ],
     "category": "餐具",
     "difficulty": 1,
     "source": "project-curated"
@@ -561,7 +629,9 @@
     "id": "riddle-063",
     "question": "小小铲子没土铲，盛汤盛饭送嘴边。",
     "answer": "勺子",
-    "aliases": ["汤匙"],
+    "aliases": [
+      "汤匙"
+    ],
     "category": "餐具",
     "difficulty": 1,
     "source": "project-curated"
@@ -570,7 +640,9 @@
     "id": "riddle-064",
     "question": "有肚没腿有把手，喝水喝茶靠它走。",
     "answer": "杯子",
-    "aliases": ["水杯"],
+    "aliases": [
+      "水杯"
+    ],
     "category": "餐具",
     "difficulty": 1,
     "source": "project-curated"
@@ -579,7 +651,9 @@
     "id": "riddle-065",
     "question": "站在墙里能开关，进进出出都过它。",
     "answer": "门",
-    "aliases": ["房门"],
+    "aliases": [
+      "房门"
+    ],
     "category": "家居",
     "difficulty": 1,
     "source": "project-curated"
@@ -588,7 +662,9 @@
     "id": "riddle-066",
     "question": "嵌在墙上透光亮，打开还能透清风。",
     "answer": "窗户",
-    "aliases": ["窗"],
+    "aliases": [
+      "窗"
+    ],
     "category": "家居",
     "difficulty": 1,
     "source": "project-curated"
@@ -597,7 +673,9 @@
     "id": "riddle-067",
     "question": "软软方方床头放，晚上枕着入梦乡。",
     "answer": "枕头",
-    "aliases": ["枕"],
+    "aliases": [
+      "枕"
+    ],
     "category": "家居",
     "difficulty": 1,
     "source": "project-curated"
@@ -606,7 +684,9 @@
     "id": "riddle-068",
     "question": "白天叠起床边睡，夜里盖身暖洋洋。",
     "answer": "被子",
-    "aliases": ["棉被"],
+    "aliases": [
+      "棉被"
+    ],
     "category": "家居",
     "difficulty": 1,
     "source": "project-curated"
@@ -615,7 +695,9 @@
     "id": "riddle-069",
     "question": "四条腿儿一块板，吃饭写字都靠它。",
     "answer": "桌子",
-    "aliases": ["桌"],
+    "aliases": [
+      "桌"
+    ],
     "category": "家居",
     "difficulty": 1,
     "source": "project-curated"
@@ -624,7 +706,9 @@
     "id": "riddle-070",
     "question": "四条腿儿一个背，累了坐下歇一歇。",
     "answer": "椅子",
-    "aliases": ["椅"],
+    "aliases": [
+      "椅"
+    ],
     "category": "家居",
     "difficulty": 1,
     "source": "project-curated"
@@ -633,7 +717,9 @@
     "id": "riddle-071",
     "question": "东边升起西边落，照亮大地送温暖。",
     "answer": "太阳",
-    "aliases": ["日"],
+    "aliases": [
+      "日"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -642,7 +728,9 @@
     "id": "riddle-072",
     "question": "弯弯长带地上流，日夜不停奔向海。",
     "answer": "河流",
-    "aliases": ["河"],
+    "aliases": [
+      "河"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -651,7 +739,9 @@
     "id": "riddle-073",
     "question": "水面无边浪花白，船只鱼儿都住来。",
     "answer": "大海",
-    "aliases": ["海"],
+    "aliases": [
+      "海"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -660,7 +750,9 @@
     "id": "riddle-074",
     "question": "高高站在大地上，头顶云朵脚连土。",
     "answer": "山",
-    "aliases": ["高山"],
+    "aliases": [
+      "高山"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -678,7 +770,9 @@
     "id": "riddle-076",
     "question": "树木成群连成海，小鸟野兽住里边。",
     "answer": "森林",
-    "aliases": ["树林"],
+    "aliases": [
+      "树林"
+    ],
     "category": "自然",
     "difficulty": 1,
     "source": "project-curated"
@@ -687,7 +781,9 @@
     "id": "riddle-077",
     "question": "白白一排嘴里站，帮你咬碎饭和菜。",
     "answer": "牙齿",
-    "aliases": ["牙"],
+    "aliases": [
+      "牙"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -696,7 +792,9 @@
     "id": "riddle-078",
     "question": "两道弯弯小黑桥，长在眼睛正上方。",
     "answer": "眉毛",
-    "aliases": ["眉"],
+    "aliases": [
+      "眉"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -705,7 +803,9 @@
     "id": "riddle-079",
     "question": "两颗明珠脸上挂，能看远近和方向。",
     "answer": "眼睛",
-    "aliases": ["眼"],
+    "aliases": [
+      "眼"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -714,7 +814,9 @@
     "id": "riddle-080",
     "question": "左右两扇小门开，专听声音不说话。",
     "answer": "耳朵",
-    "aliases": ["耳"],
+    "aliases": [
+      "耳"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -723,7 +825,9 @@
     "id": "riddle-081",
     "question": "脸上小山两个洞，闻香闻臭它最灵。",
     "answer": "鼻子",
-    "aliases": ["鼻"],
+    "aliases": [
+      "鼻"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -732,7 +836,9 @@
     "id": "riddle-082",
     "question": "千万细线头上长，剪短以后还会长。",
     "answer": "头发",
-    "aliases": ["发"],
+    "aliases": [
+      "发"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -741,7 +847,9 @@
     "id": "riddle-083",
     "question": "十个兄弟分两边，写字拿物都能干。",
     "answer": "手指",
-    "aliases": ["指头"],
+    "aliases": [
+      "指头"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -750,7 +858,9 @@
     "id": "riddle-084",
     "question": "藏在胸中不停跳，一停下来人不好。",
     "answer": "心脏",
-    "aliases": ["心"],
+    "aliases": [
+      "心"
+    ],
     "category": "身体",
     "difficulty": 1,
     "source": "project-curated"
@@ -759,7 +869,9 @@
     "id": "riddle-085",
     "question": "你走它也走，你停它也停，光线一暗它就没。",
     "answer": "影子",
-    "aliases": ["影"],
+    "aliases": [
+      "影"
+    ],
     "category": "自然现象",
     "difficulty": 1,
     "source": "project-curated"
@@ -804,7 +916,9 @@
     "id": "riddle-090",
     "question": "一页一页记日子，翻到今天知星期。",
     "answer": "日历",
-    "aliases": ["挂历"],
+    "aliases": [
+      "挂历"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -813,7 +927,9 @@
     "id": "riddle-091",
     "question": "一按按钮咔嚓响，把人景物留下来。",
     "answer": "照相机",
-    "aliases": ["相机"],
+    "aliases": [
+      "相机"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -822,7 +938,9 @@
     "id": "riddle-092",
     "question": "长柄下面许多毛，专把灰尘赶一旁。",
     "answer": "扫帚",
-    "aliases": ["扫把"],
+    "aliases": [
+      "扫把"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -840,7 +958,9 @@
     "id": "riddle-094",
     "question": "圆圆肚子有提手，专门帮人装清水。",
     "answer": "水桶",
-    "aliases": ["桶"],
+    "aliases": [
+      "桶"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -849,7 +969,9 @@
     "id": "riddle-095",
     "question": "遇水身上泡泡多，洗手洗衣都用它。",
     "answer": "肥皂",
-    "aliases": ["香皂"],
+    "aliases": [
+      "香皂"
+    ],
     "category": "日用品",
     "difficulty": 1,
     "source": "project-curated"
@@ -903,7 +1025,9 @@
     "id": "riddle-101",
     "question": "圆肚皮来两头紧，一敲咚咚声音响。",
     "answer": "鼓",
-    "aliases": ["小鼓"],
+    "aliases": [
+      "小鼓"
+    ],
     "category": "乐器",
     "difficulty": 1,
     "source": "project-curated"
@@ -914,6 +1038,2459 @@
     "answer": "口琴",
     "aliases": [],
     "category": "乐器",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-103",
+    "question": "身披绿衣水中站，跳来跳去捉害虫。",
+    "answer": "青蛙",
+    "aliases": [
+      "蛙"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-104",
+    "question": "白天草里蹦蹦跳，长耳红眼爱吃草。",
+    "answer": "兔子",
+    "aliases": [
+      "兔"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-105",
+    "question": "头戴红冠身穿彩，清早高声叫人起。",
+    "answer": "公鸡",
+    "aliases": [
+      "鸡"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-106",
+    "question": "浑身雪白叫咩咩，身上毛儿能织衣。",
+    "answer": "绵羊",
+    "aliases": [
+      "羊"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-107",
+    "question": "黑白花衣草地走，产出牛奶给人喝。",
+    "answer": "奶牛",
+    "aliases": [
+      "牛"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-108",
+    "question": "四蹄飞奔尾巴长，古时出门靠它忙。",
+    "answer": "马",
+    "aliases": [
+      "骏马"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-109",
+    "question": "大耳长鼻身体胖，走起路来地也晃。",
+    "answer": "大象",
+    "aliases": [
+      "象"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-110",
+    "question": "脖子长长个子高，树上嫩叶它能咬。",
+    "answer": "长颈鹿",
+    "aliases": [
+      "鹿颈长"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-111",
+    "question": "身披条纹像王者，森林深处吼声响。",
+    "answer": "老虎",
+    "aliases": [
+      "虎"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-112",
+    "question": "头上生角跑得快，草原林间爱成群。",
+    "answer": "鹿",
+    "aliases": [
+      "梅花鹿"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-113",
+    "question": "黑眼圈儿圆脸庞，爱吃竹子慢慢晃。",
+    "answer": "熊猫",
+    "aliases": [
+      "大熊猫"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-114",
+    "question": "尾巴像把大扇子，开屏时候真漂亮。",
+    "answer": "孔雀",
+    "aliases": [
+      "孔雀鸟"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-115",
+    "question": "嘴巴弯弯会学话，彩色羽毛站枝头。",
+    "answer": "鹦鹉",
+    "aliases": [
+      "鹦哥"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-116",
+    "question": "海里喷泉背上冒，个头巨大会唱歌。",
+    "answer": "鲸鱼",
+    "aliases": [
+      "鲸"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-117",
+    "question": "八条长腿水中游，喷出墨汁快快溜。",
+    "answer": "章鱼",
+    "aliases": [
+      "八爪鱼"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-118",
+    "question": "横行霸道披硬甲，两只钳子举胸前。",
+    "answer": "螃蟹",
+    "aliases": [
+      "蟹"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-119",
+    "question": "背着硬壳慢慢爬，长寿故事常有它。",
+    "answer": "乌龟",
+    "aliases": [
+      "龟"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-120",
+    "question": "没有脚来弯弯走，吐着信子草中游。",
+    "answer": "蛇",
+    "aliases": [
+      "小蛇"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-121",
+    "question": "夏夜树上吱吱唱，脱下外衣挂枝旁。",
+    "answer": "知了",
+    "aliases": [
+      "蝉"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-122",
+    "question": "圆圆小点背红壳，黑点衣裳爬叶上。",
+    "answer": "瓢虫",
+    "aliases": [
+      "七星瓢虫"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-123",
+    "question": "春天飞来屋檐下，剪刀尾巴筑泥家。",
+    "answer": "燕子",
+    "aliases": [
+      "燕"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-124",
+    "question": "一身白衣红头顶，单脚站水像仙人。",
+    "answer": "丹顶鹤",
+    "aliases": [
+      "鹤"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-125",
+    "question": "海边慢走小脚多，背着贝壳横着行。",
+    "answer": "寄居蟹",
+    "aliases": [
+      "寄居蟹"
+    ],
+    "category": "动物",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-126",
+    "question": "圆圆刺球地上跑，遇到危险缩一团。",
+    "answer": "刺猬",
+    "aliases": [
+      "刺猬"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-127",
+    "question": "毛茸茸来尾巴蓬，树上跳跃爱坚果。",
+    "answer": "松鼠",
+    "aliases": [
+      "松鼠"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-128",
+    "question": "黑夜出门眼睛亮，捉鼠本领特别强。",
+    "answer": "猫头鹰",
+    "aliases": [
+      "夜猫子"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-129",
+    "question": "身披硬甲像小车，遇险缩成一个球。",
+    "answer": "穿山甲",
+    "aliases": [
+      "穿山甲"
+    ],
+    "category": "动物",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-130",
+    "question": "水里吹泡游来游，身上鳞片闪闪亮。",
+    "answer": "金鱼",
+    "aliases": [
+      "鱼"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-131",
+    "question": "小小战士穿硬甲，举着大钳往前爬。",
+    "answer": "龙虾",
+    "aliases": [
+      "小龙虾"
+    ],
+    "category": "动物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-132",
+    "question": "圆圆身体满身刺，海底慢走像花球。",
+    "answer": "海胆",
+    "aliases": [
+      "海胆"
+    ],
+    "category": "动物",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-133",
+    "question": "红衣绿帽水中漂，夏天吃来味道甜。",
+    "answer": "西瓜皮",
+    "aliases": [
+      "瓜皮"
+    ],
+    "category": "食物",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-134",
+    "question": "红脸蛋儿挂树上，咬一口来脆又甜。",
+    "answer": "苹果",
+    "aliases": [
+      "苹果"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-135",
+    "question": "黄皮白瓤酸又甜，一瓣一瓣像月牙。",
+    "answer": "橘子",
+    "aliases": [
+      "桔子"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-136",
+    "question": "紫色珍珠一串串，酸甜多汁挂藤上。",
+    "answer": "葡萄",
+    "aliases": [
+      "葡萄"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-137",
+    "question": "红红小灯树上挂，酸甜可口夏天尝。",
+    "answer": "樱桃",
+    "aliases": [
+      "车厘子"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-138",
+    "question": "外面毛毛心里绿，中间黑籽排成圈。",
+    "answer": "猕猴桃",
+    "aliases": [
+      "奇异果"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-139",
+    "question": "头上绿叶身上红，酸酸甜甜人人夸。",
+    "answer": "草莓",
+    "aliases": [
+      "草莓"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-140",
+    "question": "黄黄外衣满身眼，切开香甜汁水多。",
+    "answer": "菠萝",
+    "aliases": [
+      "凤梨"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-141",
+    "question": "红红圆圆穿绿帽，做汤炒菜都常见。",
+    "answer": "番茄",
+    "aliases": [
+      "西红柿"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-142",
+    "question": "白白身子绿头发，冬天火锅常见它。",
+    "answer": "萝卜",
+    "aliases": [
+      "白萝卜"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-143",
+    "question": "一层一层紫白衣，切开常让眼泪滴。",
+    "answer": "洋葱",
+    "aliases": [
+      "葱头"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-144",
+    "question": "弯弯绿船水上漂，炒熟清香脆又爽。",
+    "answer": "黄瓜",
+    "aliases": [
+      "青瓜"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-145",
+    "question": "绿叶包着白小树，营养丰富炒着香。",
+    "answer": "花菜",
+    "aliases": [
+      "菜花"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-146",
+    "question": "白白胖胖像小伞，汤里菜里都爱藏。",
+    "answer": "蘑菇",
+    "aliases": [
+      "菌菇"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-147",
+    "question": "圆圆白脸芝麻点，蒸熟咬开有馅香。",
+    "answer": "包子",
+    "aliases": [
+      "包"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-148",
+    "question": "薄薄圆饼卷菜肉，咬上一口满嘴香。",
+    "answer": "春卷",
+    "aliases": [
+      "春卷"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-149",
+    "question": "冰冷甜筒手中拿，夏天舔它最开心。",
+    "answer": "冰淇淋",
+    "aliases": [
+      "雪糕"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-150",
+    "question": "方方薄片香又甜，生日聚会常分享。",
+    "answer": "蛋糕",
+    "aliases": [
+      "糕点"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-151",
+    "question": "一颗颗来白又圆，锅里煮熟软又甜。",
+    "answer": "汤圆",
+    "aliases": [
+      "元宵"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-152",
+    "question": "白白方块水里游，黄豆做成软嫩香。",
+    "answer": "豆腐",
+    "aliases": [
+      "豆腐"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-153",
+    "question": "细白颗粒锅里煮，天天吃它长力气。",
+    "answer": "米饭",
+    "aliases": [
+      "饭"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-154",
+    "question": "扁扁圆圆锅里烙，香香软软可当饭。",
+    "answer": "烧饼",
+    "aliases": [
+      "饼"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-155",
+    "question": "红汤锅里咕嘟响，大家围坐涮菜忙。",
+    "answer": "火锅",
+    "aliases": [
+      "火锅"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-156",
+    "question": "黑黑一片味道咸，包饭卷寿司都用它。",
+    "answer": "海苔",
+    "aliases": [
+      "紫菜"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-157",
+    "question": "白衣外面裹黄衣，剥开层层味道香。",
+    "answer": "玉米棒",
+    "aliases": [
+      "玉米"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-158",
+    "question": "小小绿豆圆又圆，煮粥做汤能消暑。",
+    "answer": "绿豆",
+    "aliases": [
+      "绿豆"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-159",
+    "question": "红红小豆甜味足，做馅做粥都常用。",
+    "answer": "红豆",
+    "aliases": [
+      "赤豆"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-160",
+    "question": "金黄小船油锅游，外脆里软味道甜。",
+    "answer": "油条",
+    "aliases": [
+      "油条"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-161",
+    "question": "一块方田格子多，黑白子儿里面坐。",
+    "answer": "棋盘",
+    "aliases": [
+      "棋盘"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-162",
+    "question": "小小圆片两面花，跳到格中排队站。",
+    "answer": "棋子",
+    "aliases": [
+      "棋子"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-163",
+    "question": "彩色小块拼成图，缺一不可才完整。",
+    "answer": "拼图",
+    "aliases": [
+      "拼图"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-164",
+    "question": "肚里有气圆又轻，拍拍打打会弹跳。",
+    "answer": "皮球",
+    "aliases": [
+      "球"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-165",
+    "question": "四四方方会变色，转来转去拼六面。",
+    "answer": "魔方",
+    "aliases": [
+      "魔方"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-166",
+    "question": "细线牵着小木人，台上跳舞像真人。",
+    "answer": "木偶",
+    "aliases": [
+      "木偶"
+    ],
+    "category": "玩具",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-167",
+    "question": "身子小小会转圈，绳子一拉地上旋。",
+    "answer": "陀螺",
+    "aliases": [
+      "陀螺"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-168",
+    "question": "吹进空气圆又胖，手一松来飞上天。",
+    "answer": "气球",
+    "aliases": [
+      "气球"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-169",
+    "question": "小小方块能搭楼，拼成城堡也能拆。",
+    "answer": "积木",
+    "aliases": [
+      "积木"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-170",
+    "question": "穿着布衣不会动，抱在怀里陪你睡。",
+    "answer": "布娃娃",
+    "aliases": [
+      "娃娃"
+    ],
+    "category": "玩具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-171",
+    "question": "一根长线挂小饵，水边静坐等鱼来。",
+    "answer": "鱼竿",
+    "aliases": [
+      "钓竿"
+    ],
+    "category": "用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-172",
+    "question": "一张薄纸能吸水，擦手擦嘴都方便。",
+    "answer": "纸巾",
+    "aliases": [
+      "餐巾纸"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-173",
+    "question": "肚里装着许多页，翻开以后知识来。",
+    "answer": "书",
+    "aliases": [
+      "图书"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-174",
+    "question": "小小夹子嘴巴紧，纸张文件它看牢。",
+    "answer": "回形针",
+    "aliases": [
+      "曲别针"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-175",
+    "question": "长长身子有笔尖，吸满墨水写文章。",
+    "answer": "钢笔",
+    "aliases": [
+      "钢笔"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-176",
+    "question": "一按一弹字出来，电脑旁边排成行。",
+    "answer": "键盘",
+    "aliases": [
+      "键盘"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-177",
+    "question": "小老鼠儿桌上跑，点点按按指方向。",
+    "answer": "鼠标",
+    "aliases": [
+      "电脑鼠标"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-178",
+    "question": "扁扁屏幕桌上站，文字图像里面看。",
+    "answer": "显示器",
+    "aliases": [
+      "屏幕"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-179",
+    "question": "小小盒子连网络，家中信号靠它忙。",
+    "answer": "路由器",
+    "aliases": [
+      "无线路由器"
+    ],
+    "category": "电器",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-180",
+    "question": "一根线儿两头接，电和数据它能传。",
+    "answer": "数据线",
+    "aliases": [
+      "充电线"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-181",
+    "question": "小小方块墙上插，给手机来补能量。",
+    "answer": "充电器",
+    "aliases": [
+      "充电头"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-182",
+    "question": "头戴两只小耳朵，音乐悄悄进耳中。",
+    "answer": "耳机",
+    "aliases": [
+      "耳麦"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-183",
+    "question": "圆圆镜头盯门口，访客来了先通报。",
+    "answer": "门铃",
+    "aliases": [
+      "可视门铃"
+    ],
+    "category": "电器",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-184",
+    "question": "四方小盒会打印，白纸进去字出来。",
+    "answer": "打印机",
+    "aliases": [
+      "打印机"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-185",
+    "question": "黑白稿子放进去，一会儿变成电子图。",
+    "answer": "扫描仪",
+    "aliases": [
+      "扫描仪"
+    ],
+    "category": "电器",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-186",
+    "question": "长长管子吸灰尘，屋里角落变干净。",
+    "answer": "吸尘器",
+    "aliases": [
+      "吸尘机"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-187",
+    "question": "冷风热风都能吹，屋里温度它来调。",
+    "answer": "空调",
+    "aliases": [
+      "空调机"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-188",
+    "question": "咕噜咕噜把水烧，水开之后会鸣叫。",
+    "answer": "水壶",
+    "aliases": [
+      "烧水壶"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-189",
+    "question": "玻璃门里转圈圈，饭菜进去热乎乎。",
+    "answer": "微波炉",
+    "aliases": [
+      "微波炉"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-190",
+    "question": "小小圆盘灶上放，煎炒烹炸都靠它。",
+    "answer": "锅",
+    "aliases": [
+      "炒锅"
+    ],
+    "category": "餐具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-191",
+    "question": "圆圆盘子桌上摆，菜肴水果它来载。",
+    "answer": "盘子",
+    "aliases": [
+      "盘"
+    ],
+    "category": "餐具",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-192",
+    "question": "一张长布铺桌面，饭菜上来先见它。",
+    "answer": "桌布",
+    "aliases": [
+      "台布"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-193",
+    "question": "墙上小孔有电力，插头插进灯会亮。",
+    "answer": "插座",
+    "aliases": [
+      "电源插座"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-194",
+    "question": "小小开关墙上挂，一按房间亮或暗。",
+    "answer": "开关",
+    "aliases": [
+      "电灯开关"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-195",
+    "question": "红色小瓶墙边站，火情来了它帮忙。",
+    "answer": "灭火器",
+    "aliases": [
+      "灭火瓶"
+    ],
+    "category": "安全用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-196",
+    "question": "圆圆表盘腕上戴，低头一看知时间。",
+    "answer": "手表",
+    "aliases": [
+      "表"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-197",
+    "question": "细细链子挂胸前，小小坠子亮闪闪。",
+    "answer": "项链",
+    "aliases": [
+      "项链"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-198",
+    "question": "戴在手指圆一圈，金银宝石常装点。",
+    "answer": "戒指",
+    "aliases": [
+      "指环"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-199",
+    "question": "头发乱了请它来，齿齿排队慢慢梳。",
+    "answer": "梳子",
+    "aliases": [
+      "梳"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-200",
+    "question": "小小瓶里香味藏，轻轻一喷满身香。",
+    "answer": "香水",
+    "aliases": [
+      "香水"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-201",
+    "question": "圆圆盒子装颜色，脸上轻扫变漂亮。",
+    "answer": "粉饼",
+    "aliases": [
+      "粉盒"
+    ],
+    "category": "日用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-202",
+    "question": "细细红膏管中藏，轻轻一抹嘴唇亮。",
+    "answer": "口红",
+    "aliases": [
+      "唇膏"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-203",
+    "question": "一把小刷带颜色，睫毛刷后眼更亮。",
+    "answer": "睫毛膏",
+    "aliases": [
+      "睫毛膏"
+    ],
+    "category": "日用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-204",
+    "question": "小小盒子有针线，衣服破了它来补。",
+    "answer": "针线盒",
+    "aliases": [
+      "针线包"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-205",
+    "question": "细细银针穿线走，布上来回补衣裳。",
+    "answer": "针",
+    "aliases": [
+      "缝衣针"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-206",
+    "question": "一根软线有颜色，穿过针眼缝衣裳。",
+    "answer": "线",
+    "aliases": [
+      "缝线"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-207",
+    "question": "两片布儿贴耳边，寒风来了护耳朵。",
+    "answer": "耳罩",
+    "aliases": [
+      "耳套"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-208",
+    "question": "长长一条绕脖上，冬天出门暖洋洋。",
+    "answer": "围巾",
+    "aliases": [
+      "围脖"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-209",
+    "question": "头上戴来遮太阳，也能保暖挡风霜。",
+    "answer": "帽子",
+    "aliases": [
+      "帽"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-210",
+    "question": "一件外衣挡风雨，出门穿上不怕冷。",
+    "answer": "外套",
+    "aliases": [
+      "大衣"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-211",
+    "question": "腰间一条长带子，裤子稳稳不下滑。",
+    "answer": "皮带",
+    "aliases": [
+      "腰带"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-212",
+    "question": "一双小船脚上穿，屋里走路轻又软。",
+    "answer": "拖鞋",
+    "aliases": [
+      "拖鞋"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-213",
+    "question": "透明肚子装清水，带在路上解口渴。",
+    "answer": "水瓶",
+    "aliases": [
+      "水壶"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-214",
+    "question": "小小盒子装饭菜，中午打开香喷喷。",
+    "answer": "饭盒",
+    "aliases": [
+      "便当盒"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-215",
+    "question": "扁扁身体两扇开，钱卡证件住里边。",
+    "answer": "钱包",
+    "aliases": [
+      "钱夹"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-216",
+    "question": "小小卡片有身份，出门办事常要它。",
+    "answer": "身份证",
+    "aliases": [
+      "证件"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-217",
+    "question": "薄薄小本盖章多，出国旅行少不了。",
+    "answer": "护照",
+    "aliases": [
+      "护照"
+    ],
+    "category": "日用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-218",
+    "question": "一张卡片能付款，刷刷一声钱就走。",
+    "answer": "银行卡",
+    "aliases": [
+      "卡"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-219",
+    "question": "小小票纸写价格，买完东西它作证。",
+    "answer": "发票",
+    "aliases": [
+      "票据"
+    ],
+    "category": "日用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-220",
+    "question": "一张薄片能进门，刷过机器门自开。",
+    "answer": "门禁卡",
+    "aliases": [
+      "门卡"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-221",
+    "question": "长长道路地下跑，列车进站人如潮。",
+    "answer": "地铁",
+    "aliases": [
+      "地下铁"
+    ],
+    "category": "交通",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-222",
+    "question": "高高铁塔拉长线，车厢悬空山间行。",
+    "answer": "缆车",
+    "aliases": [
+      "索道"
+    ],
+    "category": "交通",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-223",
+    "question": "两排座位满街跑，到站有人上下车。",
+    "answer": "公交车",
+    "aliases": [
+      "公共汽车"
+    ],
+    "category": "交通",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-224",
+    "question": "黄色小车路边停，招手上车到目的。",
+    "answer": "出租车",
+    "aliases": [
+      "的士"
+    ],
+    "category": "交通",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-225",
+    "question": "一排车厢连一起，城市街道慢慢行。",
+    "answer": "有轨电车",
+    "aliases": [
+      "电车"
+    ],
+    "category": "交通",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-226",
+    "question": "头戴钢帽路上跑，外卖快递常骑它。",
+    "answer": "电动车",
+    "aliases": [
+      "电瓶车"
+    ],
+    "category": "交通",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-227",
+    "question": "两轮飞快声轰隆，戴好头盔再出门。",
+    "answer": "摩托车",
+    "aliases": [
+      "摩托"
+    ],
+    "category": "交通",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-228",
+    "question": "巨大铁鸟载货多，机场跑道起又落。",
+    "answer": "货机",
+    "aliases": [
+      "飞机"
+    ],
+    "category": "交通",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-229",
+    "question": "水上小车有桨划，湖里游玩慢悠悠。",
+    "answer": "小船",
+    "aliases": [
+      "船"
+    ],
+    "category": "交通",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-230",
+    "question": "城市上空跨河走，车流人流都从过。",
+    "answer": "立交桥",
+    "aliases": [
+      "高架桥"
+    ],
+    "category": "建筑",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-231",
+    "question": "高高房子层层叠，电梯上下到云边。",
+    "answer": "高楼",
+    "aliases": [
+      "大楼"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-232",
+    "question": "尖尖屋顶钟声响，许多人来听祈祷。",
+    "answer": "教堂",
+    "aliases": [
+      "教堂"
+    ],
+    "category": "建筑",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-233",
+    "question": "红墙黄瓦故事多，古代皇帝住里头。",
+    "answer": "故宫",
+    "aliases": [
+      "紫禁城"
+    ],
+    "category": "建筑",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-234",
+    "question": "四周座位中间场，比赛演出都能看。",
+    "answer": "体育馆",
+    "aliases": [
+      "场馆"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-235",
+    "question": "书本排队架上站，安静读书好地方。",
+    "answer": "图书馆",
+    "aliases": [
+      "图书室"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-236",
+    "question": "医生护士里面忙，病人来这看身体。",
+    "answer": "医院",
+    "aliases": [
+      "医院"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-237",
+    "question": "老师学生天天到，读书写字在里面。",
+    "answer": "学校",
+    "aliases": [
+      "校园"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-238",
+    "question": "红色信箱路边站，信件投进去远方。",
+    "answer": "邮筒",
+    "aliases": [
+      "邮箱"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-239",
+    "question": "小小房子卖报刊，路边一站人来买。",
+    "answer": "报亭",
+    "aliases": [
+      "报刊亭"
+    ],
+    "category": "建筑",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-240",
+    "question": "一条白线天上挂，雨后叶尖滴下来。",
+    "answer": "露珠",
+    "aliases": [
+      "露水"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-241",
+    "question": "没有颜色没有味，人人天天离不了。",
+    "answer": "空气",
+    "aliases": [
+      "空气"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-242",
+    "question": "看不见来摸不着，树叶因它沙沙响。",
+    "answer": "风",
+    "aliases": [
+      "清风"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-243",
+    "question": "云中打鼓轰隆响，闪电之后常听见。",
+    "answer": "雷",
+    "aliases": [
+      "雷声"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-244",
+    "question": "天空银蛇一闪过，黑夜瞬间亮如白。",
+    "answer": "闪电",
+    "aliases": [
+      "电光"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-245",
+    "question": "水珠从天落下来，庄稼花草都喜欢。",
+    "answer": "雨",
+    "aliases": [
+      "雨水"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-246",
+    "question": "清晨白纱罩大地，太阳出来它散开。",
+    "answer": "雾",
+    "aliases": [
+      "雾气"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-247",
+    "question": "冬天屋檐挂长针，太阳一照泪水流。",
+    "answer": "冰柱",
+    "aliases": [
+      "冰凌"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-248",
+    "question": "小水滴儿遇冷凝，草叶上面亮晶晶。",
+    "answer": "霜",
+    "aliases": [
+      "白霜"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-249",
+    "question": "山间白练挂岩前，水声哗哗落深潭。",
+    "answer": "瀑布",
+    "aliases": [
+      "瀑布"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-250",
+    "question": "地上绿毯连成片，牛羊在上慢慢吃。",
+    "answer": "草原",
+    "aliases": [
+      "草地"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-251",
+    "question": "圆圆水面在地上，鱼虾荷花住中央。",
+    "answer": "池塘",
+    "aliases": [
+      "池"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-252",
+    "question": "大地裂开小口子，水从地下涌出来。",
+    "answer": "泉水",
+    "aliases": [
+      "泉"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-253",
+    "question": "夜晚天空弯小船，过几天后变圆盘。",
+    "answer": "月牙",
+    "aliases": [
+      "月亮"
+    ],
+    "category": "自然",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-254",
+    "question": "春天枝头小笑脸，五颜六色香气来。",
+    "answer": "花",
+    "aliases": [
+      "鲜花"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-255",
+    "question": "细细绿线地里长，割了还会再冒头。",
+    "answer": "草",
+    "aliases": [
+      "小草"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-256",
+    "question": "红红花朵带尖刺，送人表达爱意浓。",
+    "answer": "玫瑰",
+    "aliases": [
+      "玫瑰花"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-257",
+    "question": "春天粉白满枝头，风来花瓣像雪飘。",
+    "answer": "樱花",
+    "aliases": [
+      "樱花"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-258",
+    "question": "秋天金黄满街香，小扇叶子落地上。",
+    "answer": "银杏",
+    "aliases": [
+      "银杏树"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-259",
+    "question": "叶子像手秋天红，山坡路边都好看。",
+    "answer": "枫树",
+    "aliases": [
+      "枫叶"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-260",
+    "question": "夏天细叶水边垂，长发飘飘随风摇。",
+    "answer": "柳树",
+    "aliases": [
+      "柳"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-261",
+    "question": "一身尖刺沙地站，少喝水来也能活。",
+    "answer": "仙人掌",
+    "aliases": [
+      "仙人球"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-262",
+    "question": "土里白胖一串串，秋天挖出甜又脆。",
+    "answer": "莲藕",
+    "aliases": [
+      "藕"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-263",
+    "question": "地下小球辣味重，炒菜做汤味道香。",
+    "answer": "大蒜",
+    "aliases": [
+      "蒜"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-264",
+    "question": "绿叶细长味道香，切碎撒汤最常见。",
+    "answer": "葱",
+    "aliases": [
+      "小葱"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-265",
+    "question": "黄黄小块味辛辣，去腥暖胃厨房忙。",
+    "answer": "生姜",
+    "aliases": [
+      "姜"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-266",
+    "question": "圆圆脑袋穿紫衣，切开味道甜又辣。",
+    "answer": "紫甘蓝",
+    "aliases": [
+      "甘蓝"
+    ],
+    "category": "食物",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-267",
+    "question": "小小黑豆香气浓，磨成粉后能冲饮。",
+    "answer": "咖啡豆",
+    "aliases": [
+      "咖啡"
+    ],
+    "category": "食物",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-268",
+    "question": "一片叶子水中泡，清香入口精神好。",
+    "answer": "茶叶",
+    "aliases": [
+      "茶"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-269",
+    "question": "白白晶体味道甜，做菜点心少不了。",
+    "answer": "白糖",
+    "aliases": [
+      "糖"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-270",
+    "question": "白白晶体味道咸，做菜调味少不了。",
+    "answer": "盐",
+    "aliases": [
+      "食盐"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-271",
+    "question": "瓶里透明味道酸，拌菜蘸饺都常用。",
+    "answer": "醋",
+    "aliases": [
+      "食醋"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-272",
+    "question": "黑黑液体味道鲜，炒菜上色它帮忙。",
+    "answer": "酱油",
+    "aliases": [
+      "豉油"
+    ],
+    "category": "食物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-273",
+    "question": "一根长杆挂旗帜，风来展开颜色鲜。",
+    "answer": "旗杆",
+    "aliases": [
+      "旗杆"
+    ],
+    "category": "建筑",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-274",
+    "question": "彩色布片高处飘，国家学校常升起。",
+    "answer": "旗帜",
+    "aliases": [
+      "旗"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-275",
+    "question": "白纸黑字一张张，每天报道新消息。",
+    "answer": "报纸",
+    "aliases": [
+      "报"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-276",
+    "question": "一本薄册图文多，休闲翻看长知识。",
+    "answer": "杂志",
+    "aliases": [
+      "刊物"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-277",
+    "question": "小小盒子有抽屉，文件卡片排队住。",
+    "answer": "文件柜",
+    "aliases": [
+      "柜子"
+    ],
+    "category": "办公用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-278",
+    "question": "一张白板配黑笔，会议课堂写想法。",
+    "answer": "白板",
+    "aliases": [
+      "写字板"
+    ],
+    "category": "办公用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-279",
+    "question": "小小机器咔嚓响，把纸牢牢钉一起。",
+    "answer": "订书机",
+    "aliases": [
+      "钉书机"
+    ],
+    "category": "办公用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-280",
+    "question": "弯弯刀片藏盒中，裁纸开箱很利索。",
+    "answer": "美工刀",
+    "aliases": [
+      "裁纸刀"
+    ],
+    "category": "办公用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-281",
+    "question": "透明胶带卷成圈，破纸包装它来粘。",
+    "answer": "胶带",
+    "aliases": [
+      "透明胶"
+    ],
+    "category": "办公用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-282",
+    "question": "白白液体刷错字，干了以后重新写。",
+    "answer": "修正液",
+    "aliases": [
+      "涂改液"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-283",
+    "question": "小小瓶里装颜色，画画写字都漂亮。",
+    "answer": "颜料",
+    "aliases": [
+      "画颜料"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-284",
+    "question": "一盒彩笔排成队，画出彩虹和花朵。",
+    "answer": "彩笔",
+    "aliases": [
+      "水彩笔"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-285",
+    "question": "毛笔蘸水写大字，宣纸上面显功夫。",
+    "answer": "毛笔",
+    "aliases": [
+      "毛笔"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-286",
+    "question": "黑黑液体砚中磨，毛笔蘸它写字画。",
+    "answer": "墨水",
+    "aliases": [
+      "墨汁"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-287",
+    "question": "方方石板磨墨用，古人书房少不了。",
+    "answer": "砚台",
+    "aliases": [
+      "砚"
+    ],
+    "category": "学习用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-288",
+    "question": "白白薄纸能写画，折成飞机也会飞。",
+    "answer": "纸",
+    "aliases": [
+      "白纸"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-289",
+    "question": "小小标签贴书本，写上名字不混淆。",
+    "answer": "姓名贴",
+    "aliases": [
+      "标签贴"
+    ],
+    "category": "学习用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-290",
+    "question": "一块小牌挂胸前，写着名字认得清。",
+    "answer": "胸牌",
+    "aliases": [
+      "名牌"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-291",
+    "question": "门前一块软垫子，擦掉鞋底泥和灰。",
+    "answer": "地垫",
+    "aliases": [
+      "门垫"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-292",
+    "question": "窗前一层薄纱挂，挡光遮眼又透风。",
+    "answer": "窗帘",
+    "aliases": [
+      "帘子"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-293",
+    "question": "脚下柔软一大片，客厅卧室都能铺。",
+    "answer": "地毯",
+    "aliases": [
+      "毯子"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-294",
+    "question": "墙上挂着一幅画，房间因此更漂亮。",
+    "answer": "挂画",
+    "aliases": [
+      "装饰画"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-295",
+    "question": "小小盆里种绿色，放在桌上添生气。",
+    "answer": "盆栽",
+    "aliases": [
+      "绿植"
+    ],
+    "category": "植物",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-296",
+    "question": "一根细绳挂衣裳，太阳底下晒干爽。",
+    "answer": "晾衣绳",
+    "aliases": [
+      "晒衣绳"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-297",
+    "question": "两只夹子咬衣角，风吹衣服不掉落。",
+    "answer": "衣夹",
+    "aliases": [
+      "夹子"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-298",
+    "question": "高高架子放衣物，帽子外套排成行。",
+    "answer": "衣架",
+    "aliases": [
+      "挂衣架"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-299",
+    "question": "大大柜子装衣服，四季衣裳住里面。",
+    "answer": "衣柜",
+    "aliases": [
+      "柜子"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-300",
+    "question": "躺上去来软绵绵，夜晚休息少不了。",
+    "answer": "床",
+    "aliases": [
+      "床铺"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-301",
+    "question": "坐上去来软又宽，客厅聊天常用它。",
+    "answer": "沙发",
+    "aliases": [
+      "沙发"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-302",
+    "question": "一格一格上下排，书本玩具住上面。",
+    "answer": "书架",
+    "aliases": [
+      "书柜"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-303",
+    "question": "墙角小桶吃垃圾，保持房间干净净。",
+    "answer": "垃圾桶",
+    "aliases": [
+      "垃圾篓"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-304",
+    "question": "白白瓷盆会流水，刷牙洗脸都靠它。",
+    "answer": "洗手盆",
+    "aliases": [
+      "水池"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-305",
+    "question": "一拧龙头水就来，一关水流马上停。",
+    "answer": "水龙头",
+    "aliases": [
+      "龙头"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-306",
+    "question": "浴室墙上洒细雨，洗澡时候最舒服。",
+    "answer": "花洒",
+    "aliases": [
+      "淋浴喷头"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-307",
+    "question": "方方小盒墙上挂，抽出纸来擦一擦。",
+    "answer": "纸巾盒",
+    "aliases": [
+      "抽纸盒"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-308",
+    "question": "门上小眼向外看，客人是谁先知道。",
+    "answer": "猫眼",
+    "aliases": [
+      "门镜"
+    ],
+    "category": "家居",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-309",
+    "question": "小小铁环挂钥匙，串在一起不丢失。",
+    "answer": "钥匙扣",
+    "aliases": [
+      "钥匙环"
+    ],
+    "category": "日用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-310",
+    "question": "弯弯把手撑布面，雨天出门不湿身。",
+    "answer": "伞柄",
+    "aliases": [
+      "雨伞"
+    ],
+    "category": "日用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-311",
+    "question": "黑黑小盒拍一下，远处画面留下来。",
+    "answer": "摄像机",
+    "aliases": [
+      "相机"
+    ],
+    "category": "电器",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-312",
+    "question": "小小机器滴滴响，测出身体热不热。",
+    "answer": "体温计",
+    "aliases": [
+      "温度计"
+    ],
+    "category": "医疗用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-313",
+    "question": "细细一条绕手臂，医生听它量血压。",
+    "answer": "血压计",
+    "aliases": [
+      "血压仪"
+    ],
+    "category": "医疗用品",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-314",
+    "question": "白色小片圆又轻，生病时候按时吃。",
+    "answer": "药片",
+    "aliases": [
+      "药丸"
+    ],
+    "category": "医疗用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-315",
+    "question": "小小瓶里装药水，滴进眼中清又爽。",
+    "answer": "眼药水",
+    "aliases": [
+      "滴眼液"
+    ],
+    "category": "医疗用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-316",
+    "question": "白布一卷能包伤，受伤之后它帮忙。",
+    "answer": "绷带",
+    "aliases": [
+      "纱布"
+    ],
+    "category": "医疗用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-317",
+    "question": "小小贴片有药棉，贴在伤口护皮肤。",
+    "answer": "创可贴",
+    "aliases": [
+      "止血贴"
+    ],
+    "category": "医疗用品",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-318",
+    "question": "草地白线围成场，大家奔跑追一球。",
+    "answer": "足球场",
+    "aliases": [
+      "球场"
+    ],
+    "category": "运动",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-319",
+    "question": "圆圆小球桌上弹，拍子一挥过网去。",
+    "answer": "乒乓球",
+    "aliases": [
+      "乒乓"
+    ],
+    "category": "运动",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-320",
+    "question": "绿色小球满场飞，拍子挥出白线边。",
+    "answer": "网球",
+    "aliases": [
+      "网球"
+    ],
+    "category": "运动",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-321",
+    "question": "长长绳子两手摇，脚下跳过一圈圈。",
+    "answer": "跳绳",
+    "aliases": [
+      "绳子"
+    ],
+    "category": "运动",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-322",
+    "question": "蓝蓝水池分泳道，人在里面往前游。",
+    "answer": "游泳池",
+    "aliases": [
+      "泳池"
+    ],
+    "category": "运动",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-323",
+    "question": "两块长板脚下绑，雪地山坡飞快滑。",
+    "answer": "滑雪板",
+    "aliases": [
+      "雪板"
+    ],
+    "category": "运动",
+    "difficulty": 2,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-324",
+    "question": "一双轮子脚下装，广场路上滑得欢。",
+    "answer": "轮滑鞋",
+    "aliases": [
+      "旱冰鞋"
+    ],
+    "category": "运动",
+    "difficulty": 1,
+    "source": "project-curated"
+  },
+  {
+    "id": "riddle-325",
+    "question": "一座小山用手爬，彩色石头当脚点。",
+    "answer": "攀岩墙",
+    "aliases": [
+      "岩壁"
+    ],
+    "category": "运动",
     "difficulty": 2,
     "source": "project-curated"
   }
