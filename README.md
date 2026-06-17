@@ -52,6 +52,8 @@ UNI_AD_CALLBACK_SECRET=广告回调密钥
 VITE_API_BASE_URL=https://like2022.online
 VITE_WS_URL=wss://like2022.online/pvp-ws
 VITE_REWARD_AD_UNIT_ID=微信激励视频广告位ID
+VITE_BANNER_AD_UNIT_ID=微信Banner或信息流广告位ID
+VITE_INTERSTITIAL_AD_UNIT_ID=微信插屏广告位ID
 ```
 
 ## 功能概览
@@ -110,6 +112,7 @@ VITE_REWARD_AD_UNIT_ID=微信激励视频广告位ID
 - `POST /api/pve/timeout`
 - `POST /api/pve/finish`
 - `POST /api/ad/reward/start`
+- `POST /api/ad/reward/complete`：微信原生激励视频完整观看后由客户端上报完成，状态记为 `client_completed`，不是平台服务端可信验证。
 - `POST /api/ad/reward/callback`
 - `POST /api/ad/reward/claim`
 
@@ -150,9 +153,17 @@ npm run miniapp:build:mp-weixin
 apps/miniapp/dist/build/mp-weixin
 ```
 
-小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、用户确认昵称、微信头像持久化、PVE、PVP五种玩法、原生 WebSocket、音频代理和体力广告入口。
+小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、用户确认昵称、微信头像持久化、PVE、PVP五种玩法、原生 WebSocket、音频代理和微信原生广告入口。
 
 小程序 PVP 房间内的图片题使用完整适配显示，剪影和剧照都不裁剪题目主体。PVP 猜歌名收到新的音频题会自动播放；切换到下一道音频题时停止旧音频并播放新音频。同一条语音再次点击会暂停，暂停后再点继续播放。
+
+### 微信广告
+
+小程序广告第一版使用微信原生广告能力，不接 uni-ad 聚合，也不使用 DCloud 广告后台。广告位 ID 来自微信公众平台流量主后台，通过 `VITE_REWARD_AD_UNIT_ID`、`VITE_BANNER_AD_UNIT_ID`、`VITE_INTERSTITIAL_AD_UNIT_ID` 配置，不在代码里硬编码真实广告位。
+
+激励视频用于 PVE 看广告补体力，流程是 `start -> wx.createRewardedVideoAd -> onClose.isEnded -> complete -> claim`。其中 `/api/ad/reward/complete` 只表示微信原生客户端确认 `isEnded === true` 后上报完成，奖励事件状态记为 `client_completed`；它不是平台服务端可信回调。未来接入真正的广告平台服务端回调或 uni-ad 回调时，才使用 `verified` 状态和保留的 `/api/ad/reward/callback` 路径。
+
+Banner/信息流广告只放在 PVE 关卡列表等自然停顿位置，广告位缺失或加载失败时不影响关卡真实流程。插屏广告只在 PVE 或 PVP 结算后尝试展示，并带本地频控；不会在答题中或 PVP 对局中弹出，也不会阻塞结算保存、房间状态同步或真实业务结果。
 
 ## 数据文件
 

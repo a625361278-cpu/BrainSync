@@ -84,7 +84,7 @@ export interface PveRunRecord {
 }
 
 export type AdRewardType = "stamina" | "settlement";
-export type AdRewardStatus = "started" | "verified" | "claimed";
+export type AdRewardStatus = "started" | "client_completed" | "verified" | "claimed";
 
 export interface AdRewardEventRecord {
   id: string;

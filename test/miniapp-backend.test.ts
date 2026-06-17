@@ -57,7 +57,7 @@ describe("微信小程序登录", () => {
 });
 
 describe("小程序广告奖励", () => {
-  it("激励视频必须先收到可信回调，领取后只补一次体力", async () => {
+  it("激励视频必须先完成客户端观看上报，领取后只补一次体力", async () => {
     const repo = createMemoryAccountRepository();
     const auth = createAuthService({ repo, now: () => 1000, randomToken: () => "token-ad" });
     const { user } = await auth.loginWithWechat({ openid: "openid-ad", nickname: "广告玩家", avatarUrl: "/user-avatars/ad.jpg" });
@@ -65,18 +65,42 @@ describe("小程序广告奖励", () => {
     const rewards = createAdRewardService({ repo, now: () => 2000, randomId: () => "reward-1" });
     const started = await rewards.start(user.id, "stamina");
 
-    await expect(rewards.claim(user.id, started.eventId)).rejects.toThrow("广告奖励尚未验证");
+    await expect(rewards.claim(user.id, started.eventId)).rejects.toThrow("广告奖励尚未完成观看或验证");
 
-    await rewards.verifyCallback({
-      eventId: started.eventId,
-      rewardType: "stamina",
-      platformTraceId: "wx-trace-1"
-    });
+    const completed = await rewards.completeClient(user.id, started.eventId);
     const claimed = await rewards.claim(user.id, started.eventId);
 
+    expect(completed.status).toBe("client_completed");
     expect(claimed.stamina.current).toBe(1);
     expect(claimed.stamina.adRestoreCount).toBe(1);
     await expect(rewards.claim(user.id, started.eventId)).rejects.toThrow("广告奖励已经领取");
+  });
+
+  it("广告奖励事件不能被其他微信账号完成或领取", async () => {
+    const repo = createMemoryAccountRepository();
+    const auth = createAuthService({ repo });
+    const owner = await auth.loginWithWechat({ openid: "openid-owner", nickname: "广告玩家", avatarUrl: "/user-avatars/owner.jpg" });
+    const other = await auth.loginWithWechat({ openid: "openid-other", nickname: "其他玩家", avatarUrl: "/user-avatars/other.jpg" });
+    const rewards = createAdRewardService({ repo, randomId: () => "reward-owned" });
+    const started = await rewards.start(owner.user.id, "stamina");
+
+    await expect(rewards.completeClient(other.user.id, started.eventId)).rejects.toThrow("不能完成其他玩家的广告奖励");
+    await rewards.completeClient(owner.user.id, started.eventId);
+    await expect(rewards.claim(other.user.id, started.eventId)).rejects.toThrow("不能领取其他玩家的广告奖励");
+  });
+
+  it("未来可信平台回调仍可把奖励事件标记为verified后领取", async () => {
+    const repo = createMemoryAccountRepository();
+    const auth = createAuthService({ repo });
+    const { user } = await auth.loginWithWechat({ openid: "openid-callback", nickname: "回调玩家", avatarUrl: "/user-avatars/callback.jpg" });
+    const rewards = createAdRewardService({ repo, randomId: () => "reward-callback" });
+    const started = await rewards.start(user.id, "stamina");
+
+    const verified = await rewards.verifyCallback({ eventId: started.eventId, rewardType: "stamina", platformTraceId: "wx-trace-1" });
+    const claimed = await rewards.claim(user.id, started.eventId);
+
+    expect(verified.status).toBe("verified");
+    expect(claimed.stamina.current).toBe(1);
   });
 });
 

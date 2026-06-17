@@ -36,6 +36,8 @@
           </view>
         </view>
       </view>
+
+      <ad v-if="BANNER_AD_UNIT_ID && showBannerAd" class="banner-ad" :unit-id="BANNER_AD_UNIT_ID" @error="hideBannerAd" />
     </view>
 
     <BsToast :message="error" />
@@ -46,6 +48,7 @@
 import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import BsToast from "../../components/BsToast.vue";
+import { BANNER_AD_UNIT_ID } from "../../services/config";
 import { loadPveHome, startPveLevel } from "../../services/pve";
 import { restoreStaminaByAd } from "../../services/platform";
 import type { PveLevel, PveProfile, PveProgress } from "../../services/types";
@@ -54,6 +57,7 @@ const levels = ref<PveLevel[]>([]);
 const profile = ref<PveProfile>();
 const error = ref("");
 const loading = ref(false);
+const showBannerAd = ref(true);
 const recordAsset = "/static/home-assets/record.svg";
 
 const staminaEmpty = computed(() => (profile.value?.stamina.current ?? 0) <= 0);
@@ -109,6 +113,10 @@ async function restoreStamina() {
   } catch (err) {
     error.value = err instanceof Error ? err.message : "广告奖励失败";
   }
+}
+
+function hideBannerAd() {
+  showBannerAd.value = false;
 }
 
 function renderStars(stars: number): string {
@@ -214,6 +222,13 @@ function goHome() {
   display: grid;
   gap: 20rpx;
   padding: 24rpx 28rpx 48rpx;
+}
+
+.banner-ad {
+  display: block;
+  width: calc(100% - 56rpx);
+  min-height: 120rpx;
+  margin: 0 auto 48rpx;
 }
 
 .level-card {

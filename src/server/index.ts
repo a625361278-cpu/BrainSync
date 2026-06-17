@@ -276,6 +276,16 @@ app.post(
 );
 
 app.post(
+  "/api/ad/reward/complete",
+  asyncRoute(async (req, res) => {
+    const { adRewards } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    const event = await adRewards.completeClient(user.id, String(req.body?.eventId ?? ""));
+    res.json({ ok: true, eventId: event.id, status: event.status });
+  })
+);
+
+app.post(
   "/api/ad/reward/claim",
   asyncRoute(async (req, res) => {
     const { adRewards } = requireAccountContext();

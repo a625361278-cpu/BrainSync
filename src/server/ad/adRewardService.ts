@@ -8,6 +8,7 @@ export interface CreateAdRewardServiceOptions {
 
 export interface AdRewardService {
   start(userId: string, rewardType: AdRewardType): Promise<{ eventId: string; rewardType: AdRewardType }>;
+  completeClient(userId: string, eventId: string): Promise<AdRewardEventRecord>;
   verifyCallback(payload: VerifyAdRewardPayload): Promise<AdRewardEventRecord>;
   claim(userId: string, eventId: string): Promise<{ rewardType: AdRewardType; stamina: StaminaRecord }>;
 }
@@ -47,6 +48,22 @@ class DefaultAdRewardService implements AdRewardService {
     return { eventId: event.id, rewardType };
   }
 
+  async completeClient(userId: string, eventId: string): Promise<AdRewardEventRecord> {
+    const event = await this.requireEvent(eventId);
+    if (event.userId !== userId) {
+      throw new Error("不能完成其他玩家的广告奖励");
+    }
+    if (event.status === "claimed" || event.status === "verified" || event.status === "client_completed") {
+      return event;
+    }
+    const next: AdRewardEventRecord = {
+      ...event,
+      status: "client_completed"
+    };
+    await this.repo.updateAdRewardEvent(next);
+    return next;
+  }
+
   async verifyCallback(payload: VerifyAdRewardPayload): Promise<AdRewardEventRecord> {
     validateRewardType(payload.rewardType);
     const event = await this.requireEvent(payload.eventId);
@@ -75,7 +92,7 @@ class DefaultAdRewardService implements AdRewardService {
       throw new Error("不能领取其他玩家的广告奖励");
     }
     if (event.status === "started") {
-      throw new Error("广告奖励尚未验证");
+      throw new Error("广告奖励尚未完成观看或验证");
     }
     if (event.status === "claimed") {
       throw new Error("广告奖励已经领取");

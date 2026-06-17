@@ -61,6 +61,7 @@ import { onBackPress } from "@dcloudio/uni-app";
 import { API_BASE_URL } from "../../services/config";
 import BsToast from "../../components/BsToast.vue";
 import { PvpSocket } from "../../services/pvpSocket";
+import { showInterstitialAd } from "../../services/platform";
 import { clearLegacyPlayerId, clearPlayerId, readPlayerId, readToken, writePlayerId } from "../../services/storage";
 import type { ChatMessage, GameType, RoomSnapshot } from "../../services/types";
 
@@ -83,6 +84,8 @@ const audioPlaying = ref(false);
 const autoPlayedAudioMessageId = ref("");
 let audio: UniApp.InnerAudioContext | undefined;
 let leavingByNativeBack = false;
+let previousRoomStatus: RoomSnapshot["status"] | undefined;
+let settlementInterstitialRequested = false;
 
 const isHost = computed(() => Boolean(room.value && room.value.hostId === playerId.value));
 const onlineCount = computed(() => room.value?.players.filter((player) => player.connected).length ?? 0);
@@ -190,8 +193,16 @@ async function exitRoom(): Promise<void> {
 }
 
 function applyRoomSnapshot(snapshot: RoomSnapshot): void {
+  const becameFinished = Boolean(previousRoomStatus && previousRoomStatus !== "finished" && snapshot.status === "finished");
   room.value = snapshot;
+  previousRoomStatus = snapshot.status;
   syncLatestAudioQuestion(snapshot);
+  if (becameFinished && !settlementInterstitialRequested) {
+    settlementInterstitialRequested = true;
+    void showInterstitialAd().catch((err) => {
+      console.warn("插屏广告展示失败", err);
+    });
+  }
 }
 
 function playAudio(url: string) {

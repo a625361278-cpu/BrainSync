@@ -3,6 +3,7 @@ import type {
   AccountRepository,
   AccountUserRecord,
   AdRewardEventRecord,
+  AdRewardStatus,
   PveProgressRecord,
   PveRunRecord,
   SessionRecord,
@@ -350,7 +351,7 @@ interface AdRewardEventRow extends RowDataPacket {
   id: string;
   user_id: string;
   reward_type: "stamina" | "settlement";
-  status: "started" | "verified" | "claimed";
+  status: AdRewardStatus;
   platform_trace_id: string | null;
   created_at_ms: number;
   verified_at_ms: number | null;

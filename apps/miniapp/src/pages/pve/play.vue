@@ -54,6 +54,7 @@
 import { computed, onBeforeUnmount, ref } from "vue";
 import BsToast from "../../components/BsToast.vue";
 import { answerQuestion, createQuestionAudio, finishPve, markQuestionStarted, timeoutQuestion } from "../../services/pve";
+import { showInterstitialAd } from "../../services/platform";
 import type { PveQuestion, PveRun, PveSummary } from "../../services/types";
 
 type Phase = "countdown" | "playing" | "feedback";
@@ -73,6 +74,7 @@ const busy = ref(false);
 let timer: number | undefined;
 let audio: UniApp.InnerAudioContext | undefined;
 let timeoutBusy = false;
+let interstitialRequested = false;
 
 const timePercent = computed(() => {
   if (!question.value?.timeLimitSeconds) {
@@ -171,6 +173,7 @@ async function submit() {
     if (result.finished) {
       clearTimer();
       summary.value = result.summary ?? (await finishPve(run.value.runId));
+      void showSettlementInterstitial();
       return;
     }
     if (result.correct && result.nextQuestion) {
@@ -201,6 +204,7 @@ async function timeoutCurrent() {
     feedback.value = `本题超时，正确答案是《${result.answer}》`;
     if (result.finished) {
       summary.value = result.summary ?? (await finishPve(run.value.runId));
+      void showSettlementInterstitial();
       return;
     }
     if (result.nextQuestion) {
@@ -227,6 +231,18 @@ function goBack() {
   clearTimer();
   audio?.destroy();
   uni.redirectTo({ url: "/pages/pve/index" });
+}
+
+async function showSettlementInterstitial() {
+  if (interstitialRequested) {
+    return;
+  }
+  interstitialRequested = true;
+  try {
+    await showInterstitialAd();
+  } catch (err) {
+    console.warn("插屏广告展示失败", err);
+  }
 }
 
 onBeforeUnmount(() => {

@@ -71,4 +71,16 @@ describe("正式小程序HTTPS部署配置", () => {
     expect(doc).toContain("不要覆盖已有证书目录");
     expect(doc).toContain("不要覆盖已有配置文件");
   });
+
+  it("小程序生产环境声明微信广告位配置", () => {
+    const envExample = readFileSync(resolve(".env.example"), "utf8");
+    const miniappProduction = readFileSync(resolve("apps/miniapp/.env.production"), "utf8");
+    const miniappConfig = readFileSync(resolve("apps/miniapp/src/services/config.ts"), "utf8");
+
+    for (const key of ["VITE_REWARD_AD_UNIT_ID", "VITE_BANNER_AD_UNIT_ID", "VITE_INTERSTITIAL_AD_UNIT_ID"]) {
+      expect(envExample).toContain(key);
+      expect(miniappProduction).toContain(key);
+      expect(miniappConfig).toContain(key);
+    }
+  });
 });

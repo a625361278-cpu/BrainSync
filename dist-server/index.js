@@ -1890,6 +1890,21 @@ var DefaultAdRewardService = class {
     await this.repo.createAdRewardEvent(event);
     return { eventId: event.id, rewardType };
   }
+  async completeClient(userId, eventId) {
+    const event = await this.requireEvent(eventId);
+    if (event.userId !== userId) {
+      throw new Error("\u4E0D\u80FD\u5B8C\u6210\u5176\u4ED6\u73A9\u5BB6\u7684\u5E7F\u544A\u5956\u52B1");
+    }
+    if (event.status === "claimed" || event.status === "verified" || event.status === "client_completed") {
+      return event;
+    }
+    const next = {
+      ...event,
+      status: "client_completed"
+    };
+    await this.repo.updateAdRewardEvent(next);
+    return next;
+  }
   async verifyCallback(payload) {
     validateRewardType(payload.rewardType);
     const event = await this.requireEvent(payload.eventId);
@@ -1917,7 +1932,7 @@ var DefaultAdRewardService = class {
       throw new Error("\u4E0D\u80FD\u9886\u53D6\u5176\u4ED6\u73A9\u5BB6\u7684\u5E7F\u544A\u5956\u52B1");
     }
     if (event.status === "started") {
-      throw new Error("\u5E7F\u544A\u5956\u52B1\u5C1A\u672A\u9A8C\u8BC1");
+      throw new Error("\u5E7F\u544A\u5956\u52B1\u5C1A\u672A\u5B8C\u6210\u89C2\u770B\u6216\u9A8C\u8BC1");
     }
     if (event.status === "claimed") {
       throw new Error("\u5E7F\u544A\u5956\u52B1\u5DF2\u7ECF\u9886\u53D6");
@@ -2319,6 +2334,15 @@ app.post(
       rewardType: String(req.body?.rewardType ?? ""),
       platformTraceId: String(req.body?.platformTraceId ?? "")
     });
+    res.json({ ok: true, eventId: event.id, status: event.status });
+  })
+);
+app.post(
+  "/api/ad/reward/complete",
+  asyncRoute(async (req, res) => {
+    const { adRewards } = requireAccountContext();
+    const user = await requireHttpUser(req);
+    const event = await adRewards.completeClient(user.id, String(req.body?.eventId ?? ""));
     res.json({ ok: true, eventId: event.id, status: event.status });
   })
 );
