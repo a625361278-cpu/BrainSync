@@ -179,7 +179,7 @@ function optionalString(value: unknown): string | undefined {
 }
 
 function requireGameType(value: unknown): GameType {
-  if (value === "idiom" || value === "song" || value === "silhouette" || value === "movie") {
+  if (value === "idiom" || value === "song" || value === "silhouette" || value === "movie" || value === "riddle") {
     return value;
   }
   throw new Error(`游戏类型异常：${String(value)}`);

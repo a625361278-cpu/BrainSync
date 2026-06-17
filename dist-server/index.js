@@ -31,9 +31,11 @@ var InMemoryGameRoom = class {
   songs;
   characters;
   movies;
+  riddles;
   idiomRounds;
   songRounds;
   imageRounds;
+  riddleRounds;
   players = /* @__PURE__ */ new Map();
   playerOwners = /* @__PURE__ */ new Map();
   usedIdioms = /* @__PURE__ */ new Set();
@@ -51,6 +53,8 @@ var InMemoryGameRoom = class {
   characterDeck = [];
   movieCursor = 0;
   movieDeck = [];
+  riddleCursor = 0;
+  riddleDeck = [];
   idiomCursor = 0;
   constructor(options) {
     this.code = options.code ?? createRoomCode();
@@ -60,9 +64,11 @@ var InMemoryGameRoom = class {
     this.songs = [...options.songs];
     this.characters = [...options.characters ?? []];
     this.movies = [...options.movies ?? []];
+    this.riddles = [...options.riddles ?? []];
     this.idiomRounds = options.idiomRounds ?? 10;
     this.songRounds = options.songRounds ?? 5;
     this.imageRounds = options.imageRounds ?? 5;
+    this.riddleRounds = options.riddleRounds ?? 5;
   }
   join(name, playerId, avatar, userId) {
     const normalizedName = name.trim();
@@ -135,6 +141,8 @@ var InMemoryGameRoom = class {
     this.characterDeck = [];
     this.movieCursor = 0;
     this.movieDeck = [];
+    this.riddleCursor = 0;
+    this.riddleDeck = [];
     this.idiomCursor = 0;
     for (const player of this.players.values()) {
       player.score = 0;
@@ -246,6 +254,9 @@ var InMemoryGameRoom = class {
         this.pushBot("\u5267\u7167\u9898", "image", void 0, void 0, nextQuestion.imageUrl, "\u7535\u5F71\u5267\u7167\u9898")
       ];
     }
+    if (nextQuestion.gameType === "riddle") {
+      return [this.pushBot(`\u7B2C ${questionNo}/${nextQuestion.totalRounds} \u9898\uFF0C\u731C\u8C1C\u8BED\uFF1A${nextQuestion.prompt}`, "round")];
+    }
     return [
       this.pushBot(
         `\u7B2C ${questionNo}/${nextQuestion.totalRounds} \u9898\uFF0C\u8BF7\u63A5\uFF1A${nextQuestion.previousIdiom?.text}\uFF08${nextQuestion.previousIdiom?.pinyin.at(-1)}\uFF09`,
@@ -265,6 +276,9 @@ var InMemoryGameRoom = class {
     }
     if (this.gameType === "movie") {
       return this.nextMovieQuestion();
+    }
+    if (this.gameType === "riddle") {
+      return this.nextRiddleQuestion();
     }
     return this.nextIdiomQuestion(fromTimeout);
   }
@@ -325,6 +339,35 @@ var InMemoryGameRoom = class {
     };
     this.movieCursor += 1;
     return question;
+  }
+  nextRiddleQuestion() {
+    if (this.riddleCursor >= this.riddleRounds) {
+      return void 0;
+    }
+    const riddle = this.pickNextRiddle();
+    const question = {
+      questionId: this.nextQuestionId("riddle", this.riddleCursor),
+      gameType: "riddle",
+      roundIndex: this.riddleCursor,
+      totalRounds: this.riddleRounds,
+      answer: riddle.answer,
+      prompt: riddle.question,
+      hinted: false,
+      riddle
+    };
+    this.riddleCursor += 1;
+    return question;
+  }
+  pickNextRiddle() {
+    if (this.riddleDeck.length === 0) {
+      this.riddleDeck = [...this.riddles];
+    }
+    const index = Math.min(this.riddleDeck.length - 1, Math.floor(this.random() * this.riddleDeck.length));
+    const [riddle] = this.riddleDeck.splice(index, 1);
+    if (!riddle) {
+      throw new Error("\u731C\u8C1C\u8BED\u9898\u5E93\u72B6\u6001\u5F02\u5E38\uFF1A\u65E0\u6CD5\u62BD\u53D6\u8C1C\u8BED");
+    }
+    return riddle;
   }
   pickNextSong() {
     if (this.songDeck.length === 0) {
@@ -417,6 +460,15 @@ var InMemoryGameRoom = class {
       const candidates = [movie.title, ...movie.aliases].map(normalizeAnswer);
       return candidates.includes(normalized) ? movie.title : void 0;
     }
+    if (this.activeQuestion.gameType === "riddle") {
+      const riddle = this.activeQuestion.riddle;
+      if (!riddle) {
+        throw new Error("\u731C\u8C1C\u8BED\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u8C1C\u8BED\u6570\u636E");
+      }
+      const normalized = normalizeAnswer(text);
+      const candidates = [riddle.answer, ...riddle.aliases].map(normalizeAnswer);
+      return candidates.includes(normalized) ? riddle.answer : void 0;
+    }
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
       throw new Error("\u6210\u8BED\u63A5\u9F99\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u4E0A\u4E00\u6210\u8BED");
@@ -496,6 +548,15 @@ var InMemoryGameRoom = class {
         message: `\u672C\u8F6E\u8D85\u65F6\uFF0C\u6B63\u786E\u7B54\u6848\u662F\u300A${this.activeQuestion.answer}\u300B`
       };
     }
+    if (this.activeQuestion.gameType === "riddle") {
+      if (!this.activeQuestion.answer) {
+        throw new Error("\u731C\u8C1C\u8BED\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u6B63\u786E\u7B54\u6848");
+      }
+      return {
+        chosenAnswer: this.activeQuestion.answer,
+        message: `\u672C\u8F6E\u8D85\u65F6\uFF0C\u6B63\u786E\u7B54\u6848\u662F\u300A${this.activeQuestion.answer}\u300B`
+      };
+    }
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
       throw new Error("\u6210\u8BED\u63A5\u9F99\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u4E0A\u4E00\u6210\u8BED");
@@ -536,6 +597,13 @@ var InMemoryGameRoom = class {
         throw new Error("\u5267\u7167\u731C\u7535\u5F71\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u5E74\u4EE3/\u5730\u533A/\u7C7B\u578B\u63D0\u793A\u6570\u636E");
       }
       return `\u63D0\u793A\uFF1A${movie.year} \u5E74\uFF0C${movie.region}${movie.genre}\uFF0C\u7247\u540D\u5171 ${countChineseChars(movie.title)} \u4E2A\u5B57`;
+    }
+    if (this.activeQuestion.gameType === "riddle") {
+      const riddle = this.activeQuestion.riddle;
+      if (!riddle?.category || !riddle.answer) {
+        throw new Error("\u731C\u8C1C\u8BED\u9898\u76EE\u72B6\u6001\u5F02\u5E38\uFF1A\u7F3A\u5C11\u5206\u7C7B\u6216\u7B54\u6848\u63D0\u793A\u6570\u636E");
+      }
+      return `\u63D0\u793A\uFF1A\u7B54\u6848\u5C5E\u4E8E\u300C${riddle.category}\u300D\uFF0C\u5171 ${countChineseChars(riddle.answer)} \u4E2A\u5B57`;
     }
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
@@ -596,6 +664,9 @@ var InMemoryGameRoom = class {
     if (gameType === "movie") {
       return `\u5F00\u59CB\u5267\u7167\u731C\u7535\u5F71\uFF01\u603B\u5171 ${this.imageRounds} \u9898\u3002\u770B\u56FE\u62A2\u7B54\u7535\u5F71\u540D\uFF01`;
     }
+    if (gameType === "riddle") {
+      return `\u5F00\u59CB\u731C\u8C1C\u8BED\uFF01\u603B\u5171 ${this.riddleRounds} \u9898\u3002\u770B\u8C1C\u9762\u731C\u7B54\u6848\uFF01`;
+    }
     return `\u5F00\u59CB\u6210\u8BED\u63A5\u9F99\uFF01\u603B\u5171 ${this.idiomRounds} \u9898\u3002\u540C\u97F3\u63A5\u9F99\uFF01`;
   }
   finishGame() {
@@ -649,6 +720,7 @@ function validateOptions(options) {
   validateSongs(options.songs);
   validateCharacters(options.characters ?? []);
   validateMovies(options.movies ?? []);
+  validateRiddles(options.riddles ?? []);
 }
 function validateIdioms(idioms) {
   if (idioms.length === 0) {
@@ -680,6 +752,21 @@ function validateMovies(movies) {
     if (!movie.id || !movie.title || !Number.isInteger(movie.year) || !movie.region || !movie.genre || !movie.imageUrl || !Array.isArray(movie.aliases)) {
       throw new Error(`\u5267\u7167\u731C\u7535\u5F71\u9898\u5E93\u5F02\u5E38\uFF1A${movie.title || movie.id || "\u672A\u77E5\u7535\u5F71"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
     }
+  }
+}
+function validateRiddles(riddles) {
+  if (riddles.length === 0) {
+    throw new Error("\u731C\u8C1C\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A\u4E0D\u80FD\u4E3A\u7A7A");
+  }
+  const ids = /* @__PURE__ */ new Set();
+  for (const riddle of riddles) {
+    if (!riddle.id || !riddle.question || !riddle.answer || !Array.isArray(riddle.aliases) || !riddle.category || !Number.isInteger(riddle.difficulty) || riddle.difficulty < 1 || riddle.difficulty > 5 || !riddle.source) {
+      throw new Error(`\u731C\u8C1C\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A${riddle.answer || riddle.id || "\u672A\u77E5\u8C1C\u8BED"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
+    }
+    if (ids.has(riddle.id)) {
+      throw new Error(`\u731C\u8C1C\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A\u91CD\u590DID ${riddle.id}`);
+    }
+    ids.add(riddle.id);
   }
 }
 function validateSongs(songs) {
@@ -779,10 +866,12 @@ function loadGameData() {
     idioms: readJson("./idioms.json"),
     songs: readJson("./songs.json"),
     characters: readJson("./character-silhouettes.json"),
-    movies: readJson("./movie-stills.json")
+    movies: readJson("./movie-stills.json"),
+    riddles: readJson("./riddles.json")
   };
   validateImageQuestions(data2.characters, "\u526A\u5F71\u731C\u4EBA", "name");
   validateImageQuestions(data2.movies, "\u5267\u7167\u731C\u7535\u5F71", "title");
+  validateRiddles2(data2.riddles);
   return data2;
 }
 function readJson(relativePath) {
@@ -824,6 +913,21 @@ function assetExists(publicUrl) {
     resolve(process.cwd(), "dist", relativePath)
   ];
   return candidates.some((candidate) => existsSync(candidate));
+}
+function validateRiddles2(riddles) {
+  if (riddles.length === 0) {
+    throw new Error("\u731C\u8C1C\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A\u4E0D\u80FD\u4E3A\u7A7A");
+  }
+  const ids = /* @__PURE__ */ new Set();
+  for (const riddle of riddles) {
+    if (!riddle.id || !riddle.question || !riddle.answer || !Array.isArray(riddle.aliases) || !riddle.category || !Number.isInteger(riddle.difficulty) || riddle.difficulty < 1 || riddle.difficulty > 5 || !riddle.source) {
+      throw new Error(`\u731C\u8C1C\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A${riddle.answer || riddle.id || "\u672A\u77E5\u8C1C\u8BED"} \u5B57\u6BB5\u4E0D\u5B8C\u6574`);
+    }
+    if (ids.has(riddle.id)) {
+      throw new Error(`\u731C\u8C1C\u8BED\u9898\u5E93\u5F02\u5E38\uFF1A\u91CD\u590DID ${riddle.id}`);
+    }
+    ids.add(riddle.id);
+  }
 }
 
 // src/server/account/authService.ts
@@ -2014,7 +2118,7 @@ function optionalString(value) {
   return text || void 0;
 }
 function requireGameType(value) {
-  if (value === "idiom" || value === "song" || value === "silhouette" || value === "movie") {
+  if (value === "idiom" || value === "song" || value === "silhouette" || value === "movie" || value === "riddle") {
     return value;
   }
   throw new Error(`\u6E38\u620F\u7C7B\u578B\u5F02\u5E38\uFF1A${String(value)}`);
@@ -2248,6 +2352,7 @@ io.on("connection", (socket) => {
         songs: data.songs,
         characters: data.characters,
         movies: data.movies,
+        riddles: data.riddles,
         roundSeconds: ROUND_SECONDS
       });
       rooms.set(code, room);
@@ -2338,6 +2443,7 @@ var miniappProtocol = accountContext.ready ? createMiniappPvpProtocol({
     songs: data.songs,
     characters: data.characters,
     movies: data.movies,
+    riddles: data.riddles,
     roundSeconds: ROUND_SECONDS
   }),
   send: sendMiniappMessage,

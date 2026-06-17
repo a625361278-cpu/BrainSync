@@ -471,10 +471,10 @@ function Home(props: {
           <article className="big-mode room-mode">
             <strong>开房间对战</strong>
             <small>邀请好友，实时对战</small>
-            <div className="room-game-tags" aria-label="开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影">
+            <div className="room-game-tags" aria-label="开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影、猜谜语">
               <span>成语</span>
               <span>猜歌</span>
-              <span className="more-tag">...</span>
+              <span>谜语</span>
             </div>
             <div className="chat-vs">
               <span>•••</span>
@@ -627,7 +627,7 @@ function Landing(props: {
           <div>
             <h1>开房间对战</h1>
             <p>
-              {props.intent ? `准备开一局${gameTypeLabel(props.intent)}。` : "像微信群一样抢答：成语接龙、猜歌名、剪影猜人、剧照猜电影。"}
+              {props.intent ? `准备开一局${gameTypeLabel(props.intent)}。` : "成语接龙、猜歌名、剪影猜人、剧照猜电影、猜谜语。"}
             </p>
           </div>
         </div>
@@ -1019,7 +1019,7 @@ function ChatRoom(props: {
       </header>
 
       <div className="game-toolbar">
-        {(["idiom", "song", "silhouette", "movie"] as GameType[]).map((gameType) => (
+        {(["idiom", "song", "silhouette", "movie", "riddle"] as GameType[]).map((gameType) => (
           <button
             key={gameType}
             disabled={startDisabled}
@@ -1216,6 +1216,9 @@ function gameTypeLabel(gameType: GameType): string {
   }
   if (gameType === "movie") {
     return "剧照猜电影";
+  }
+  if (gameType === "riddle") {
+    return "猜谜语";
   }
   return "成语接龙";
 }

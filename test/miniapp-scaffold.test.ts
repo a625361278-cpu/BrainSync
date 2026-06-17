@@ -16,6 +16,7 @@ describe("微信小程序前端工程", () => {
     const pve = readFileSync(resolve("apps/miniapp/src/services/pve.ts"), "utf8");
     const request = readFileSync(resolve("apps/miniapp/src/services/request.ts"), "utf8");
     const errors = readFileSync(resolve("apps/miniapp/src/services/errors.ts"), "utf8");
+    const types = readFileSync(resolve("apps/miniapp/src/services/types.ts"), "utf8");
 
     expect(platform).toContain("uni.login");
     expect(platform).toContain("微信登录失败：");
@@ -25,6 +26,7 @@ describe("微信小程序前端工程", () => {
     expect(pve).toContain("/api/audio/preview/");
     expect(request).toContain("网络请求失败：");
     expect(errors).toContain("errMsg");
+    expect(types).toContain('"riddle"');
   });
 
   it("小程序首页复刻网页版正式大厅结构并使用本地视觉资产", () => {
@@ -71,10 +73,11 @@ describe("微信小程序前端工程", () => {
     expect(pvpIndex).toContain("pvp-join-card");
     expect(pvpIndex).not.toContain("返回大厅");
     expect(pvpIndex).not.toContain("像微信群一样抢答");
-    expect(pvpIndex).toContain("成语接龙、猜歌名、剪影猜人、剧照猜电影");
+    expect(pvpIndex).toContain("成语接龙、猜歌名、剪影猜人、剧照猜电影、猜谜语");
     expect(pvpIndex).toContain("align-items: start");
     expect(pvpRoom).toContain("wechat-shell");
     expect(pvpRoom).toContain("game-toolbar");
+    expect(pvpRoom).toContain('{ value: "riddle", label: "猜谜语" }');
     expect(pvpRoom).toContain("message-row");
     expect(pvpRoom).toContain("settlement-panel");
     expect(pvpRoom).not.toContain('@tap="leave">返回</button>');
@@ -105,6 +108,7 @@ describe("微信小程序前端工程", () => {
     expect(home).toContain("<text>猜歌名</text>");
     expect(home).toContain("<text>剪影猜人</text>");
     expect(home).toContain("<text>剧照猜电影</text>");
+    expect(home).toContain("<text>猜谜语</text>");
     expect(home).not.toContain('class="more-tag"');
     expect(home).toContain("max-width: 172rpx");
     expect(home).toContain("white-space: nowrap");

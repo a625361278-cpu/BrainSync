@@ -5,7 +5,7 @@
         <image class="brand-avatar" :src="botAvatar" mode="aspectFit" />
         <view>
           <text class="brand-title">开房间对战</text>
-          <text class="brand-copy">成语接龙、猜歌名、剪影猜人、剧照猜电影。</text>
+          <text class="brand-copy">成语接龙、猜歌名、剪影猜人、剧照猜电影、猜谜语。</text>
         </view>
       </view>
 

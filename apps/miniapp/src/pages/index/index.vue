@@ -49,6 +49,7 @@
             <text>猜歌名</text>
             <text>剪影猜人</text>
             <text>剧照猜电影</text>
+            <text>猜谜语</text>
           </view>
           <view class="chat-vs">
             <text>•••</text>

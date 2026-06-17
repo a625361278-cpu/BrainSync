@@ -6,6 +6,7 @@ import type {
   MovieEntry,
   Player,
   PublicQuestion,
+  RiddleEntry,
   RoomSnapshot,
   RoomStatus,
   SettlementRow,
@@ -28,10 +29,12 @@ export interface CreateRoomOptions {
   songs: SongEntry[];
   characters?: CharacterEntry[];
   movies?: MovieEntry[];
+  riddles?: RiddleEntry[];
   roundSeconds: number;
   idiomRounds?: number;
   songRounds?: number;
   imageRounds?: number;
+  riddleRounds?: number;
   now?: () => number;
   random?: () => number;
 }
@@ -60,6 +63,7 @@ interface ActiveQuestion {
   song?: SongEntry;
   character?: CharacterEntry;
   movie?: MovieEntry;
+  riddle?: RiddleEntry;
 }
 
 export interface GameRoom {
@@ -85,9 +89,11 @@ class InMemoryGameRoom implements GameRoom {
   private readonly songs: SongEntry[];
   private readonly characters: CharacterEntry[];
   private readonly movies: MovieEntry[];
+  private readonly riddles: RiddleEntry[];
   private readonly idiomRounds: number;
   private readonly songRounds: number;
   private readonly imageRounds: number;
+  private readonly riddleRounds: number;
   private readonly players = new Map<string, Player>();
   private readonly playerOwners = new Map<string, string>();
   private readonly usedIdioms = new Set<string>();
@@ -105,6 +111,8 @@ class InMemoryGameRoom implements GameRoom {
   private characterDeck: CharacterEntry[] = [];
   private movieCursor = 0;
   private movieDeck: MovieEntry[] = [];
+  private riddleCursor = 0;
+  private riddleDeck: RiddleEntry[] = [];
   private idiomCursor = 0;
 
   constructor(options: CreateRoomOptions) {
@@ -115,9 +123,11 @@ class InMemoryGameRoom implements GameRoom {
     this.songs = [...options.songs];
     this.characters = [...(options.characters ?? [])];
     this.movies = [...(options.movies ?? [])];
+    this.riddles = [...(options.riddles ?? [])];
     this.idiomRounds = options.idiomRounds ?? 10;
     this.songRounds = options.songRounds ?? 5;
     this.imageRounds = options.imageRounds ?? 5;
+    this.riddleRounds = options.riddleRounds ?? 5;
   }
 
   join(name: string, playerId?: string, avatar?: string, userId?: string): Player {
@@ -198,6 +208,8 @@ class InMemoryGameRoom implements GameRoom {
     this.characterDeck = [];
     this.movieCursor = 0;
     this.movieDeck = [];
+    this.riddleCursor = 0;
+    this.riddleDeck = [];
     this.idiomCursor = 0;
     for (const player of this.players.values()) {
       player.score = 0;
@@ -324,6 +336,10 @@ class InMemoryGameRoom implements GameRoom {
       ];
     }
 
+    if (nextQuestion.gameType === "riddle") {
+      return [this.pushBot(`第 ${questionNo}/${nextQuestion.totalRounds} 题，猜谜语：${nextQuestion.prompt}`, "round")];
+    }
+
     return [
       this.pushBot(
         `第 ${questionNo}/${nextQuestion.totalRounds} 题，请接：${nextQuestion.previousIdiom?.text}（${nextQuestion.previousIdiom?.pinyin.at(-1)}）`,
@@ -344,6 +360,9 @@ class InMemoryGameRoom implements GameRoom {
     }
     if (this.gameType === "movie") {
       return this.nextMovieQuestion();
+    }
+    if (this.gameType === "riddle") {
+      return this.nextRiddleQuestion();
     }
     return this.nextIdiomQuestion(fromTimeout);
   }
@@ -407,6 +426,37 @@ class InMemoryGameRoom implements GameRoom {
     };
     this.movieCursor += 1;
     return question;
+  }
+
+  private nextRiddleQuestion(): ActiveQuestion | undefined {
+    if (this.riddleCursor >= this.riddleRounds) {
+      return undefined;
+    }
+    const riddle = this.pickNextRiddle();
+    const question: ActiveQuestion = {
+      questionId: this.nextQuestionId("riddle", this.riddleCursor),
+      gameType: "riddle",
+      roundIndex: this.riddleCursor,
+      totalRounds: this.riddleRounds,
+      answer: riddle.answer,
+      prompt: riddle.question,
+      hinted: false,
+      riddle
+    };
+    this.riddleCursor += 1;
+    return question;
+  }
+
+  private pickNextRiddle(): RiddleEntry {
+    if (this.riddleDeck.length === 0) {
+      this.riddleDeck = [...this.riddles];
+    }
+    const index = Math.min(this.riddleDeck.length - 1, Math.floor(this.random() * this.riddleDeck.length));
+    const [riddle] = this.riddleDeck.splice(index, 1);
+    if (!riddle) {
+      throw new Error("猜谜语题库状态异常：无法抽取谜语");
+    }
+    return riddle;
   }
 
   private pickNextSong(): SongEntry {
@@ -510,6 +560,16 @@ class InMemoryGameRoom implements GameRoom {
       return candidates.includes(normalized) ? movie.title : undefined;
     }
 
+    if (this.activeQuestion.gameType === "riddle") {
+      const riddle = this.activeQuestion.riddle;
+      if (!riddle) {
+        throw new Error("猜谜语题目状态异常：缺少谜语数据");
+      }
+      const normalized = normalizeAnswer(text);
+      const candidates = [riddle.answer, ...riddle.aliases].map(normalizeAnswer);
+      return candidates.includes(normalized) ? riddle.answer : undefined;
+    }
+
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
       throw new Error("成语接龙状态异常：缺少上一成语");
@@ -594,6 +654,15 @@ class InMemoryGameRoom implements GameRoom {
         message: `本轮超时，正确答案是《${this.activeQuestion.answer}》`
       };
     }
+    if (this.activeQuestion.gameType === "riddle") {
+      if (!this.activeQuestion.answer) {
+        throw new Error("猜谜语题目状态异常：缺少正确答案");
+      }
+      return {
+        chosenAnswer: this.activeQuestion.answer,
+        message: `本轮超时，正确答案是《${this.activeQuestion.answer}》`
+      };
+    }
 
     const previous = this.activeQuestion.previousIdiom;
     if (!previous) {
@@ -636,6 +705,13 @@ class InMemoryGameRoom implements GameRoom {
         throw new Error("剧照猜电影题目状态异常：缺少年代/地区/类型提示数据");
       }
       return `提示：${movie.year} 年，${movie.region}${movie.genre}，片名共 ${countChineseChars(movie.title)} 个字`;
+    }
+    if (this.activeQuestion.gameType === "riddle") {
+      const riddle = this.activeQuestion.riddle;
+      if (!riddle?.category || !riddle.answer) {
+        throw new Error("猜谜语题目状态异常：缺少分类或答案提示数据");
+      }
+      return `提示：答案属于「${riddle.category}」，共 ${countChineseChars(riddle.answer)} 个字`;
     }
 
     const previous = this.activeQuestion.previousIdiom;
@@ -702,6 +778,9 @@ class InMemoryGameRoom implements GameRoom {
     }
     if (gameType === "movie") {
       return `开始剧照猜电影！总共 ${this.imageRounds} 题。看图抢答电影名！`;
+    }
+    if (gameType === "riddle") {
+      return `开始猜谜语！总共 ${this.riddleRounds} 题。看谜面猜答案！`;
     }
     return `开始成语接龙！总共 ${this.idiomRounds} 题。同音接龙！`;
   }
@@ -771,6 +850,7 @@ function validateOptions(options: CreateRoomOptions): void {
   validateSongs(options.songs);
   validateCharacters(options.characters ?? []);
   validateMovies(options.movies ?? []);
+  validateRiddles(options.riddles ?? []);
 }
 
 function validateIdioms(idioms: IdiomEntry[]): void {
@@ -824,6 +904,32 @@ function validateMovies(movies: MovieEntry[]): void {
     ) {
       throw new Error(`剧照猜电影题库异常：${movie.title || movie.id || "未知电影"} 字段不完整`);
     }
+  }
+}
+
+function validateRiddles(riddles: RiddleEntry[]): void {
+  if (riddles.length === 0) {
+    throw new Error("猜谜语题库异常：不能为空");
+  }
+  const ids = new Set<string>();
+  for (const riddle of riddles) {
+    if (
+      !riddle.id ||
+      !riddle.question ||
+      !riddle.answer ||
+      !Array.isArray(riddle.aliases) ||
+      !riddle.category ||
+      !Number.isInteger(riddle.difficulty) ||
+      riddle.difficulty < 1 ||
+      riddle.difficulty > 5 ||
+      !riddle.source
+    ) {
+      throw new Error(`猜谜语题库异常：${riddle.answer || riddle.id || "未知谜语"} 字段不完整`);
+    }
+    if (ids.has(riddle.id)) {
+      throw new Error(`猜谜语题库异常：重复ID ${riddle.id}`);
+    }
+    ids.add(riddle.id);
   }
 }
 

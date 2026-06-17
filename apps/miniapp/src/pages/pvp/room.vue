@@ -68,7 +68,8 @@ const gameTypes: Array<{ value: GameType; label: string }> = [
   { value: "idiom", label: "成语接龙" },
   { value: "song", label: "猜歌名" },
   { value: "silhouette", label: "剪影猜人" },
-  { value: "movie", label: "剧照猜电影" }
+  { value: "movie", label: "剧照猜电影" },
+  { value: "riddle", label: "猜谜语" }
 ];
 
 const socket = new PvpSocket();
@@ -298,6 +299,9 @@ function gameTypeLabel(gameType: GameType): string {
   }
   if (gameType === "movie") {
     return "剧照猜电影";
+  }
+  if (gameType === "riddle") {
+    return "猜谜语";
   }
   return "成语接龙";
 }

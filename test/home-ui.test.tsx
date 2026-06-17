@@ -69,7 +69,7 @@ describe("首页登录入口", () => {
     expect(document.body.textContent).toContain("欢迎来到 BrainSync");
   });
 
-  it("首页开房间卡片只展示核心玩法标签和省略号", async () => {
+  it("首页开房间卡片展示房间核心玩法标签", async () => {
     await act(async () => {
       createRoot(document.getElementById("root")!).render(<App />);
     });
@@ -77,8 +77,17 @@ describe("首页登录入口", () => {
     const tagWrap = document.querySelector(".room-game-tags");
     const labels = Array.from(document.querySelectorAll(".room-game-tags span")).map((node) => node.textContent);
 
-    expect(tagWrap?.getAttribute("aria-label")).toBe("开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影");
-    expect(labels).toEqual(["成语", "猜歌", "..."]);
+    expect(tagWrap?.getAttribute("aria-label")).toBe("开房间支持成语接龙、猜歌名、剪影猜人、剧照猜电影、猜谜语");
+    expect(labels).toEqual(["成语", "猜歌", "谜语"]);
+  });
+
+  it("网页PVP入口和房间工具条包含猜谜语玩法", () => {
+    const client = readFileSync("src/client/main.tsx", "utf8");
+
+    expect(client).toContain("成语接龙、猜歌名、剪影猜人、剧照猜电影、猜谜语。");
+    expect(client).toContain('["idiom", "song", "silhouette", "movie", "riddle"]');
+    expect(client).toContain('gameType === "riddle"');
+    expect(client).toContain('return "猜谜语"');
   });
 
   it("首页开房间玩法标签使用独立定位，避免压住VS区域", () => {

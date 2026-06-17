@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createGameRoom } from "../src/server/game/room";
-import type { CharacterEntry, IdiomEntry, MovieEntry, SongEntry } from "../src/shared/types";
+import type { CharacterEntry, IdiomEntry, MovieEntry, RiddleEntry, SongEntry } from "../src/shared/types";
 
 const idioms: IdiomEntry[] = [
   { text: "一心一意", pinyin: ["yi", "xin", "yi", "yi"] },
@@ -77,8 +77,29 @@ const movies: MovieEntry[] = [
   }
 ];
 
+const riddles: RiddleEntry[] = [
+  {
+    id: "riddle-snail",
+    question: "背着房子慢慢走，遇到危险缩里头。",
+    answer: "蜗牛",
+    aliases: ["小蜗牛"],
+    category: "动物",
+    difficulty: 1,
+    source: "test"
+  },
+  {
+    id: "riddle-umbrella",
+    question: "晴天睡在角落里，雨天开花护你行。",
+    answer: "雨伞",
+    aliases: ["伞"],
+    category: "日用品",
+    difficulty: 1,
+    source: "test"
+  }
+];
+
 function createRoom(overrides: Partial<Parameters<typeof createGameRoom>[0]> = {}) {
-  return createGameRoom({ idioms, songs, characters, movies, roundSeconds: 30, random: () => 0, ...overrides });
+  return createGameRoom({ idioms, songs, characters, movies, riddles, roundSeconds: 30, random: () => 0, ...overrides });
 }
 
 describe("game room裁判逻辑", () => {
@@ -241,9 +262,64 @@ describe("game room裁判逻辑", () => {
       createGameRoom({
         idioms: [{ text: "一心一意", pinyin: ["yi"] }],
         songs,
+        riddles,
         roundSeconds: 30
       })
     ).toThrow("成语题库异常");
+  });
+
+  it("猜谜语发送文字题，答案支持别名且错误答案不加分", () => {
+    const room = createRoom({ riddleRounds: 1 });
+    const alice = room.join("阿明");
+
+    room.start("riddle");
+    const snapshot = room.snapshot();
+    const wrong = room.submitMessage(alice.id, "房子");
+    const alias = room.submitMessage(alice.id, "小蜗牛");
+
+    expect(snapshot.currentQuestion?.gameType).toBe("riddle");
+    expect(snapshot.currentQuestion?.prompt).toBe("背着房子慢慢走，遇到危险缩里头。");
+    expect(snapshot.messages.at(-1)?.text).toBe("第 1/1 题，猜谜语：背着房子慢慢走，遇到危险缩里头。");
+    expect(wrong.hit).toBeUndefined();
+    expect(wrong.botMessages.at(-1)?.text).toBe("@阿明 答案不对");
+    expect(alias.hit?.answer).toBe("蜗牛");
+    expect(room.snapshot().players.find((p) => p.id === alice.id)?.score).toBe(1);
+  });
+
+  it("猜谜语每局随机抽取谜语且不重复", () => {
+    const room = createRoom({ riddleRounds: 2, random: () => 0.99 });
+    const alice = room.join("阿明");
+
+    room.start("riddle");
+    const first = room.snapshot().currentQuestion?.prompt;
+    room.submitMessage(alice.id, "雨伞");
+    const second = room.snapshot().currentQuestion?.prompt;
+
+    expect(first).toBe("晴天睡在角落里，雨天开花护你行。");
+    expect(second).toBe("背着房子慢慢走，遇到危险缩里头。");
+  });
+
+  it("猜谜语提示展示分类和答案字数，超时公布真实答案", () => {
+    const room = createRoom({ riddleRounds: 1 });
+    room.join("阿明");
+
+    room.start("riddle");
+    const hint = room.hintRound();
+    const timeout = room.timeoutRound();
+
+    expect(hint.at(-1)?.text).toBe("提示：答案属于「动物」，共 2 个字");
+    expect(timeout[0].text).toBe("本轮超时，正确答案是《蜗牛》");
+  });
+
+  it("猜谜语题库字段异常时直接报错，不生成假题", () => {
+    expect(() =>
+      createGameRoom({
+        idioms,
+        songs,
+        riddles: [{ id: "bad", question: "缺答案", answer: "", aliases: [], category: "日用品", difficulty: 1, source: "test" }],
+        roundSeconds: 30
+      })
+    ).toThrow("猜谜语题库异常");
   });
 
   it("剪影猜人发送图片题，答案只认角色名和别名", () => {

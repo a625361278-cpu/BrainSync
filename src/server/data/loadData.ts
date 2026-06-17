@@ -1,13 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { CharacterEntry, IdiomEntry, MovieEntry, SongEntry } from "../../shared/types";
+import type { CharacterEntry, IdiomEntry, MovieEntry, RiddleEntry, SongEntry } from "../../shared/types";
 
 export interface GameData {
   idioms: IdiomEntry[];
   songs: SongEntry[];
   characters: CharacterEntry[];
   movies: MovieEntry[];
+  riddles: RiddleEntry[];
 }
 
 export function loadGameData(): GameData {
@@ -15,10 +16,12 @@ export function loadGameData(): GameData {
     idioms: readJson<IdiomEntry[]>("./idioms.json"),
     songs: readJson<SongEntry[]>("./songs.json"),
     characters: readJson<CharacterEntry[]>("./character-silhouettes.json"),
-    movies: readJson<MovieEntry[]>("./movie-stills.json")
+    movies: readJson<MovieEntry[]>("./movie-stills.json"),
+    riddles: readJson<RiddleEntry[]>("./riddles.json")
   };
   validateImageQuestions(data.characters, "剪影猜人", "name");
   validateImageQuestions(data.movies, "剧照猜电影", "title");
+  validateRiddles(data.riddles);
   return data;
 }
 
@@ -67,4 +70,30 @@ function assetExists(publicUrl: string): boolean {
     resolve(process.cwd(), "dist", relativePath)
   ];
   return candidates.some((candidate) => existsSync(candidate));
+}
+
+function validateRiddles(riddles: RiddleEntry[]): void {
+  if (riddles.length === 0) {
+    throw new Error("猜谜语题库异常：不能为空");
+  }
+  const ids = new Set<string>();
+  for (const riddle of riddles) {
+    if (
+      !riddle.id ||
+      !riddle.question ||
+      !riddle.answer ||
+      !Array.isArray(riddle.aliases) ||
+      !riddle.category ||
+      !Number.isInteger(riddle.difficulty) ||
+      riddle.difficulty < 1 ||
+      riddle.difficulty > 5 ||
+      !riddle.source
+    ) {
+      throw new Error(`猜谜语题库异常：${riddle.answer || riddle.id || "未知谜语"} 字段不完整`);
+    }
+    if (ids.has(riddle.id)) {
+      throw new Error(`猜谜语题库异常：重复ID ${riddle.id}`);
+    }
+    ids.add(riddle.id);
+  }
 }

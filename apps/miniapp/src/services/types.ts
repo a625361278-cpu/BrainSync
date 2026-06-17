@@ -1,4 +1,4 @@
-export type GameType = "idiom" | "song" | "silhouette" | "movie";
+export type GameType = "idiom" | "song" | "silhouette" | "movie" | "riddle";
 export type RoomStatus = "waiting" | "playing" | "finished";
 export type MessageSender = "bot" | "player" | "system";
 export type MessageKind = "chat" | "round" | "audio" | "image" | "hint" | "result" | "system";

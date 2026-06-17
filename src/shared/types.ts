@@ -1,4 +1,4 @@
-export type GameType = "idiom" | "song" | "silhouette" | "movie";
+export type GameType = "idiom" | "song" | "silhouette" | "movie" | "riddle";
 export type RoomStatus = "waiting" | "playing" | "finished";
 export type MessageSender = "bot" | "player" | "system";
 export type MessageKind = "chat" | "round" | "audio" | "image" | "hint" | "result" | "system";
@@ -38,6 +38,16 @@ export interface MovieEntry {
   region: string;
   genre: string;
   imageUrl: string;
+}
+
+export interface RiddleEntry {
+  id: string;
+  question: string;
+  answer: string;
+  aliases: string[];
+  category: string;
+  difficulty: number;
+  source: string;
 }
 
 export interface Player {

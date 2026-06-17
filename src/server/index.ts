@@ -307,6 +307,7 @@ io.on("connection", (socket) => {
         songs: data.songs,
         characters: data.characters,
         movies: data.movies,
+        riddles: data.riddles,
         roundSeconds: ROUND_SECONDS
       });
       rooms.set(code, room);
@@ -405,6 +406,7 @@ const miniappProtocol = accountContext.ready
           songs: data.songs,
           characters: data.characters,
           movies: data.movies,
+          riddles: data.riddles,
           roundSeconds: ROUND_SECONDS
         }),
       send: sendMiniappMessage,

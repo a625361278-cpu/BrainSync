@@ -1,6 +1,6 @@
 # BrainSync 群聊小游戏
 
-BrainSync 是一个微信小游戏大厅 + 微信聊天风格实时房间原型。当前包含账号系统、PVE 猜歌挑战、PVP 成语接龙、PVP 猜歌名、PVP 剪影猜人和 PVP 剧照猜电影。
+BrainSync 是一个微信小游戏大厅 + 微信聊天风格实时房间原型。当前包含账号系统、PVE 猜歌挑战、PVP 成语接龙、PVP 猜歌名、PVP 剪影猜人、PVP 剧照猜电影和 PVP 猜谜语。
 
 核心原则是服务端维护真实状态：PVP 由服务端抽题、判题、计分、广播和结算；PVE 由服务端创建挑战记录、记录题目开始时间、计算分数、扣体力、保存进度。缺少题库、账号、图片、MySQL 等关键数据时会明确报错，不用假数据或默认值伪装成功。
 
@@ -72,12 +72,14 @@ VITE_REWARD_AD_UNIT_ID=微信激励视频广告位ID
 - 猜歌名：默认 5 轮，播放歌曲预览音频；只认歌名和别名，不认歌手。
 - 剪影猜人：默认 5 轮，展示本地剪影 PNG；只认角色名和别名。
 - 剧照猜电影：默认 5 轮，展示本地剧照 SVG；只认电影名和别名。
+- 猜谜语：默认 5 轮，展示文字谜面；只认谜底和别名。
 
 提示来源不是 AI 生成，也不是独立 prompt 配置，而是根据当前题目的真实数据拼接：
 
 - 猜歌名：歌手 + 歌名字数。
 - 剪影猜人：作品名 + 角色名字数。
 - 剧照猜电影：年份、地区、类型 + 片名字数。
+- 猜谜语：谜底分类 + 谜底字数。
 - 成语接龙：可接成语数量 + 部分候选首字。
 
 ## PVE 规则
@@ -148,7 +150,7 @@ npm run miniapp:build:mp-weixin
 apps/miniapp/dist/build/mp-weixin
 ```
 
-小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、用户确认昵称、微信头像持久化、PVE、PVP四种玩法、原生 WebSocket、音频代理和体力广告入口。
+小程序版本使用普通 uni-app，不是 uni-app x。第一版能力包括微信登录、用户确认昵称、微信头像持久化、PVE、PVP五种玩法、原生 WebSocket、音频代理和体力广告入口。
 
 小程序 PVP 房间内的图片题使用完整适配显示，剪影和剧照都不裁剪题目主体。PVP 猜歌名收到新的音频题会自动播放；切换到下一道音频题时停止旧音频并播放新音频。同一条语音再次点击会暂停，暂停后再点继续播放。
 
@@ -158,12 +160,15 @@ apps/miniapp/dist/build/mp-weixin
 - 歌曲题库：`src/server/data/songs.json`
 - 剪影猜人题库：`src/server/data/character-silhouettes.json`
 - 剧照猜电影题库：`src/server/data/movie-stills.json`
+- 猜谜语题库：`src/server/data/riddles.json`
 - 头像资源：`public/avatars/`
 - 剪影图片：`public/pvp-assets/silhouettes/`
 - 剧照图片：`public/pvp-assets/movie-stills/`
 - 小程序用户头像：运行时保存到服务端 `user-avatars/`，通过 `/user-avatars/...` 对外访问。
 
 服务端启动时会校验题库和图片资源。字段缺失、拼音异常、URL 不合法、图片文件不存在都会直接报错。
+
+猜谜语题库第一版使用项目自建审核库，覆盖动物、自然、日用品、食物、学习用品、交通、身体等通用生活分类。外部谜语只作为授权明确后的补充来源；例如 CC-Riddle 使用 CC BY-NC-SA 4.0 且限制非商业用途，因此不会直接导入产品题库。不要从普通网页、知乎、论坛等来源不明内容直接抓取上线。
 
 ## 剪影资产制作
 
@@ -190,7 +195,7 @@ powershell -ExecutionPolicy Bypass -File scripts/process-silhouette-assets.ps1
 npm run build
 ```
 
-构建服务端时会把四个题库 JSON 复制到 `dist-server/data/`，保证生产环境仍从真实题库读取。
+构建服务端时会把五个题库 JSON 复制到 `dist-server/data/`，保证生产环境仍从真实题库读取。
 
 正式发布前建议跑完整验证：
 

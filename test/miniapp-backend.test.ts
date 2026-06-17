@@ -6,7 +6,7 @@ import { exchangeWechatLoginCode } from "../src/server/account/wechatLogin";
 import { resolveSongPreviewUrl } from "../src/server/audio/audioProxy";
 import { createMiniappPvpProtocol } from "../src/server/pvp/miniappPvpProtocol";
 import { createGameRoom } from "../src/server/game/room";
-import type { CharacterEntry, IdiomEntry, MovieEntry, RoomSnapshot, SongEntry } from "../src/shared/types";
+import type { CharacterEntry, IdiomEntry, MovieEntry, RiddleEntry, RoomSnapshot, SongEntry } from "../src/shared/types";
 
 describe("微信小程序登录", () => {
   it("同一个微信openid重复登录复用同一个真实用户并更新资料", async () => {
@@ -105,6 +105,7 @@ describe("小程序PVP WebSocket协议", () => {
           songs,
           characters,
           movies,
+          riddles,
           roundSeconds: 30,
           random: () => 0
         }),
@@ -145,6 +146,7 @@ describe("小程序PVP WebSocket协议", () => {
           songs,
           characters,
           movies,
+          riddles,
           roundSeconds: 30,
           random: () => 0
         }),
@@ -212,5 +214,17 @@ const movies: MovieEntry[] = [
     region: "中国",
     genre: "动画",
     imageUrl: "/pvp-assets/movie-stills/da-sheng-gui-lai.svg"
+  }
+];
+
+const riddles: RiddleEntry[] = [
+  {
+    id: "riddle-snail",
+    question: "背着房子慢慢走，遇到危险缩里头。",
+    answer: "蜗牛",
+    aliases: ["小蜗牛"],
+    category: "动物",
+    difficulty: 1,
+    source: "test"
   }
 ];

@@ -21,3 +21,4 @@ copyFileSync("src/server/data/idioms.json", resolve(outdir, "data/idioms.json"))
 copyFileSync("src/server/data/songs.json", resolve(outdir, "data/songs.json"));
 copyFileSync("src/server/data/character-silhouettes.json", resolve(outdir, "data/character-silhouettes.json"));
 copyFileSync("src/server/data/movie-stills.json", resolve(outdir, "data/movie-stills.json"));
+copyFileSync("src/server/data/riddles.json", resolve(outdir, "data/riddles.json"));
